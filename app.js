@@ -367,11 +367,13 @@
     return `<p class="linha-extra">${html}</p>`;
   }
 
-  // Em "Todas as lojas", cada produto mostra de qual loja é.
+  // Em "Todas as lojas", cada produto mostra de qual loja é, no canto direito da linha do nome.
+  // Cada loja tem uma cor de texto (pela ordem em lojas.json), para diferenciar de relance.
   function seloLojaHTML(idLoja) {
     if (!todasAsLojas()) return '';
     const loja = lojaPorId(idLoja);
-    return ` <span class="selo-loja" title="Loja de ${escapar(rotuloLoja(loja) || idLoja)}">${icone('pino')}${escapar(nomeDaLoja(idLoja))}</span>`;
+    const cor = Math.max(0, estado.lojas.indexOf(loja)) % 4;
+    return `<span class="selo-loja cor-loja-${cor}" title="Loja de ${escapar(rotuloLoja(loja) || idLoja)}">${icone('pino')}${escapar(nomeDaLoja(idLoja))}</span>`;
   }
 
   function botaoAnunciarHTML(p) {
@@ -413,6 +415,7 @@
 
   function detalhesHTML(p, id, aberto = false) {
     const linhas = [
+      ['Nome completo', escapar(p.nome)], // no cartão o nome pode aparecer cortado com "…"
       ['Código', escapar(p.codigo)],
       ['Em estoque', p.quantidade === 1 ? '1 unidade' : `${numero.format(p.quantidade)} unidades`],
       ['Fornecedor', escapar(p.fornecedor || 'Não identificado')],
@@ -428,6 +431,7 @@
   // Anunciado que não está mais no estoque atual: mostra o que foi guardado ao anunciar.
   function detalhesForaDoEstoqueHTML(item, id, aberto) {
     return listaDetalhesHTML([
+      ['Nome completo', escapar(item.nome)],
       ['Código', escapar(item.codigo)],
       ['Loja', escapar(rotuloLoja(lojaPorId(item.loja)) || item.loja)],
       ['Situação', 'Não está no estoque atual: pode ter sido vendido ou transferido.'],
@@ -438,7 +442,7 @@
   function cartaoHTML(p) {
     const id = `detalhes-${p._loja}-${p.codigo}`;
     return `<li class="card" data-chave="${escapar(p._chave)}">
-  <h2 class="nome">${escapar(p.nome)}${seloLojaHTML(p._loja)}</h2>
+  <div class="linha-nome"><h2 class="nome" title="${escapar(p.nome)}">${escapar(p.nome)}</h2>${seloLojaHTML(p._loja)}</div>
   <div class="linha-principal">
     ${precoHTML(p)}${estoqueHTML(p)}
     <div class="botoes">${botaoAnunciarHTML(p)}${botaoWhatsAppHTML(p, p._loja)}${botaoFotoHTML(p)}${botaoDetalhesHTML(p.nome, id, false)}</div>
@@ -756,10 +760,7 @@
     const id = `anuncio-detalhes-${item.loja}-${item.codigo}`;
     const aberto = estado.anunciosAbertos.has(chave); // continua aberto quando a lista é redesenhada
     return `<li class="card anuncio status-${s.id}" data-id="${escapar(chave)}">
-  <div class="anuncio-topo">
-    <h2 class="nome">${escapar(p.nome)}${seloLojaHTML(item.loja)}</h2>
-    <span class="selo-status">${icone(s.icone)}${s.nome}</span>
-  </div>
+  <div class="linha-nome"><h2 class="nome" title="${escapar(p.nome)}">${escapar(p.nome)}</h2>${seloLojaHTML(item.loja)}</div>
   <div class="linha-principal">
     ${precoHTML(p)}${estoque}
     <div class="botoes">${botaoWhatsAppHTML(p, item.loja)}${botaoFotoHTML(p)}<button type="button" class="icone-botao remover" data-acao="remover" title="Remover dos anunciados" aria-label="Remover ${escapar(p.nome)} dos anunciados">${icone('lixeira')}</button>${botaoDetalhesHTML(p.nome, id, aberto)}</div>

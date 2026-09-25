@@ -10,7 +10,8 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
   direito do topo; tocando nele abre uma gaveta para mudar o nome, a **comissão**, o **desconto máximo**
   (assim eles não ocupam espaço na página) e o **tema**: Claro, Escuro ou Automático (segue o celular).
 - **Lojas:** abas no topo para ver **Todas as lojas**, só **Matina - BA** ou só **Igaporã - BA**.
-  Em "Todas as lojas", cada produto mostra de qual loja é. A escolha fica salva no celular.
+  Em "Todas as lojas", cada produto mostra de qual loja é, numa etiqueta no canto direito da linha do nome,
+  com uma cor de texto para cada loja. A escolha fica salva no celular.
 - **Busca** pelo nome ou pelo código do produto. Não precisa acertar acento, plural nem a abreviação do sistema
   (ex.: `geladeira` acha os refrigeradores, `guarda roupa` acha também os roupeiros, `colchão casal` acha os de 138 cm).
 - **Buscar por fornecedor:** quando a busca não acha produto, a página oferece os fornecedores com aquele nome
@@ -20,8 +21,10 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
   **Menor preço** (tocando de novo vira Maior preço). Produto com preço provisório de R$ 1,00 no sistema aparece
   como "Preço a confirmar" e vai para o fim da lista.
 - **Categorias** (colchão, guarda-roupa, cozinha…) com ícone e quantidade, abaixo dos classificadores.
-- Cartão compacto: **preço, quantidade em estoque, anunciar, WhatsApp, ver foto e detalhes** na mesma linha.
-  Em **Detalhes**: código, fornecedor, origem (transferência entre lojas), última compra, última venda e o nome do sistema.
+- Cartão compacto: o **nome** numa linha só (cortado com "…" quando não cabe) e, abaixo,
+  **preço, quantidade em estoque, anunciar, WhatsApp, ver foto e detalhes** na mesma linha.
+  Em **Detalhes**: nome completo, código, fornecedor, origem (transferência entre lojas), última compra,
+  última venda e o nome do sistema.
 - **WhatsApp:** abre o WhatsApp com a mensagem pronta (nome do produto, preço, loja e o nome de quem atende);
   o vendedor escolhe o contato e ainda pode editar o texto. A foto não vai junto (o link do WhatsApp só leva texto).
 - **Ver foto:** abre o Google Imagens com o nome do produto seguido do fornecedor (quando o fornecedor ajuda a achar a foto certa).

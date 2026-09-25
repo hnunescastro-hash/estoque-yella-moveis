@@ -27,6 +27,7 @@
   --st-cancelado: #b42318;   --st-cancelado-fundo: #fdeceb;
   --sobre-status: #ffffff;
   --whatsapp: #128c4a;
+  --loja-0: #0369a1; --loja-1: #a21caf; --loja-2: #c2410c; --loja-3: #0f766e;
   color-scheme: light;
 }
 
@@ -53,6 +54,7 @@
     --st-cancelado: #ff8a80;   --st-cancelado-fundo: #3a1a18;
     --sobre-status: #121110;
     --whatsapp: #4fd184;
+    --loja-0: #7dd3fc; --loja-1: #f0abfc; --loja-2: #fdba74; --loja-3: #5eead4;
     color-scheme: dark;
   }
 }
@@ -79,6 +81,7 @@
   --st-cancelado: #ff8a80;   --st-cancelado-fundo: #3a1a18;
   --sobre-status: #121110;
   --whatsapp: #4fd184;
+  --loja-0: #7dd3fc; --loja-1: #f0abfc; --loja-2: #fdba74; --loja-3: #5eead4;
   color-scheme: dark;
 }
 
@@ -314,7 +317,7 @@ button, input, select { font: inherit; color: inherit; }
 }
 .botao-secundario .ic { width: 18px; height: 18px; }
 
-.lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.lista { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
 
 /* ---------- cartão do produto (compacto) ---------- */
 
@@ -324,16 +327,27 @@ button, input, select { font: inherit; color: inherit; }
   scroll-margin-top: 140px;
 }
 
-.nome { margin: 0; font-size: 16px; line-height: 1.25; font-weight: 700; overflow-wrap: anywhere; }
+/* primeira linha: nome (sem quebrar, com "…" quando não cabe) e, à direita, a loja */
+.linha-nome { display: flex; align-items: center; gap: 8px; }
+.nome {
+  flex: 1 1 auto; min-width: 0; margin: 0;
+  font-size: 16px; line-height: 1.3; font-weight: 700;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 
-/* loja do produto, em "Todas as lojas" */
+/* loja do produto, em "Todas as lojas": cada loja com a sua cor no texto */
 .selo-loja {
-  display: inline-flex; align-items: center; gap: 2px; vertical-align: 1px;
+  flex: none; margin-left: auto;
+  display: inline-flex; align-items: center; gap: 2px;
   padding: 0 7px 0 4px; border-radius: 999px;
   border: 1px solid var(--linha); background: var(--superficie-2); color: var(--suave);
-  font-size: 12px; font-weight: 700; line-height: 18px; white-space: nowrap;
+  font-size: 12px; font-weight: 800; line-height: 18px; white-space: nowrap;
 }
 .selo-loja .ic { width: 13px; height: 13px; stroke-width: 2.2; }
+.selo-loja.cor-loja-0 { color: var(--loja-0); }
+.selo-loja.cor-loja-1 { color: var(--loja-1); }
+.selo-loja.cor-loja-2 { color: var(--loja-2); }
+.selo-loja.cor-loja-3 { color: var(--loja-3); }
 
 .linha-principal { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 
@@ -408,16 +422,6 @@ dl.detalhes {
 .dica strong { color: var(--texto); }
 
 .anuncio { border-left: 5px solid var(--st); }
-.anuncio-topo { display: flex; align-items: flex-start; gap: 8px; }
-.anuncio-topo .nome { flex: 1; min-width: 0; }
-
-.selo-status {
-  flex: none; display: inline-flex; align-items: center; gap: 4px;
-  min-height: 26px; padding: 0 9px 0 7px; border-radius: 999px;
-  background: var(--st-fundo); color: var(--st); font-size: 13px; font-weight: 800; white-space: nowrap;
-}
-.selo-status .ic { width: 16px; height: 16px; stroke-width: 2; }
-
 .status-grade { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; margin-top: 8px; }
 
 .status-opcao {

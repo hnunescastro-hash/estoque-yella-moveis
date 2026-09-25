@@ -21,8 +21,9 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
   **Menor preço** (tocando de novo vira Maior preço). Produto com preço provisório de R$ 1,00 no sistema aparece
   como "Preço a confirmar" e vai para o fim da lista.
 - **Categorias** (colchão, guarda-roupa, cozinha…) com ícone e quantidade, abaixo dos classificadores.
-- Cartão compacto: o **nome** numa linha só (cortado com "…" quando não cabe) e, abaixo,
-  **preço, quantidade em estoque, anunciar, WhatsApp, ver foto e detalhes** na mesma linha.
+- Cartão compacto: o **nome** numa linha só (cortado com "…" quando não cabe) e, abaixo, o **preço** e,
+  à direita, a **quantidade em estoque** (caixinha verde, âmbar na última unidade, cinza fora do estoque)
+  seguida dos botões **anunciar, WhatsApp, ver foto e detalhes**, tudo na mesma linha.
   Em **Detalhes**: nome completo, código, fornecedor, origem (transferência entre lojas), última compra,
   última venda e o nome do sistema.
 - **WhatsApp:** abre o WhatsApp com a mensagem pronta (nome do produto, preço, loja e o nome de quem atende);

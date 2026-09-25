@@ -17,6 +17,7 @@
   --lateral: max(12px, env(safe-area-inset-left));
   --lateral-dir: max(12px, env(safe-area-inset-right));
   --altura-abas: 62px;
+  --altura-botao: 37px; /* botões do cartão e o container de estoque */
 
   /* status do pedido (aba Anunciados) */
   --st-anunciado: #5c5345;   --st-anunciado-fundo: #efeadf;
@@ -354,19 +355,22 @@ button, input, select { font: inherit; color: inherit; }
 .valor { font-size: 17px; line-height: 1.2; font-weight: 800; letter-spacing: -.01em; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .valor.confirmar { font-size: 14px; font-weight: 700; color: var(--ambar); white-space: normal; line-height: 1.1; max-width: 5.6em; }
 
+/* estoque: container do tamanho dos botões, à esquerda do botão de anunciar;
+   verde com várias unidades, âmbar na última, cinza fora do estoque */
 .estoque {
-  display: inline-flex; align-items: center; gap: 3px;
-  min-height: 26px; padding: 0 8px 0 6px; border-radius: 999px;
+  flex: none; display: inline-flex; align-items: center; gap: 3px;
+  height: var(--altura-botao); padding: 0 8px 0 6px; border-radius: 10px;
+  border: 1.5px solid transparent; border-color: color-mix(in srgb, currentColor 22%, transparent);
   background: var(--verde-fundo); color: var(--verde); font-weight: 800; font-size: 14px; font-variant-numeric: tabular-nums;
 }
-.estoque .ic { width: 16px; height: 16px; stroke-width: 2; }
+.estoque .ic { width: 17px; height: 17px; stroke-width: 2; }
 .estoque.ultima { background: var(--ambar-fundo); color: var(--ambar); }
-.estoque.fora { background: var(--superficie-2); color: var(--suave); font-weight: 600; font-size: 13px; }
+.estoque.fora { background: var(--superficie-2); color: var(--suave); }
 
 .botoes { display: flex; gap: 4px; margin-left: auto; }
 
 .icone-botao {
-  display: grid; place-items: center; width: 37px; height: 37px; flex: none;
+  display: grid; place-items: center; width: var(--altura-botao); height: var(--altura-botao); flex: none;
   border: 1.5px solid var(--linha); border-radius: 10px; background: var(--superficie); color: var(--texto);
   cursor: pointer; text-decoration: none;
 }
@@ -620,7 +624,7 @@ body.digitando .toast { bottom: 12px; }
 
 /* telas estreitas: os 4 botões do cartão continuam na linha do preço */
 @media (max-width: 374px) {
-  .icone-botao { width: 35px; height: 35px; }
+  :root { --altura-botao: 35px; }
 }
 
 @media (min-width: 720px) {

@@ -344,7 +344,10 @@
     return `<strong class="valor">${reais(Math.round(p.preco * 100))}</strong>`;
   }
 
+  // Container com o ícone de estoque e a quantidade (fica à esquerda do botão de anunciar).
+  // Sem produto (anunciado que saiu do estoque atual): cinza, com 0.
   function estoqueHTML(p) {
+    if (!p) return `<span class="estoque fora" title="Fora do estoque atual" role="img" aria-label="Fora do estoque atual">${icone('caixa')}0</span>`;
     const q = p.quantidade;
     const texto = q === 1 ? 'Só 1 em estoque' : `${numero.format(q)} em estoque`;
     return `<span class="estoque${q === 1 ? ' ultima' : ''}" title="${texto}" role="img" aria-label="${texto}">${icone('caixa')}${numero.format(q)}</span>`;
@@ -444,8 +447,8 @@
     return `<li class="card" data-chave="${escapar(p._chave)}">
   <div class="linha-nome"><h2 class="nome" title="${escapar(p.nome)}">${escapar(p.nome)}</h2>${seloLojaHTML(p._loja)}</div>
   <div class="linha-principal">
-    ${precoHTML(p)}${estoqueHTML(p)}
-    <div class="botoes">${botaoAnunciarHTML(p)}${botaoWhatsAppHTML(p, p._loja)}${botaoFotoHTML(p)}${botaoDetalhesHTML(p.nome, id, false)}</div>
+    ${precoHTML(p)}
+    <div class="botoes">${estoqueHTML(p)}${botaoAnunciarHTML(p)}${botaoWhatsAppHTML(p, p._loja)}${botaoFotoHTML(p)}${botaoDetalhesHTML(p.nome, id, false)}</div>
   </div>
   <div class="extra">${linhaExtraHTML(p)}</div>
   ${detalhesHTML(p, id)}
@@ -756,14 +759,13 @@
     const p = atual || { nome: item.nome, preco: item.preco, busca_foto: item.busca_foto };
     const s = statusDe(item);
     const precoMudou = atual && !semPreco(atual) && Math.round(atual.preco * 100) !== Math.round(item.preco * 100);
-    const estoque = atual ? estoqueHTML(atual) : '<span class="estoque fora">Fora do estoque atual</span>';
     const id = `anuncio-detalhes-${item.loja}-${item.codigo}`;
     const aberto = estado.anunciosAbertos.has(chave); // continua aberto quando a lista é redesenhada
     return `<li class="card anuncio status-${s.id}" data-id="${escapar(chave)}">
   <div class="linha-nome"><h2 class="nome" title="${escapar(p.nome)}">${escapar(p.nome)}</h2>${seloLojaHTML(item.loja)}</div>
   <div class="linha-principal">
-    ${precoHTML(p)}${estoque}
-    <div class="botoes">${botaoWhatsAppHTML(p, item.loja)}${botaoFotoHTML(p)}<button type="button" class="icone-botao remover" data-acao="remover" title="Remover dos anunciados" aria-label="Remover ${escapar(p.nome)} dos anunciados">${icone('lixeira')}</button>${botaoDetalhesHTML(p.nome, id, aberto)}</div>
+    ${precoHTML(p)}
+    <div class="botoes">${estoqueHTML(atual)}${botaoWhatsAppHTML(p, item.loja)}${botaoFotoHTML(p)}<button type="button" class="icone-botao remover" data-acao="remover" title="Remover dos anunciados" aria-label="Remover ${escapar(p.nome)} dos anunciados">${icone('lixeira')}</button>${botaoDetalhesHTML(p.nome, id, aberto)}</div>
   </div>
   <div class="extra">${linhaExtraHTML(p)}</div>
   ${precoMudou ? `<p class="nota">Preço quando anunciou: ${reais(Math.round(item.preco * 100))}</p>` : ''}

@@ -1,0 +1,9 @@
+{
+ "lojas": [
+  {
+   "id": "matina",
+   "nome": "Matina",
+   "arquivo": "dados/matina.json"
+  }
+ ]
+}

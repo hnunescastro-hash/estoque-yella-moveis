@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Consulta rápida do estoque da Yêlla Móveis: preço, quantidade, desconto e comissão de cada produto.">
+  <meta name="theme-color" content="#F4C430">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Estoque Yêlla">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="format-detection" content="telephone=no">
+  <title>Estoque Yêlla Móveis</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <a class="pular" href="#lista">Pular para os produtos</a>
+
+  <header class="topo">
+    <div class="topo-conteudo">
+      <span class="logo" aria-hidden="true">Y</span>
+      <div class="titulo">
+        <h1>Yêlla Móveis</h1>
+        <p id="subtitulo">Consulta de estoque</p>
+      </div>
+    </div>
+    <div class="lojas" id="lojas" role="group" aria-label="Escolha a loja" hidden></div>
+  </header>
+
+  <div class="painel" id="painel">
+    <form class="busca" id="form-busca" role="search" autocomplete="off">
+      <label class="sr-only" for="busca">Buscar produto pelo nome ou código</label>
+      <div class="campo-busca">
+        <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.6-3.6"/></svg>
+        <input id="busca" name="busca" type="search" inputmode="search" enterkeyhint="search"
+               placeholder="Nome ou código" autocomplete="off" autocorrect="off"
+               autocapitalize="off" spellcheck="false">
+        <button type="button" class="limpar" id="limpar" aria-label="Limpar busca" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      <button type="submit" class="botao-buscar">Buscar</button>
+    </form>
+
+    <div class="ajustes">
+      <label class="ajuste" for="comissao">
+        <span class="ajuste-rotulo">Sua comissão</span>
+        <span class="ajuste-campo">
+          <input id="comissao" type="text" inputmode="decimal" enterkeyhint="done" placeholder="0" maxlength="6" autocomplete="off">
+          <span aria-hidden="true">%</span>
+        </span>
+      </label>
+      <label class="ajuste" for="desconto">
+        <span class="ajuste-rotulo">Desconto máximo</span>
+        <span class="ajuste-campo">
+          <input id="desconto" type="text" inputmode="decimal" enterkeyhint="done" placeholder="0" maxlength="6" autocomplete="off">
+          <span aria-hidden="true">%</span>
+        </span>
+      </label>
+    </div>
+  </div>
+
+  <main class="conteudo">
+    <p class="aviso" id="aviso" role="status" hidden></p>
+
+    <nav class="atalhos" id="atalhos" aria-label="Buscas rápidas"></nav>
+
+    <p class="contagem" id="contagem" aria-live="polite">Carregando produtos…</p>
+
+    <ul class="lista" id="lista"></ul>
+
+    <button type="button" class="mais" id="mais" hidden>Mostrar mais produtos</button>
+
+    <section class="vazio" id="vazio" hidden>
+      <p class="vazio-titulo">Nenhum produto encontrado</p>
+      <p>Confira a escrita ou tente só uma palavra, por exemplo <strong>colchão</strong> ou <strong>fogão</strong>. Também dá para buscar pelo código.</p>
+    </section>
+
+    <footer class="rodape">
+      <p><strong>Como as contas são feitas</strong></p>
+      <p>“Pode chegar até” é o preço com o desconto máximo que você informou lá em cima.</p>
+      <p>A comissão é calculada sobre o valor que o cliente pagar: no preço cheio e no preço com desconto.</p>
+      <p>Os percentuais ficam salvos só neste aparelho.</p>
+      <p class="rodape-fonte" id="fonte"></p>
+    </footer>
+  </main>
+
+  <noscript><p class="aviso">Ative o JavaScript do navegador para usar a consulta de estoque.</p></noscript>
+
+  <script src="app.js" defer></script>
+</body>
+</html>

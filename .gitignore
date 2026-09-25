@@ -1,0 +1,9 @@
+# Relatórios brutos exportados do CompuFour (a página usa só dados/*.json)
+*CONTROLE DE ESTOQUE*
+exportacoes/
+
+# Ferramentas locais
+.claude/
+__pycache__/
+*.pyc
+.DS_Store

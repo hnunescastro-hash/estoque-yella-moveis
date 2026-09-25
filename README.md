@@ -7,7 +7,7 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
 ## O que a página faz
 
 - **Nome do vendedor:** no primeiro acesso, uma janela pede o nome. As iniciais aparecem num círculo no canto
-  direito do topo; tocando nele abre uma gaveta para mudar o nome, a **comissão**, o **desconto máximo**
+  direito do topo; tocando nele abre uma gaveta para mudar o nome, o **telefone** (vai na mensagem do WhatsApp), a **comissão**, o **desconto máximo**
   (assim eles não ocupam espaço na página) e o **tema**: Claro, Escuro ou Automático (segue o celular).
   O **olhinho** ao lado de "Comissão e desconto" esconde o "até R$…" e o "você ganha…" dos cartões
   (bom para mostrar o celular ao cliente); escondidos, eles só aparecem ao abrir os detalhes do produto.
@@ -33,21 +33,27 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
 - **WhatsApp:** abre o WhatsApp com a mensagem pronta; o vendedor escolhe o contato e ainda pode editar o texto:
 
   ```
-  *Guarda-Roupa Maya 3 Portas MDP Cinamomo/Off White*
+  *Adaptador USB*
 
-  💰 *R$ 849,00* com 10% OFF no Pix ou Dinheiro
-  💳 Ou R$ 943,33 em 10x de R$ 94,33 sem juros
+  💰 *R$ 16,20* com 10% OFF no Pix
+  💳 R$ 18,00 no cartão
   🚚 Entrega Grátis
-  ✅ Pronta entrega            (🔥 Última unidade! quando só há 1)
+  🔥 Últimas unidades!
 
-  Quer garantir? É só responder esta mensagem! 😊
-  Yêlla Móveis · Matina - BA
-  Atendimento: João Pereira
+  Quer garantir?
+  É só responder esta mensagem! 😊
+
+  Yêlla Móveis · Igaporã - BA
+  Atendimento: Hugo Castro
+  Tel. (77) 99999-8888
   ```
 
-  O desconto no Pix/dinheiro é o **Desconto máximo** do vendedor (o mesmo "até R$" do cartão); sem desconto
-  informado, sai o preço cheio. O número de parcelas fica em `PARCELAS_SEM_JUROS` no `app.js`.
-  A foto não vai junto (o link do WhatsApp só leva texto).
+  - O desconto no Pix é o **Desconto máximo** do vendedor (o mesmo "até R$" do cartão); sem desconto, sai o preço cheio.
+  - Cartão: até **10x sem juros** com **parcela mínima de R$ 50** (ex.: R$ 455,00 em 9x de R$ 50,56;
+    abaixo de R$ 100 aparece só "no cartão"). Ajustável em `PARCELAS_SEM_JUROS` e `PARCELA_MINIMA` no `app.js`.
+  - "🔥 Últimas unidades!" quando só há 1 no estoque; senão "✅ Pronta entrega".
+  - O **telefone** do vendedor (campo na gaveta do perfil) entra na linha "Tel."; sem telefone, a linha não aparece.
+  - A foto não vai junto (o link do WhatsApp só leva texto).
 - **Ver foto:** abre o Google Imagens com o nome do produto seguido do fornecedor (quando o fornecedor ajuda a achar a foto certa).
 - **Comissão e desconto:** o vendedor vê em cada produto até onde pode chegar e quanto ganha.
   A comissão é calculada **sobre o valor que o cliente paga**: no preço cheio e no preço com o desconto máximo.

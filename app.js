@@ -110,7 +110,7 @@
     filtroFornecedorNome: $('filtro-fornecedor-nome'), filtroFornecedorLimpar: $('filtro-fornecedor-limpar'),
     perfil: $('perfil'), perfilIniciais: $('perfil-iniciais'), perfilIcone: $('perfil-icone'),
     camadaGaveta: $('camada-gaveta'), gaveta: $('gaveta'), gavetaIniciais: $('gaveta-iniciais'),
-    gavetaFechar: $('gaveta-fechar'), formGaveta: $('form-gaveta'), nome: $('nome'), temas: $('temas'),
+    gavetaFechar: $('gaveta-fechar'), formGaveta: $('form-gaveta'), nome: $('nome'), telefone: $('telefone'), temas: $('temas'),
     mostrarContas: $('mostrar-contas'),
     modalNome: $('modal-nome'), formNome: $('form-nome'), nomeInicial: $('nome-inicial'), nomeErro: $('nome-erro'),
     telaEstoque: $('tela-estoque'), telaAnunciados: $('tela-anunciados'),
@@ -141,7 +141,7 @@
     produtos: [], porChave: new Map(), resultado: [], exibidos: 0,
     consulta: '', ordem: 'az', comissao: 0, desconto: 0,
     nome: '', fornecedor: null, verTodosFornecedores: false, consultaMostrada: '',
-    anunciados: [], filtroStatus: 'todos', anunciosAbertos: new Set(), tema: 'auto', mostrarContas: true,
+    anunciados: [], filtroStatus: 'todos', anunciosAbertos: new Set(), tema: 'auto', mostrarContas: true, telefone: '',
     tela: 'estoque', rolagem: { estoque: 0, anunciados: 0 },
   };
 
@@ -409,8 +409,9 @@
 
   // Mensagem pronta para o cliente. O WhatsApp abre para o vendedor escolher o contato,
   // e o texto ainda pode ser editado antes de enviar.
-  // O desconto no Pix/dinheiro é o "Desconto máximo" da gaveta: o preço prometido é o mesmo "até R$" do cartão.
-  const PARCELAS_SEM_JUROS = 10;
+  // O desconto no Pix é o "Desconto máximo" da gaveta: o preço prometido é o mesmo "até R$" do cartão.
+  const PARCELAS_SEM_JUROS = 10; // no máximo
+  const PARCELA_MINIMA = 5000; // R$ 50,00 (em centavos)
   function mensagemWhatsApp(p, idLoja) {
     const loja = lojaPorId(idLoja);
     const linhas = [`*${p.nome}*`, ''];
@@ -418,21 +419,21 @@
       linhas.push('💰 Preço a confirmar');
     } else {
       const conta = calcular(p.preco, 0, estado.desconto);
-      const parcela = reais(Math.round(conta.cheio / PARCELAS_SEM_JUROS));
-      if (estado.desconto > 0) {
-        linhas.push(`💰 *${reais(conta.minimo)}* com ${percentual(estado.desconto)} OFF no Pix ou Dinheiro`);
-        linhas.push(`💳 Ou ${reais(conta.cheio)} em ${PARCELAS_SEM_JUROS}x de ${parcela} sem juros`);
-      } else {
-        linhas.push(`💰 *${reais(conta.cheio)}* no Pix ou Dinheiro`);
-        linhas.push(`💳 Ou em ${PARCELAS_SEM_JUROS}x de ${parcela} sem juros`);
-      }
+      linhas.push(estado.desconto > 0
+        ? `💰 *${reais(conta.minimo)}* com ${percentual(estado.desconto)} OFF no Pix`
+        : `💰 *${reais(conta.cheio)}* no Pix`);
+      const parcelas = Math.min(PARCELAS_SEM_JUROS, Math.floor(conta.cheio / PARCELA_MINIMA));
+      linhas.push(parcelas >= 2
+        ? `💳 ${reais(conta.cheio)} em ${parcelas}x de ${reais(Math.round(conta.cheio / parcelas))} sem juros`
+        : `💳 ${reais(conta.cheio)} no cartão`);
     }
     linhas.push('🚚 Entrega Grátis');
-    if (p.quantidade === 1) linhas.push('🔥 Última unidade!');
+    if (p.quantidade === 1) linhas.push('🔥 Últimas unidades!');
     else if (p.quantidade > 1) linhas.push('✅ Pronta entrega');
-    linhas.push('', 'Quer garantir? É só responder esta mensagem! 😊');
+    linhas.push('', 'Quer garantir?', 'É só responder esta mensagem! 😊', '');
     linhas.push(loja ? `Yêlla Móveis · ${rotuloLoja(loja)}` : 'Yêlla Móveis');
     if (estado.nome) linhas.push(`Atendimento: ${estado.nome}`);
+    if (estado.telefone) linhas.push(`Tel. ${estado.telefone}`);
     return linhas.join('\n').replace(/ /g, ' ');
   }
 
@@ -897,6 +898,18 @@
   const limparNome = (texto) => String(texto || '').replace(/\s+/g, ' ').trim().slice(0, 40);
   const nomeValido = (nome) => /\p{L}/u.test(nome);
 
+  // "77999998888", "+55 77 99999-8888" ou "077 99999 8888" -> "(77) 99999-8888"
+  function formatarTelefone(texto) {
+    let d = String(texto || '').replace(/\D/g, '');
+    if (d.length > 11 && d.startsWith('55')) d = d.slice(2);
+    if (d.length > 11 && d.startsWith('0')) d = d.slice(1);
+    if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+    if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+    if (d.length === 9) return `${d.slice(0, 5)}-${d.slice(5)}`;
+    if (d.length === 8) return `${d.slice(0, 4)}-${d.slice(4)}`;
+    return String(texto || '').replace(/\s+/g, ' ').trim().slice(0, 20);
+  }
+
   // "Maria da Silva" -> "MS"; "Maria" -> "M"
   function iniciaisDe(nome) {
     const partes = limparNome(nome).split(' ').filter((p) => p && !PARTICULAS.has(p.toLowerCase()));
@@ -946,6 +959,7 @@
     if (!el.gaveta.hidden) return;
     focoAntesDaGaveta = document.activeElement;
     el.nome.value = estado.nome;
+    el.telefone.value = estado.telefone;
     el.camadaGaveta.hidden = false;
     el.gaveta.hidden = false;
     el.perfil.setAttribute('aria-expanded', 'true');
@@ -957,6 +971,7 @@
   function fecharGaveta() {
     if (el.gaveta.hidden) return;
     el.nome.value = estado.nome; // nome apagado não vale: fica o anterior
+    el.telefone.value = estado.telefone;
     formatarCampo(el.comissao);
     formatarCampo(el.desconto);
     aoMudarAjuste();
@@ -1023,6 +1038,7 @@
     try {
       localStorage.setItem(CHAVE_AJUSTES, JSON.stringify({
         nome: estado.nome,
+        telefone: estado.telefone,
         comissao: el.comissao.value.trim(),
         desconto: el.desconto.value.trim(),
         loja: estado.lojaId,
@@ -1115,6 +1131,7 @@
     aplicarTema(salvos.tema);
     aplicarVisibilidadeContas(salvos.contas !== 'ocultar');
     estado.nome = limparNome(salvos.nome);
+    estado.telefone = formatarTelefone(salvos.telefone);
     if (!nomeValido(estado.nome)) estado.nome = '';
     atualizarPerfil();
     if (!estado.nome) abrirModalNome();
@@ -1184,7 +1201,7 @@
   }
 
   // Na gaveta, "Enter" passa para o próximo campo; no último, fecha.
-  const PROXIMO_CAMPO = new Map([[el.nome, el.comissao], [el.comissao, el.desconto]]);
+  const PROXIMO_CAMPO = new Map([[el.nome, el.telefone], [el.telefone, el.comissao], [el.comissao, el.desconto]]);
   el.formGaveta.addEventListener('keydown', (evento) => {
     if (evento.key !== 'Enter' || !evento.target.matches('input')) return;
     evento.preventDefault();
@@ -1199,6 +1216,16 @@
     if (nomeValido(nome)) definirNome(nome);
   });
   el.nome.addEventListener('blur', () => { el.nome.value = estado.nome; });
+
+  // Telefone do vendedor: vai na mensagem do WhatsApp; ao sair do campo fica no formato (77) 99999-9999.
+  el.telefone.addEventListener('input', () => {
+    const telefone = formatarTelefone(el.telefone.value);
+    if (telefone === estado.telefone) return;
+    estado.telefone = telefone;
+    salvarAjustes();
+    atualizarLinksWhatsApp();
+  });
+  el.telefone.addEventListener('blur', () => { el.telefone.value = estado.telefone; });
 
   el.temas.addEventListener('click', (evento) => {
     const botao = evento.target.closest('[data-tema]');
@@ -1366,5 +1393,5 @@
   iniciar();
 
   // Exposto só para conferência no console do navegador.
-  window.__estoque = { calcular, buscar, lerPercentual, normalizar, estado, ORDENACOES, linkWhatsApp, mensagemWhatsApp, iniciaisDe, fornecedoresDaBusca, fornecedoresComContagem };
+  window.__estoque = { calcular, buscar, lerPercentual, normalizar, estado, ORDENACOES, linkWhatsApp, mensagemWhatsApp, formatarTelefone, iniciaisDe, fornecedoresDaBusca, fornecedoresComContagem };
 })();

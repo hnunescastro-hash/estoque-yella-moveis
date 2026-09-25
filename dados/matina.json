@@ -1,6 +1,7 @@
 {
  "loja": "matina",
  "nome": "Matina",
+ "uf": "BA",
  "gerado_em": "2026-09-25T11:29:07",
  "total_produtos": 500,
  "total_unidades": 1448,
@@ -13,7 +14,8 @@
    "preco": 20.26,
    "quantidade": 5,
    "ultima_compra": "2025-03-10",
-   "ultima_venda": "2023-11-16"
+   "ultima_venda": "2023-11-16",
+   "busca_foto": "Americanas"
   },
   {
    "codigo": "04574",
@@ -23,7 +25,8 @@
    "preco": 700.04,
    "quantidade": 1,
    "ultima_compra": "2024-10-03",
-   "ultima_venda": "2025-12-23"
+   "ultima_venda": "2025-12-23",
+   "busca_foto": "HB Móveis"
   },
   {
    "codigo": "04791",
@@ -34,7 +37,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-06-01",
    "ultima_venda": "2026-04-10",
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "04792",
@@ -45,7 +49,8 @@
    "quantidade": 2,
    "ultima_compra": "2024-12-03",
    "ultima_venda": "2026-02-13",
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "05344",
@@ -56,7 +61,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-06-01",
    "ultima_venda": null,
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "04649",
@@ -66,7 +72,8 @@
    "preco": 395.59,
    "quantidade": 1,
    "ultima_compra": "2025-03-06",
-   "ultima_venda": "2025-01-14"
+   "ultima_venda": "2025-01-14",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05262",
@@ -77,7 +84,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-04-20",
    "ultima_venda": "2026-06-06",
-   "marca": "Bertolini"
+   "marca": "Bertolini",
+   "busca_foto": "Bertolini"
   },
   {
    "codigo": "05272",
@@ -88,7 +96,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-04-20",
    "ultima_venda": "2026-04-23",
-   "marca": "Bertolini"
+   "marca": "Bertolini",
+   "busca_foto": "Bertolini"
   },
   {
    "codigo": "05273",
@@ -99,7 +108,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-04-20",
    "ultima_venda": null,
-   "marca": "Bertolini"
+   "marca": "Bertolini",
+   "busca_foto": "Bertolini"
   },
   {
    "codigo": "03663",
@@ -130,7 +140,8 @@
    "quantidade": 2,
    "ultima_compra": "2025-04-28",
    "ultima_venda": "2025-04-16",
-   "marca": "Rorato"
+   "marca": "Rorato",
+   "busca_foto": "Rorato"
   },
   {
    "codigo": "04913",
@@ -141,7 +152,8 @@
    "quantidade": 2,
    "ultima_compra": "2025-04-28",
    "ultima_venda": "2026-03-09",
-   "marca": "Rorato"
+   "marca": "Rorato",
+   "busca_foto": "Rorato"
   },
   {
    "codigo": "01323",
@@ -152,7 +164,8 @@
    "quantidade": 2,
    "ultima_compra": "2025-03-06",
    "ultima_venda": "2017-06-29",
-   "marca": "Multilaser"
+   "marca": "Multilaser",
+   "busca_foto": "Multilaser"
   },
   {
    "codigo": "03858",
@@ -162,7 +175,8 @@
    "preco": 83.88,
    "quantidade": 3,
    "ultima_compra": "2022-03-11",
-   "ultima_venda": "2026-07-23"
+   "ultima_venda": "2026-07-23",
+   "busca_foto": "Lenoxx"
   },
   {
    "codigo": "05020",
@@ -173,7 +187,8 @@
    "quantidade": 2,
    "ultima_compra": "2025-07-10",
    "ultima_venda": "2025-07-10",
-   "marca": "Poliman"
+   "marca": "Poliman",
+   "busca_foto": "Poliman"
   },
   {
    "codigo": "02734",
@@ -184,7 +199,8 @@
    "quantidade": 1,
    "ultima_compra": "2021-07-08",
    "ultima_venda": "2026-04-30",
-   "marca": "Madine"
+   "marca": "Madine",
+   "busca_foto": "Madine"
   },
   {
    "codigo": "04341",
@@ -195,7 +211,8 @@
    "quantidade": 1,
    "ultima_compra": "2023-06-06",
    "ultima_venda": "2023-07-18",
-   "marca": "Madine"
+   "marca": "Madine",
+   "busca_foto": "Madine"
   },
   {
    "codigo": "04346",
@@ -206,7 +223,8 @@
    "quantidade": 1,
    "ultima_compra": "2023-06-06",
    "ultima_venda": "2025-07-31",
-   "marca": "Madine"
+   "marca": "Madine",
+   "busca_foto": "Madine"
   },
   {
    "codigo": "05270",
@@ -217,7 +235,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-07-14",
    "ultima_venda": "2026-07-13",
-   "marca": "Bertolini"
+   "marca": "Bertolini",
+   "busca_foto": "Bertolini"
   },
   {
    "codigo": "05271",
@@ -228,7 +247,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-07-14",
    "ultima_venda": "2026-07-17",
-   "marca": "Bertolini"
+   "marca": "Bertolini",
+   "busca_foto": "Bertolini"
   },
   {
    "codigo": "05268",
@@ -239,7 +259,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-07-14",
    "ultima_venda": "2026-07-17",
-   "marca": "Bertolini"
+   "marca": "Bertolini",
+   "busca_foto": "Bertolini"
   },
   {
    "codigo": "05269",
@@ -250,7 +271,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-07-14",
    "ultima_venda": "2026-09-05",
-   "marca": "Bertolini"
+   "marca": "Bertolini",
+   "busca_foto": "Bertolini"
   },
   {
    "codigo": "05274",
@@ -261,7 +283,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-04-20",
    "ultima_venda": null,
-   "marca": "Bertolini"
+   "marca": "Bertolini",
+   "busca_foto": "Bertolini"
   },
   {
    "codigo": "05265",
@@ -272,7 +295,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-04-20",
    "ultima_venda": "2026-06-06",
-   "marca": "Bertolini"
+   "marca": "Bertolini",
+   "busca_foto": "Bertolini"
   },
   {
    "codigo": "05105",
@@ -283,7 +307,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-09-10",
    "ultima_venda": null,
-   "marca": "Nicioli"
+   "marca": "Nicioli",
+   "busca_foto": "Nicioli"
   },
   {
    "codigo": "05106",
@@ -294,7 +319,8 @@
    "quantidade": 4,
    "ultima_compra": "2026-09-10",
    "ultima_venda": "2025-10-28",
-   "marca": "Nicioli"
+   "marca": "Nicioli",
+   "busca_foto": "Nicioli"
   },
   {
    "codigo": "05449",
@@ -305,7 +331,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-09-10",
    "ultima_venda": null,
-   "marca": "Nicioli"
+   "marca": "Nicioli",
+   "busca_foto": "Nicioli"
   },
   {
    "codigo": "05450",
@@ -316,7 +343,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-09-10",
    "ultima_venda": null,
-   "marca": "Nicioli"
+   "marca": "Nicioli",
+   "busca_foto": "Nicioli"
   },
   {
    "codigo": "05104",
@@ -327,7 +355,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-10-28",
    "ultima_venda": null,
-   "marca": "Nicioli"
+   "marca": "Nicioli",
+   "busca_foto": "Nicioli"
   },
   {
    "codigo": "03064",
@@ -337,7 +366,8 @@
    "preco": 1135.03,
    "quantidade": 2,
    "ultima_compra": "2025-12-02",
-   "ultima_venda": "2025-11-11"
+   "ultima_venda": "2025-11-11",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05224",
@@ -347,7 +377,8 @@
    "preco": 1083.43,
    "quantidade": 2,
    "ultima_compra": "2026-03-10",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "04214",
@@ -357,7 +388,8 @@
    "preco": 625.89,
    "quantidade": 1,
    "ultima_compra": "2026-08-03",
-   "ultima_venda": "2026-08-03"
+   "ultima_venda": "2026-08-03",
+   "busca_foto": "HB Móveis"
   },
   {
    "codigo": "05089",
@@ -367,7 +399,8 @@
    "preco": 782.6,
    "quantidade": 1,
    "ultima_compra": "2025-10-16",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "HB Móveis"
   },
   {
    "codigo": "03954",
@@ -378,7 +411,8 @@
    "quantidade": 1,
    "ultima_compra": "2022-04-05",
    "ultima_venda": "2025-02-28",
-   "marca": "Madetec"
+   "marca": "Madetec",
+   "busca_foto": "Madetec"
   },
   {
    "codigo": "03952",
@@ -389,7 +423,8 @@
    "quantidade": 1,
    "ultima_compra": "2022-04-05",
    "ultima_venda": "2025-02-28",
-   "marca": "Madetec"
+   "marca": "Madetec",
+   "busca_foto": "Madetec"
   },
   {
    "codigo": "04493",
@@ -399,7 +434,8 @@
    "preco": 126.06,
    "quantidade": 1,
    "ultima_compra": "2023-09-15",
-   "ultima_venda": "2025-02-28"
+   "ultima_venda": "2025-02-28",
+   "busca_foto": "JB Bechara"
   },
   {
    "codigo": "04510",
@@ -409,7 +445,8 @@
    "preco": 126.06,
    "quantidade": 3,
    "ultima_compra": "2023-09-15",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "JB Bechara"
   },
   {
    "codigo": "05200",
@@ -429,7 +466,8 @@
    "preco": 29.6,
    "quantidade": 2,
    "ultima_compra": "2026-07-07",
-   "ultima_venda": "2026-08-27"
+   "ultima_venda": "2026-08-27",
+   "busca_foto": "Plastmaster"
   },
   {
    "codigo": "04255",
@@ -439,7 +477,8 @@
    "preco": 552.16,
    "quantidade": 4,
    "ultima_compra": "2025-03-06",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "KS Móveis"
   },
   {
    "codigo": "05423",
@@ -450,7 +489,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-07-31",
    "ultima_venda": null,
-   "marca": "Sonos"
+   "marca": "Sonos",
+   "busca_foto": "Sonos Colchões"
   },
   {
    "codigo": "05424",
@@ -461,7 +501,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-07-31",
    "ultima_venda": "2026-08-06",
-   "marca": "Sonos"
+   "marca": "Sonos",
+   "busca_foto": "Sonos Colchões"
   },
   {
    "codigo": "05426",
@@ -472,7 +513,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-07-31",
    "ultima_venda": "2026-07-28",
-   "marca": "Sonos"
+   "marca": "Sonos",
+   "busca_foto": "Sonos Colchões"
   },
   {
    "codigo": "05427",
@@ -483,7 +525,8 @@
    "quantidade": 4,
    "ultima_compra": "2026-07-31",
    "ultima_venda": null,
-   "marca": "Sonos"
+   "marca": "Sonos",
+   "busca_foto": "Sonos Colchões"
   },
   {
    "codigo": "05461",
@@ -493,7 +536,8 @@
    "preco": 1305.43,
    "quantidade": 1,
    "ultima_compra": "2026-09-24",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Estofado Bello"
   },
   {
    "codigo": "05462",
@@ -503,7 +547,8 @@
    "preco": 1890.0,
    "quantidade": 1,
    "ultima_compra": "2026-09-24",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Estofado Bello"
   },
   {
    "codigo": "03350",
@@ -523,7 +568,8 @@
    "preco": 403.2,
    "quantidade": 4,
    "ultima_compra": "2026-07-31",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Sonos Colchões"
   },
   {
    "codigo": "04611",
@@ -533,7 +579,8 @@
    "preco": 322.91,
    "quantidade": 7,
    "ultima_compra": "2025-03-06",
-   "ultima_venda": "2026-02-06"
+   "ultima_venda": "2026-02-06",
+   "busca_foto": "Tubulares Gol"
   },
   {
    "codigo": "04861",
@@ -554,7 +601,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-03-18",
    "ultima_venda": null,
-   "marca": "Reconflex"
+   "marca": "Reconflex",
+   "busca_foto": "Reconflex"
   },
   {
    "codigo": "04209",
@@ -565,7 +613,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-07-09",
    "ultima_venda": "2026-07-09",
-   "marca": "Reconflex"
+   "marca": "Reconflex",
+   "busca_foto": "Reconflex"
   },
   {
    "codigo": "03883",
@@ -576,7 +625,8 @@
    "quantidade": 4,
    "ultima_compra": "2026-07-09",
    "ultima_venda": "2026-07-09",
-   "marca": "Reconflex"
+   "marca": "Reconflex",
+   "busca_foto": "Reconflex"
   },
   {
    "codigo": "05216",
@@ -587,7 +637,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-02-14",
    "ultima_venda": "2026-03-11",
-   "marca": "Topázio Colchões"
+   "marca": "Topázio Colchões",
+   "busca_foto": "Topázio Colchões"
   },
   {
    "codigo": "05245",
@@ -598,7 +649,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-07-14",
    "ultima_venda": "2026-04-11",
-   "marca": "Ortobom"
+   "marca": "Ortobom",
+   "busca_foto": "Ortobom"
   },
   {
    "codigo": "05246",
@@ -609,7 +661,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-04-08",
    "ultima_venda": null,
-   "marca": "Ortobom"
+   "marca": "Ortobom",
+   "busca_foto": "Ortobom"
   },
   {
    "codigo": "03860",
@@ -619,7 +672,8 @@
    "preco": 388.31,
    "quantidade": 1,
    "ultima_compra": "2022-03-11",
-   "ultima_venda": "2025-02-28"
+   "ultima_venda": "2025-02-28",
+   "busca_foto": "Lenoxx"
   },
   {
    "codigo": "03130",
@@ -629,7 +683,8 @@
    "preco": 1034.24,
    "quantidade": 2,
    "ultima_compra": "2026-09-12",
-   "ultima_venda": "2026-09-15"
+   "ultima_venda": "2026-09-15",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05388",
@@ -639,7 +694,8 @@
    "preco": 1123.2,
    "quantidade": 2,
    "ultima_compra": "2026-07-02",
-   "ultima_venda": "2026-07-10"
+   "ultima_venda": "2026-07-10",
+   "busca_foto": "Nara Móveis"
   },
   {
    "codigo": "05156",
@@ -650,7 +706,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-11-21",
    "ultima_venda": "2025-11-25",
-   "marca": "Henn"
+   "marca": "Henn",
+   "busca_foto": "Henn"
   },
   {
    "codigo": "05042",
@@ -661,7 +718,8 @@
    "quantidade": 4,
    "ultima_compra": "2025-09-03",
    "ultima_venda": "2025-09-02",
-   "marca": "Batrol"
+   "marca": "Batrol",
+   "busca_foto": "Batrol"
   },
   {
    "codigo": "04152",
@@ -671,7 +729,8 @@
    "preco": 691.2,
    "quantidade": 2,
    "ultima_compra": "2026-08-10",
-   "ultima_venda": "2026-05-21"
+   "ultima_venda": "2026-05-21",
+   "busca_foto": "Estofado Bello"
   },
   {
    "codigo": "04462",
@@ -682,7 +741,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-06",
    "ultima_venda": "2026-05-29",
-   "marca": "Athor"
+   "marca": "Athor",
+   "busca_foto": "Athor"
   },
   {
    "codigo": "04539",
@@ -692,7 +752,8 @@
    "preco": 276.63,
    "quantidade": 1,
    "ultima_compra": "2025-03-06",
-   "ultima_venda": "2025-09-02"
+   "ultima_venda": "2025-09-02",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "03680",
@@ -703,7 +764,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-06",
    "ultima_venda": "2021-12-14",
-   "marca": "Athor"
+   "marca": "Athor",
+   "busca_foto": "Athor"
   },
   {
    "codigo": "04165",
@@ -714,7 +776,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-06",
    "ultima_venda": "2023-01-03",
-   "marca": "Athor"
+   "marca": "Athor",
+   "busca_foto": "Athor"
   },
   {
    "codigo": "05281",
@@ -725,7 +788,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-06",
    "ultima_venda": null,
-   "marca": "Athor"
+   "marca": "Athor",
+   "busca_foto": "Athor"
   },
   {
    "codigo": "05283",
@@ -736,7 +800,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-19",
    "ultima_venda": "2026-05-17",
-   "marca": "Athor"
+   "marca": "Athor",
+   "busca_foto": "Athor"
   },
   {
    "codigo": "04728",
@@ -746,7 +811,8 @@
    "preco": 1461.83,
    "quantidade": 2,
    "ultima_compra": "2024-09-04",
-   "ultima_venda": "2026-06-12"
+   "ultima_venda": "2026-06-12",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "04729",
@@ -756,7 +822,8 @@
    "preco": 1461.83,
    "quantidade": 3,
    "ultima_compra": "2024-09-04",
-   "ultima_venda": "2025-09-02"
+   "ultima_venda": "2025-09-02",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "03322",
@@ -767,7 +834,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-06",
    "ultima_venda": "2026-05-06",
-   "marca": "Athor"
+   "marca": "Athor",
+   "busca_foto": "Athor"
   },
   {
    "codigo": "05142",
@@ -797,7 +865,8 @@
    "preco": 338.3,
    "quantidade": 1,
    "ultima_compra": "2023-08-22",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Yes Estofados"
   },
   {
    "codigo": "05178",
@@ -808,7 +877,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-12-03",
    "ultima_venda": "2026-07-14",
-   "marca": "Imcal"
+   "marca": "Imcal",
+   "busca_foto": "Imcal"
   },
   {
    "codigo": "02258",
@@ -818,7 +888,8 @@
    "preco": 849.6,
    "quantidade": 1,
    "ultima_compra": "2021-04-22",
-   "ultima_venda": "2020-05-29"
+   "ultima_venda": "2020-05-29",
+   "busca_foto": "Geesca"
   },
   {
    "codigo": "03870",
@@ -828,7 +899,8 @@
    "preco": 338.3,
    "quantidade": 2,
    "ultima_compra": "2025-03-06",
-   "ultima_venda": "2024-03-12"
+   "ultima_venda": "2024-03-12",
+   "busca_foto": "Geesca"
   },
   {
    "codigo": "02107",
@@ -838,7 +910,8 @@
    "preco": 338.3,
    "quantidade": 1,
    "ultima_compra": "2025-03-06",
-   "ultima_venda": "2026-07-03"
+   "ultima_venda": "2026-07-03",
+   "busca_foto": "Geesca"
   },
   {
    "codigo": "05457",
@@ -848,7 +921,8 @@
    "preco": 649.4,
    "quantidade": 2,
    "ultima_compra": "2026-09-23",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05456",
@@ -858,7 +932,8 @@
    "preco": 649.4,
    "quantidade": 2,
    "ultima_compra": "2026-09-23",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05459",
@@ -868,7 +943,8 @@
    "preco": 686.8,
    "quantidade": 2,
    "ultima_compra": "2026-09-23",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05458",
@@ -878,7 +954,8 @@
    "preco": 686.8,
    "quantidade": 2,
    "ultima_compra": "2026-09-23",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "04873",
@@ -899,7 +976,8 @@
    "quantidade": 4,
    "ultima_compra": "2022-08-16",
    "ultima_venda": null,
-   "marca": "Unimóvel"
+   "marca": "Unimóvel",
+   "busca_foto": "Unimóvel"
   },
   {
    "codigo": "04052",
@@ -910,7 +988,8 @@
    "quantidade": 4,
    "ultima_compra": "2025-03-06",
    "ultima_venda": "2025-09-01",
-   "marca": "Unimóvel"
+   "marca": "Unimóvel",
+   "busca_foto": "Unimóvel"
   },
   {
    "codigo": "04057",
@@ -921,7 +1000,8 @@
    "quantidade": 4,
    "ultima_compra": "2025-03-06",
    "ultima_venda": "2025-08-26",
-   "marca": "Unimóvel"
+   "marca": "Unimóvel",
+   "busca_foto": "Unimóvel"
   },
   {
    "codigo": "04066",
@@ -932,7 +1012,8 @@
    "quantidade": 3,
    "ultima_compra": "2025-03-06",
    "ultima_venda": "2025-09-08",
-   "marca": "Unimóvel"
+   "marca": "Unimóvel",
+   "busca_foto": "Unimóvel"
   },
   {
    "codigo": "04992",
@@ -952,7 +1033,8 @@
    "preco": 53.2,
    "quantidade": 14,
    "ultima_compra": "2026-07-07",
-   "ultima_venda": "2026-07-02"
+   "ultima_venda": "2026-07-02",
+   "busca_foto": "Plastmaster"
   },
   {
    "codigo": "05093",
@@ -962,7 +1044,8 @@
    "preco": 53.2,
    "quantidade": 12,
    "ultima_compra": "2026-07-07",
-   "ultima_venda": "2026-07-09"
+   "ultima_venda": "2026-07-09",
+   "busca_foto": "Plastmaster"
   },
   {
    "codigo": "05094",
@@ -972,7 +1055,8 @@
    "preco": 53.2,
    "quantidade": 14,
    "ultima_compra": "2026-07-07",
-   "ultima_venda": "2026-07-09"
+   "ultima_venda": "2026-07-09",
+   "busca_foto": "Plastmaster"
   },
   {
    "codigo": "04988",
@@ -1002,7 +1086,8 @@
    "preco": 555.9,
    "quantidade": 1,
    "ultima_compra": "2025-03-06",
-   "ultima_venda": "2025-07-16"
+   "ultima_venda": "2025-07-16",
+   "busca_foto": "Americanas"
   },
   {
    "codigo": "03822",
@@ -1012,7 +1097,8 @@
    "preco": 1176.4,
    "quantidade": 1,
    "ultima_compra": "2026-03-10",
-   "ultima_venda": "2026-03-10"
+   "ultima_venda": "2026-03-10",
+   "busca_foto": "Estofado Centro Oeste"
   },
   {
    "codigo": "04637",
@@ -1052,7 +1138,8 @@
    "preco": 305.9,
    "quantidade": 6,
    "ultima_compra": "2025-06-26",
-   "ultima_venda": "2026-01-13"
+   "ultima_venda": "2026-01-13",
+   "busca_foto": "Nara Móveis"
   },
   {
    "codigo": "04998",
@@ -1062,7 +1149,8 @@
    "preco": 302.34,
    "quantidade": 4,
    "ultima_compra": "2025-06-26",
-   "ultima_venda": "2025-06-27"
+   "ultima_venda": "2025-06-27",
+   "busca_foto": "Nara Móveis"
   },
   {
    "codigo": "04631",
@@ -1073,7 +1161,8 @@
    "quantidade": 4,
    "ultima_compra": "2024-06-14",
    "ultima_venda": "2025-02-28",
-   "marca": "Poliman"
+   "marca": "Poliman",
+   "busca_foto": "Poliman"
   },
   {
    "codigo": "05154",
@@ -1084,7 +1173,8 @@
    "quantidade": 2,
    "ultima_compra": "2025-11-21",
    "ultima_venda": "2026-03-24",
-   "marca": "Henn"
+   "marca": "Henn",
+   "busca_foto": "Henn"
   },
   {
    "codigo": "05153",
@@ -1095,7 +1185,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-11-21",
    "ultima_venda": "2026-04-23",
-   "marca": "Henn"
+   "marca": "Henn",
+   "busca_foto": "Henn"
   },
   {
    "codigo": "05353",
@@ -1115,7 +1206,8 @@
    "preco": 112.88,
    "quantidade": 3,
    "ultima_compra": "2024-10-25",
-   "ultima_venda": "2025-04-30"
+   "ultima_venda": "2025-04-30",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "03857",
@@ -1125,7 +1217,8 @@
    "preco": 219.89,
    "quantidade": 1,
    "ultima_compra": "2022-03-11",
-   "ultima_venda": "2025-10-27"
+   "ultima_venda": "2025-10-27",
+   "busca_foto": "Lenoxx"
   },
   {
    "codigo": "04614",
@@ -1135,7 +1228,8 @@
    "preco": 798.42,
    "quantidade": 2,
    "ultima_compra": "2025-03-06",
-   "ultima_venda": "2025-12-01"
+   "ultima_venda": "2025-12-01",
+   "busca_foto": "Tubulares Gol"
   },
   {
    "codigo": "04878",
@@ -1145,7 +1239,8 @@
    "preco": 1411.0,
    "quantidade": 1,
    "ultima_compra": "2025-03-10",
-   "ultima_venda": "2025-02-18"
+   "ultima_venda": "2025-02-18",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "03413",
@@ -1176,7 +1271,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-04-14",
    "ultima_venda": "2026-06-12",
-   "marca": "Sumay"
+   "marca": "Sumay",
+   "busca_foto": "Sumay"
   },
   {
    "codigo": "04964",
@@ -1186,7 +1282,8 @@
    "preco": 984.18,
    "quantidade": 1,
    "ultima_compra": "2026-06-15",
-   "ultima_venda": "2026-06-12"
+   "ultima_venda": "2026-06-12",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "04965",
@@ -1196,7 +1293,8 @@
    "preco": 1100.97,
    "quantidade": 1,
    "ultima_compra": "2026-06-15",
-   "ultima_venda": "2026-06-12"
+   "ultima_venda": "2026-06-12",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05255",
@@ -1207,7 +1305,8 @@
    "quantidade": 5,
    "ultima_compra": "2026-06-18",
    "ultima_venda": "2026-09-18",
-   "marca": "Sumay"
+   "marca": "Sumay",
+   "busca_foto": "Sumay"
   },
   {
    "codigo": "05256",
@@ -1218,7 +1317,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-04-14",
    "ultima_venda": "2026-04-14",
-   "marca": "Sumay"
+   "marca": "Sumay",
+   "busca_foto": "Sumay"
   },
   {
    "codigo": "05374",
@@ -1258,7 +1358,8 @@
    "preco": 730.8,
    "quantidade": 2,
    "ultima_compra": "2026-07-02",
-   "ultima_venda": "2026-07-23"
+   "ultima_venda": "2026-07-23",
+   "busca_foto": "Nara Móveis"
   },
   {
    "codigo": "04653",
@@ -1278,7 +1379,8 @@
    "preco": 565.83,
    "quantidade": 2,
    "ultima_compra": "2025-06-26",
-   "ultima_venda": "2025-12-16"
+   "ultima_venda": "2025-12-16",
+   "busca_foto": "Nara Móveis"
   },
   {
    "codigo": "05387",
@@ -1288,7 +1390,8 @@
    "preco": 590.4,
    "quantidade": 3,
    "ultima_compra": "2026-07-02",
-   "ultima_venda": "2026-08-11"
+   "ultima_venda": "2026-08-11",
+   "busca_foto": "Nara Móveis"
   },
   {
    "codigo": "05409",
@@ -1348,7 +1451,8 @@
    "preco": 297.5,
    "quantidade": 2,
    "ultima_compra": "2022-11-25",
-   "ultima_venda": "2025-02-28"
+   "ultima_venda": "2025-02-28",
+   "busca_foto": "Americanas"
   },
   {
    "codigo": "04767",
@@ -1358,7 +1462,8 @@
    "preco": 1053.83,
    "quantidade": 1,
    "ultima_compra": "2024-10-22",
-   "ultima_venda": "2026-09-04"
+   "ultima_venda": "2026-09-04",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05243",
@@ -1369,7 +1474,8 @@
    "quantidade": 4,
    "ultima_compra": "2026-07-14",
    "ultima_venda": "2026-07-28",
-   "marca": "Ortobom"
+   "marca": "Ortobom",
+   "busca_foto": "Ortobom"
   },
   {
    "codigo": "03890",
@@ -1380,7 +1486,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-04-08",
    "ultima_venda": "2026-04-17",
-   "marca": "Ortobom"
+   "marca": "Ortobom",
+   "busca_foto": "Ortobom"
   },
   {
    "codigo": "05233",
@@ -1391,7 +1498,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-03-18",
    "ultima_venda": "2026-06-05",
-   "marca": "Reconflex"
+   "marca": "Reconflex",
+   "busca_foto": "Reconflex"
   },
   {
    "codigo": "05234",
@@ -1402,7 +1510,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-03-18",
    "ultima_venda": "2026-06-05",
-   "marca": "Reconflex"
+   "marca": "Reconflex",
+   "busca_foto": "Reconflex"
   },
   {
    "codigo": "04532",
@@ -1413,7 +1522,8 @@
    "quantidade": 8,
    "ultima_compra": "2026-07-09",
    "ultima_venda": "2026-09-09",
-   "marca": "Reconflex"
+   "marca": "Reconflex",
+   "busca_foto": "Reconflex"
   },
   {
    "codigo": "05184",
@@ -1424,7 +1534,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-03-18",
    "ultima_venda": "2026-07-09",
-   "marca": "Reconflex"
+   "marca": "Reconflex",
+   "busca_foto": "Reconflex"
   },
   {
    "codigo": "04136",
@@ -1435,7 +1546,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-03-18",
    "ultima_venda": "2026-03-18",
-   "marca": "Reconflex"
+   "marca": "Reconflex",
+   "busca_foto": "Reconflex"
   },
   {
    "codigo": "05029",
@@ -1446,7 +1558,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-07-18",
    "ultima_venda": "2026-03-28",
-   "marca": "Reconflex"
+   "marca": "Reconflex",
+   "busca_foto": "Reconflex"
   },
   {
    "codigo": "04898",
@@ -1477,7 +1590,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-03-18",
    "ultima_venda": null,
-   "marca": "Reconflex"
+   "marca": "Reconflex",
+   "busca_foto": "Reconflex"
   },
   {
    "codigo": "05240",
@@ -1488,7 +1602,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-04-08",
    "ultima_venda": "2026-05-04",
-   "marca": "Ortobom"
+   "marca": "Ortobom",
+   "busca_foto": "Ortobom"
   },
   {
    "codigo": "04681",
@@ -1499,7 +1614,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-07-09",
    "ultima_venda": "2026-07-09",
-   "marca": "Reconflex"
+   "marca": "Reconflex",
+   "busca_foto": "Reconflex"
   },
   {
    "codigo": "03981",
@@ -1510,7 +1626,8 @@
    "quantidade": 1,
    "ultima_compra": "2022-05-10",
    "ultima_venda": "2025-01-09",
-   "marca": "Ortobom"
+   "marca": "Ortobom",
+   "busca_foto": "Ortobom"
   },
   {
    "codigo": "05429",
@@ -1520,7 +1637,8 @@
    "preco": 2104.2,
    "quantidade": 2,
    "ultima_compra": "2026-07-31",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Sonos Colchões"
   },
   {
    "codigo": "05430",
@@ -1531,7 +1649,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-07-31",
    "ultima_venda": null,
-   "marca": "Sonos"
+   "marca": "Sonos",
+   "busca_foto": "Sonos Colchões"
   },
   {
    "codigo": "05219",
@@ -1542,7 +1661,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-02-14",
    "ultima_venda": "2026-05-21",
-   "marca": "Topázio Colchões"
+   "marca": "Topázio Colchões",
+   "busca_foto": "Topázio Colchões"
   },
   {
    "codigo": "00603",
@@ -1553,7 +1673,8 @@
    "quantidade": 4,
    "ultima_compra": "2026-09-24",
    "ultima_venda": "2026-08-04",
-   "marca": "Ortobom"
+   "marca": "Ortobom",
+   "busca_foto": "Ortobom"
   },
   {
    "codigo": "00107",
@@ -1564,7 +1685,8 @@
    "quantidade": 4,
    "ultima_compra": "2026-09-24",
    "ultima_venda": "2026-06-30",
-   "marca": "Ortobom"
+   "marca": "Ortobom",
+   "busca_foto": "Ortobom"
   },
   {
    "codigo": "03135",
@@ -1575,7 +1697,8 @@
    "quantidade": 4,
    "ultima_compra": "2026-09-24",
    "ultima_venda": "2025-03-01",
-   "marca": "Ortobom"
+   "marca": "Ortobom",
+   "busca_foto": "Ortobom"
   },
   {
    "codigo": "00600",
@@ -1586,7 +1709,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-07-14",
    "ultima_venda": "2026-08-18",
-   "marca": "Ortobom"
+   "marca": "Ortobom",
+   "busca_foto": "Ortobom"
   },
   {
    "codigo": "02087",
@@ -1597,7 +1721,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-09-24",
    "ultima_venda": "2026-09-24",
-   "marca": "Ortobom"
+   "marca": "Ortobom",
+   "busca_foto": "Ortobom"
   },
   {
    "codigo": "05433",
@@ -1608,7 +1733,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-07-31",
    "ultima_venda": "2026-07-28",
-   "marca": "Sonos"
+   "marca": "Sonos",
+   "busca_foto": "Sonos Colchões"
   },
   {
    "codigo": "05431",
@@ -1619,7 +1745,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-07-31",
    "ultima_venda": null,
-   "marca": "Sonos"
+   "marca": "Sonos",
+   "busca_foto": "Sonos Colchões"
   },
   {
    "codigo": "05432",
@@ -1630,7 +1757,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-07-31",
    "ultima_venda": "2026-08-06",
-   "marca": "Sonos"
+   "marca": "Sonos",
+   "busca_foto": "Sonos Colchões"
   },
   {
    "codigo": "05221",
@@ -1641,7 +1769,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-02-14",
    "ultima_venda": null,
-   "marca": "Topázio Colchões"
+   "marca": "Topázio Colchões",
+   "busca_foto": "Topázio Colchões"
   },
   {
    "codigo": "03137",
@@ -1652,7 +1781,8 @@
    "quantidade": 6,
    "ultima_compra": "2026-07-09",
    "ultima_venda": "2026-06-12",
-   "marca": "Reconflex"
+   "marca": "Reconflex",
+   "busca_foto": "Reconflex"
   },
   {
    "codigo": "04030",
@@ -1663,7 +1793,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-07-09",
    "ultima_venda": "2026-06-12",
-   "marca": "Reconflex"
+   "marca": "Reconflex",
+   "busca_foto": "Reconflex"
   },
   {
    "codigo": "04658",
@@ -1684,7 +1815,8 @@
    "quantidade": 4,
    "ultima_compra": "2025-03-06",
    "ultima_venda": "2026-08-11",
-   "marca": "Batrol"
+   "marca": "Batrol",
+   "busca_foto": "Batrol"
   },
   {
    "codigo": "04440",
@@ -1695,7 +1827,8 @@
    "quantidade": 1,
    "ultima_compra": "2023-08-25",
    "ultima_venda": null,
-   "marca": "Albatroz"
+   "marca": "Albatroz",
+   "busca_foto": "Albatroz Móveis"
   },
   {
    "codigo": "05047",
@@ -1706,7 +1839,8 @@
    "quantidade": 2,
    "ultima_compra": "2025-09-15",
    "ultima_venda": "2026-01-09",
-   "marca": "ACP Móveis"
+   "marca": "ACP Móveis",
+   "busca_foto": "ACP Móveis"
   },
   {
    "codigo": "04973",
@@ -1717,7 +1851,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-06-10",
    "ultima_venda": "2025-09-29",
-   "marca": "ACP Móveis"
+   "marca": "ACP Móveis",
+   "busca_foto": "ACP Móveis"
   },
   {
    "codigo": "05168",
@@ -1728,7 +1863,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-11-26",
    "ultima_venda": null,
-   "marca": "Benetil"
+   "marca": "Benetil",
+   "busca_foto": "Benetil"
   },
   {
    "codigo": "05177",
@@ -1739,7 +1875,8 @@
    "quantidade": 2,
    "ultima_compra": "2025-11-26",
    "ultima_venda": null,
-   "marca": "Benetil"
+   "marca": "Benetil",
+   "busca_foto": "Benetil"
   },
   {
    "codigo": "05180",
@@ -1750,7 +1887,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-12-03",
    "ultima_venda": "2026-07-15",
-   "marca": "Imcal"
+   "marca": "Imcal",
+   "busca_foto": "Imcal"
   },
   {
    "codigo": "05194",
@@ -1761,7 +1899,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-01-06",
    "ultima_venda": "2026-01-06",
-   "marca": "Imcal"
+   "marca": "Imcal",
+   "busca_foto": "Imcal"
   },
   {
    "codigo": "04764",
@@ -1771,7 +1910,8 @@
    "preco": 466.98,
    "quantidade": 3,
    "ultima_compra": "2025-05-14",
-   "ultima_venda": "2026-03-31"
+   "ultima_venda": "2026-03-31",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "04763",
@@ -1781,7 +1921,8 @@
    "preco": 466.98,
    "quantidade": 3,
    "ultima_compra": "2025-05-14",
-   "ultima_venda": "2026-07-14"
+   "ultima_venda": "2026-07-14",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "04980",
@@ -1792,7 +1933,8 @@
    "quantidade": 7,
    "ultima_compra": "2025-09-15",
    "ultima_venda": "2025-10-20",
-   "marca": "ACP Móveis"
+   "marca": "ACP Móveis",
+   "busca_foto": "ACP Móveis"
   },
   {
    "codigo": "04851",
@@ -1803,7 +1945,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-01-30",
    "ultima_venda": null,
-   "marca": "Alusol"
+   "marca": "Alusol",
+   "busca_foto": "Alusol"
   },
   {
    "codigo": "04865",
@@ -1843,7 +1986,8 @@
    "preco": 1242.5,
    "quantidade": 2,
    "ultima_compra": "2026-09-24",
-   "ultima_venda": "2026-05-15"
+   "ultima_venda": "2026-05-15",
+   "busca_foto": "Estofado Bello"
   },
   {
    "codigo": "05183",
@@ -1853,7 +1997,8 @@
    "preco": 2376.0,
    "quantidade": 1,
    "ultima_compra": "2026-08-10",
-   "ultima_venda": "2025-12-17"
+   "ultima_venda": "2025-12-17",
+   "busca_foto": "Estofado Bello"
   },
   {
    "codigo": "04952",
@@ -1863,7 +2008,8 @@
    "preco": 1227.6,
    "quantidade": 1,
    "ultima_compra": "2026-08-10",
-   "ultima_venda": "2026-08-29"
+   "ultima_venda": "2026-08-29",
+   "busca_foto": "Estofado Bello"
   },
   {
    "codigo": "04866",
@@ -1883,7 +2029,8 @@
    "preco": 1566.0,
    "quantidade": 2,
    "ultima_compra": "2026-08-18",
-   "ultima_venda": "2025-07-16"
+   "ultima_venda": "2025-07-16",
+   "busca_foto": "JK Estofados"
   },
   {
    "codigo": "04921",
@@ -1903,7 +2050,8 @@
    "preco": 1350.0,
    "quantidade": 2,
    "ultima_compra": "2026-08-18",
-   "ultima_venda": "2025-11-18"
+   "ultima_venda": "2025-11-18",
+   "busca_foto": "JK Estofados"
   },
   {
    "codigo": "04395",
@@ -1923,7 +2071,8 @@
    "preco": 2398.36,
    "quantidade": 1,
    "ultima_compra": "2026-08-10",
-   "ultima_venda": "2022-07-18"
+   "ultima_venda": "2022-07-18",
+   "busca_foto": "Estofado Centro Oeste"
   },
   {
    "codigo": "05354",
@@ -1944,7 +2093,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-04-29",
    "ultima_venda": "2026-07-21",
-   "marca": "Poliman"
+   "marca": "Poliman",
+   "busca_foto": "Poliman"
   },
   {
    "codigo": "04339",
@@ -1955,7 +2105,8 @@
    "quantidade": 1,
    "ultima_compra": "2023-06-06",
    "ultima_venda": "2023-07-18",
-   "marca": "Madine"
+   "marca": "Madine",
+   "busca_foto": "Madine"
   },
   {
    "codigo": "05021",
@@ -1966,7 +2117,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-02-02",
    "ultima_venda": "2026-03-11",
-   "marca": "Poliman"
+   "marca": "Poliman",
+   "busca_foto": "Poliman"
   },
   {
    "codigo": "05418",
@@ -1976,7 +2128,8 @@
    "preco": 1627.32,
    "quantidade": 1,
    "ultima_compra": "2026-07-20",
-   "ultima_venda": "2026-07-17"
+   "ultima_venda": "2026-07-17",
+   "busca_foto": "Mercadomóveis"
   },
   {
    "codigo": "05417",
@@ -1986,7 +2139,8 @@
    "preco": 1627.32,
    "quantidade": 1,
    "ultima_compra": "2026-07-20",
-   "ultima_venda": "2026-07-15"
+   "ultima_venda": "2026-07-15",
+   "busca_foto": "Mercadomóveis"
   },
   {
    "codigo": "02971",
@@ -1997,7 +2151,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-03-06",
    "ultima_venda": "2020-10-30",
-   "marca": "Madine"
+   "marca": "Madine",
+   "busca_foto": "Madine"
   },
   {
    "codigo": "02732",
@@ -2008,7 +2163,8 @@
    "quantidade": 6,
    "ultima_compra": "2021-07-08",
    "ultima_venda": "2025-09-24",
-   "marca": "Madine"
+   "marca": "Madine",
+   "busca_foto": "Madine"
   },
   {
    "codigo": "03892",
@@ -2018,7 +2174,8 @@
    "preco": 1757.05,
    "quantidade": 1,
    "ultima_compra": "2022-03-24",
-   "ultima_venda": "2025-03-05"
+   "ultima_venda": "2025-03-05",
+   "busca_foto": "Indekes"
   },
   {
    "codigo": "05207",
@@ -2029,7 +2186,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-09-01",
    "ultima_venda": "2026-08-28",
-   "marca": "Poliman"
+   "marca": "Poliman",
+   "busca_foto": "Poliman"
   },
   {
    "codigo": "04704",
@@ -2040,7 +2198,8 @@
    "quantidade": 4,
    "ultima_compra": "2025-03-06",
    "ultima_venda": "2026-05-11",
-   "marca": "Poliman"
+   "marca": "Poliman",
+   "busca_foto": "Poliman"
   },
   {
    "codigo": "04705",
@@ -2051,7 +2210,8 @@
    "quantidade": 2,
    "ultima_compra": "2024-08-29",
    "ultima_venda": "2026-01-26",
-   "marca": "Poliman"
+   "marca": "Poliman",
+   "busca_foto": "Poliman"
   },
   {
    "codigo": "04578",
@@ -2062,7 +2222,8 @@
    "quantidade": 1,
    "ultima_compra": "2024-09-16",
    "ultima_venda": "2026-09-03",
-   "marca": "Poliman"
+   "marca": "Poliman",
+   "busca_foto": "Poliman"
   },
   {
    "codigo": "04570",
@@ -2072,7 +2233,8 @@
    "preco": 2033.04,
    "quantidade": 2,
    "ultima_compra": "2026-02-11",
-   "ultima_venda": "2026-02-11"
+   "ultima_venda": "2026-02-11",
+   "busca_foto": "HB Móveis"
   },
   {
    "codigo": "03838",
@@ -2112,7 +2274,8 @@
    "preco": 159.39,
    "quantidade": 6,
    "ultima_compra": "2026-09-25",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Britânia"
   },
   {
    "codigo": "04956",
@@ -2122,7 +2285,8 @@
    "preco": 340.56,
    "quantidade": 1,
    "ultima_compra": "2025-05-22",
-   "ultima_venda": "2025-05-20"
+   "ultima_venda": "2025-05-20",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05036",
@@ -2132,7 +2296,8 @@
    "preco": 395.6,
    "quantidade": 6,
    "ultima_compra": "2025-08-05",
-   "ultima_venda": "2026-05-13"
+   "ultima_venda": "2026-05-13",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05137",
@@ -2142,7 +2307,8 @@
    "preco": 2250.0,
    "quantidade": 1,
    "ultima_compra": "2026-08-18",
-   "ultima_venda": "2026-08-18"
+   "ultima_venda": "2026-08-18",
+   "busca_foto": "JK Estofados"
   },
   {
    "codigo": "04719",
@@ -2152,7 +2318,8 @@
    "preco": 1870.0,
    "quantidade": 1,
    "ultima_compra": "2025-03-10",
-   "ultima_venda": "2025-03-05"
+   "ultima_venda": "2025-03-05",
+   "busca_foto": "Black Soft Estofados"
   },
   {
    "codigo": "04149",
@@ -2162,7 +2329,8 @@
    "preco": 1931.4,
    "quantidade": 1,
    "ultima_compra": "2026-09-24",
-   "ultima_venda": "2026-09-24"
+   "ultima_venda": "2026-09-24",
+   "busca_foto": "Estofado Bello"
   },
   {
    "codigo": "04146",
@@ -2172,7 +2340,8 @@
    "preco": 1818.0,
    "quantidade": 2,
    "ultima_compra": "2026-08-10",
-   "ultima_venda": "2026-05-21"
+   "ultima_venda": "2026-05-21",
+   "busca_foto": "Estofado Bello"
   },
   {
    "codigo": "03361",
@@ -2182,7 +2351,8 @@
    "preco": 501.0,
    "quantidade": 1,
    "ultima_compra": "2020-09-30",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Usinorte"
   },
   {
    "codigo": "03330",
@@ -2192,7 +2362,8 @@
    "preco": 58.65,
    "quantidade": 1,
    "ultima_compra": "2024-10-25",
-   "ultima_venda": "2025-09-11"
+   "ultima_venda": "2025-09-11",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "03550",
@@ -2202,7 +2373,8 @@
    "preco": 123.2,
    "quantidade": 1,
    "ultima_compra": "2021-05-04",
-   "ultima_venda": "2023-09-22"
+   "ultima_venda": "2023-09-22",
+   "busca_foto": "Martins Atacado"
   },
   {
    "codigo": "05436",
@@ -2232,7 +2404,8 @@
    "preco": 148.73,
    "quantidade": 3,
    "ultima_compra": "2026-08-10",
-   "ultima_venda": "2026-08-07"
+   "ultima_venda": "2026-08-07",
+   "busca_foto": "Britânia"
   },
   {
    "codigo": "03982",
@@ -2242,7 +2415,8 @@
    "preco": 900.76,
    "quantidade": 1,
    "ultima_compra": "2026-04-27",
-   "ultima_venda": "2026-07-02"
+   "ultima_venda": "2026-07-02",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "03983",
@@ -2252,7 +2426,8 @@
    "preco": 900.76,
    "quantidade": 3,
    "ultima_compra": "2026-04-27",
-   "ultima_venda": "2026-05-29"
+   "ultima_venda": "2026-05-29",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "04957",
@@ -2262,7 +2437,8 @@
    "preco": 874.82,
    "quantidade": 6,
    "ultima_compra": "2026-08-20",
-   "ultima_venda": "2026-08-21"
+   "ultima_venda": "2026-08-21",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05196",
@@ -2272,7 +2448,8 @@
    "preco": 874.82,
    "quantidade": 2,
    "ultima_compra": "2026-08-20",
-   "ultima_venda": "2026-09-15"
+   "ultima_venda": "2026-09-15",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05373",
@@ -2283,7 +2460,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-06-16",
    "ultima_venda": null,
-   "marca": "Esmaltec"
+   "marca": "Esmaltec",
+   "busca_foto": "Esmaltec"
   },
   {
    "codigo": "05369",
@@ -2294,7 +2472,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-06-16",
    "ultima_venda": "2026-06-12",
-   "marca": "Esmaltec"
+   "marca": "Esmaltec",
+   "busca_foto": "Esmaltec"
   },
   {
    "codigo": "05371",
@@ -2305,7 +2484,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-06-16",
    "ultima_venda": null,
-   "marca": "Esmaltec"
+   "marca": "Esmaltec",
+   "busca_foto": "Esmaltec"
   },
   {
    "codigo": "04907",
@@ -2315,7 +2495,8 @@
    "preco": 1345.04,
    "quantidade": 1,
    "ultima_compra": "2025-09-24",
-   "ultima_venda": "2026-03-04"
+   "ultima_venda": "2026-03-04",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "04905",
@@ -2325,7 +2506,8 @@
    "preco": 1754.23,
    "quantidade": 1,
    "ultima_compra": "2025-05-27",
-   "ultima_venda": "2026-05-22"
+   "ultima_venda": "2026-05-22",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05276",
@@ -2335,7 +2517,8 @@
    "preco": 1255.43,
    "quantidade": 2,
    "ultima_compra": "2026-07-13",
-   "ultima_venda": "2026-07-07"
+   "ultima_venda": "2026-07-07",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05365",
@@ -2346,7 +2529,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-06-15",
    "ultima_venda": null,
-   "marca": "Esmaltec"
+   "marca": "Esmaltec",
+   "busca_foto": "Esmaltec"
   },
   {
    "codigo": "05367",
@@ -2357,7 +2541,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-06-15",
    "ultima_venda": null,
-   "marca": "Esmaltec"
+   "marca": "Esmaltec",
+   "busca_foto": "Esmaltec"
   },
   {
    "codigo": "05357",
@@ -2368,7 +2553,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-06-15",
    "ultima_venda": "2026-06-22",
-   "marca": "Atlas"
+   "marca": "Atlas",
+   "busca_foto": "Atlas"
   },
   {
    "codigo": "05359",
@@ -2379,7 +2565,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-06-15",
    "ultima_venda": "2026-07-07",
-   "marca": "Atlas"
+   "marca": "Atlas",
+   "busca_foto": "Atlas"
   },
   {
    "codigo": "05361",
@@ -2390,7 +2577,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-06-15",
    "ultima_venda": "2026-06-12",
-   "marca": "Atlas"
+   "marca": "Atlas",
+   "busca_foto": "Atlas"
   },
   {
    "codigo": "05358",
@@ -2401,7 +2589,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-06-15",
    "ultima_venda": "2026-06-16",
-   "marca": "Atlas"
+   "marca": "Atlas",
+   "busca_foto": "Atlas"
   },
   {
    "codigo": "05360",
@@ -2412,7 +2601,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-06-15",
    "ultima_venda": "2026-06-12",
-   "marca": "Atlas"
+   "marca": "Atlas",
+   "busca_foto": "Atlas"
   },
   {
    "codigo": "05362",
@@ -2423,7 +2613,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-06-15",
    "ultima_venda": null,
-   "marca": "Atlas"
+   "marca": "Atlas",
+   "busca_foto": "Atlas"
   },
   {
    "codigo": "03863",
@@ -2444,7 +2635,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-07-29",
    "ultima_venda": null,
-   "marca": "Esmaltec"
+   "marca": "Esmaltec",
+   "busca_foto": "Esmaltec"
   },
   {
    "codigo": "04605",
@@ -2455,7 +2647,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-09-09",
    "ultima_venda": "2025-11-05",
-   "marca": "Itatiaia"
+   "marca": "Itatiaia",
+   "busca_foto": "Itatiaia"
   },
   {
    "codigo": "03430",
@@ -2466,7 +2659,8 @@
    "quantidade": 9,
    "ultima_compra": "2025-03-06",
    "ultima_venda": "2020-11-30",
-   "marca": "Lemon"
+   "marca": "Lemon",
+   "busca_foto": "Lemon"
   },
   {
    "codigo": "04456",
@@ -2486,7 +2680,8 @@
    "preco": 73.6,
    "quantidade": 3,
    "ultima_compra": "2025-03-06",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Fujioka"
   },
   {
    "codigo": "04867",
@@ -2506,7 +2701,8 @@
    "preco": 960.83,
    "quantidade": 1,
    "ultima_compra": "2026-08-21",
-   "ultima_venda": "2026-06-19"
+   "ultima_venda": "2026-06-19",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05401",
@@ -2517,7 +2713,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-07-13",
    "ultima_venda": "2026-08-11",
-   "marca": "Esmaltec"
+   "marca": "Esmaltec",
+   "busca_foto": "Esmaltec"
   },
   {
    "codigo": "04970",
@@ -2527,7 +2724,8 @@
    "preco": 2683.03,
    "quantidade": 1,
    "ultima_compra": "2026-05-05",
-   "ultima_venda": "2026-06-11"
+   "ultima_venda": "2026-06-11",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05455",
@@ -2537,7 +2735,8 @@
    "preco": 3043.25,
    "quantidade": 2,
    "ultima_compra": "2026-09-11",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Britânia"
   },
   {
    "codigo": "05394",
@@ -2547,7 +2746,8 @@
    "preco": 4087.41,
    "quantidade": 1,
    "ultima_compra": "2026-07-08",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05438",
@@ -2557,7 +2757,8 @@
    "preco": 2687.9,
    "quantidade": 1,
    "ultima_compra": "2026-08-14",
-   "ultima_venda": "2026-08-21"
+   "ultima_venda": "2026-08-21",
+   "busca_foto": "Britânia"
   },
   {
    "codigo": "05074",
@@ -2568,7 +2769,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-02-03",
    "ultima_venda": "2026-07-22",
-   "marca": "Sumay"
+   "marca": "Sumay",
+   "busca_foto": "Sumay"
   },
   {
    "codigo": "05355",
@@ -2589,7 +2791,8 @@
    "quantidade": 1,
    "ultima_compra": "2024-09-16",
    "ultima_venda": null,
-   "marca": "Madine"
+   "marca": "Madine",
+   "busca_foto": "Madine"
   },
   {
    "codigo": "05302",
@@ -2640,7 +2843,8 @@
    "quantidade": 1,
    "ultima_compra": "2024-09-16",
    "ultima_venda": "2024-09-17",
-   "marca": "Madine"
+   "marca": "Madine",
+   "busca_foto": "Madine"
   },
   {
    "codigo": "04735",
@@ -2651,7 +2855,8 @@
    "quantidade": 1,
    "ultima_compra": "2024-09-16",
    "ultima_venda": "2025-09-26",
-   "marca": "Madine"
+   "marca": "Madine",
+   "busca_foto": "Madine"
   },
   {
    "codigo": "03103",
@@ -2662,7 +2867,8 @@
    "quantidade": 1,
    "ultima_compra": "2022-06-22",
    "ultima_venda": "2025-03-05",
-   "marca": "Nobrelar"
+   "marca": "Nobrelar",
+   "busca_foto": "Nobrelar"
   },
   {
    "codigo": "03117",
@@ -2673,7 +2879,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-03-06",
    "ultima_venda": "2026-01-17",
-   "marca": "Nobrelar"
+   "marca": "Nobrelar",
+   "busca_foto": "Nobrelar"
   },
   {
    "codigo": "05290",
@@ -2684,7 +2891,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-05-07",
    "ultima_venda": "2026-07-04",
-   "marca": "Romero"
+   "marca": "Romero",
+   "busca_foto": "Romero"
   },
   {
    "codigo": "05291",
@@ -2695,7 +2903,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-07",
    "ultima_venda": "2026-06-01",
-   "marca": "Romero"
+   "marca": "Romero",
+   "busca_foto": "Romero"
   },
   {
    "codigo": "02515",
@@ -2705,7 +2914,8 @@
    "preco": 147.75,
    "quantidade": 1,
    "ultima_compra": "2025-06-26",
-   "ultima_venda": "2025-10-20"
+   "ultima_venda": "2025-10-20",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "04270",
@@ -2716,7 +2926,8 @@
    "quantidade": 1,
    "ultima_compra": "2023-08-11",
    "ultima_venda": "2024-10-29",
-   "marca": "Batrol"
+   "marca": "Batrol",
+   "busca_foto": "Batrol"
   },
   {
    "codigo": "03977",
@@ -2727,7 +2938,8 @@
    "quantidade": 1,
    "ultima_compra": "2022-05-09",
    "ultima_venda": "2026-02-27",
-   "marca": "Rodial"
+   "marca": "Rodial",
+   "busca_foto": "Rodial"
   },
   {
    "codigo": "04983",
@@ -2738,7 +2950,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-09-15",
    "ultima_venda": "2025-10-10",
-   "marca": "ACP Móveis"
+   "marca": "ACP Móveis",
+   "busca_foto": "ACP Móveis"
   },
   {
    "codigo": "04985",
@@ -2749,7 +2962,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-09-15",
    "ultima_venda": "2026-03-24",
-   "marca": "ACP Móveis"
+   "marca": "ACP Móveis",
+   "busca_foto": "ACP Móveis"
   },
   {
    "codigo": "05046",
@@ -2760,7 +2974,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-09-15",
    "ultima_venda": null,
-   "marca": "ACP Móveis"
+   "marca": "ACP Móveis",
+   "busca_foto": "ACP Móveis"
   },
   {
    "codigo": "05052",
@@ -2771,7 +2986,8 @@
    "quantidade": 2,
    "ultima_compra": "2025-09-15",
    "ultima_venda": null,
-   "marca": "ACP Móveis"
+   "marca": "ACP Móveis",
+   "busca_foto": "ACP Móveis"
   },
   {
    "codigo": "05049",
@@ -2782,7 +2998,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-09-15",
    "ultima_venda": "2025-10-17",
-   "marca": "ACP Móveis"
+   "marca": "ACP Móveis",
+   "busca_foto": "ACP Móveis"
   },
   {
    "codigo": "04977",
@@ -2793,7 +3010,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-09-03",
    "ultima_venda": "2026-07-18",
-   "marca": "ACP Móveis"
+   "marca": "ACP Móveis",
+   "busca_foto": "ACP Móveis"
   },
   {
    "codigo": "04976",
@@ -2804,7 +3022,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-09-03",
    "ultima_venda": "2026-09-18",
-   "marca": "ACP Móveis"
+   "marca": "ACP Móveis",
+   "busca_foto": "ACP Móveis"
   },
   {
    "codigo": "05014",
@@ -2815,7 +3034,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-04-14",
    "ultima_venda": "2026-09-09",
-   "marca": "ACP Móveis"
+   "marca": "ACP Móveis",
+   "busca_foto": "ACP Móveis"
   },
   {
    "codigo": "05259",
@@ -2826,7 +3046,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-09-03",
    "ultima_venda": "2026-09-15",
-   "marca": "ACP Móveis"
+   "marca": "ACP Móveis",
+   "busca_foto": "ACP Móveis"
   },
   {
    "codigo": "05260",
@@ -2837,7 +3058,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-09-03",
    "ultima_venda": "2026-09-15",
-   "marca": "ACP Móveis"
+   "marca": "ACP Móveis",
+   "busca_foto": "ACP Móveis"
   },
   {
    "codigo": "05444",
@@ -2848,7 +3070,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-09-03",
    "ultima_venda": "2026-09-11",
-   "marca": "ACP Móveis"
+   "marca": "ACP Móveis",
+   "busca_foto": "ACP Móveis"
   },
   {
    "codigo": "05058",
@@ -2859,7 +3082,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-09-03",
    "ultima_venda": "2026-09-04",
-   "marca": "ACP Móveis"
+   "marca": "ACP Móveis",
+   "busca_foto": "ACP Móveis"
   },
   {
    "codigo": "04569",
@@ -2869,7 +3093,8 @@
    "preco": 1062.96,
    "quantidade": 1,
    "ultima_compra": "2026-02-11",
-   "ultima_venda": "2026-06-13"
+   "ultima_venda": "2026-06-13",
+   "busca_foto": "HB Móveis"
   },
   {
    "codigo": "05348",
@@ -2880,7 +3105,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-06-01",
    "ultima_venda": null,
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "05347",
@@ -2891,7 +3117,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-06-01",
    "ultima_venda": null,
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "04788",
@@ -2902,7 +3129,8 @@
    "quantidade": 2,
    "ultima_compra": "2024-12-03",
    "ultima_venda": null,
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "04811",
@@ -2913,7 +3141,8 @@
    "quantidade": 1,
    "ultima_compra": "2024-12-03",
    "ultima_venda": null,
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "04930",
@@ -2923,7 +3152,8 @@
    "preco": 1460.28,
    "quantidade": 2,
    "ultima_compra": "2026-02-11",
-   "ultima_venda": "2025-06-03"
+   "ultima_venda": "2025-06-03",
+   "busca_foto": "HB Móveis"
   },
   {
    "codigo": "04568",
@@ -2933,7 +3163,8 @@
    "preco": 1460.28,
    "quantidade": 1,
    "ultima_compra": "2026-02-11",
-   "ultima_venda": "2026-01-29"
+   "ultima_venda": "2026-01-29",
+   "busca_foto": "HB Móveis"
   },
   {
    "codigo": "05349",
@@ -2944,7 +3175,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-06-01",
    "ultima_venda": null,
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "05350",
@@ -2955,7 +3187,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-06-01",
    "ultima_venda": null,
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "05352",
@@ -2966,7 +3199,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-06-01",
    "ultima_venda": "2026-06-02",
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "04936",
@@ -2976,7 +3210,8 @@
    "preco": 1318.04,
    "quantidade": 1,
    "ultima_compra": "2025-12-18",
-   "ultima_venda": "2025-12-18"
+   "ultima_venda": "2025-12-18",
+   "busca_foto": "HB Móveis"
   },
   {
    "codigo": "04935",
@@ -2986,7 +3221,8 @@
    "preco": 1061.24,
    "quantidade": 1,
    "ultima_compra": "2025-07-10",
-   "ultima_venda": "2025-06-03"
+   "ultima_venda": "2025-06-03",
+   "busca_foto": "HB Móveis"
   },
   {
    "codigo": "04939",
@@ -2996,7 +3232,8 @@
    "preco": 1026.84,
    "quantidade": 3,
    "ultima_compra": "2025-07-10",
-   "ultima_venda": "2025-06-03"
+   "ultima_venda": "2025-06-03",
+   "busca_foto": "HB Móveis"
   },
   {
    "codigo": "04938",
@@ -3006,7 +3243,8 @@
    "preco": 1026.84,
    "quantidade": 1,
    "ultima_compra": "2025-05-21",
-   "ultima_venda": "2025-06-03"
+   "ultima_venda": "2025-06-03",
+   "busca_foto": "HB Móveis"
   },
   {
    "codigo": "04786",
@@ -3017,7 +3255,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-06-01",
    "ultima_venda": "2026-06-12",
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "02741",
@@ -3028,7 +3267,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-03-06",
    "ultima_venda": "2026-01-23",
-   "marca": "Grappa"
+   "marca": "Grappa",
+   "busca_foto": "Grappa Móveis"
   },
   {
    "codigo": "05212",
@@ -3038,7 +3278,8 @@
    "preco": 2110.44,
    "quantidade": 1,
    "ultima_compra": "2026-02-11",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "HB Móveis"
   },
   {
    "codigo": "04566",
@@ -3048,7 +3289,8 @@
    "preco": 2110.44,
    "quantidade": 1,
    "ultima_compra": "2026-02-11",
-   "ultima_venda": "2025-12-18"
+   "ultima_venda": "2025-12-18",
+   "busca_foto": "HB Móveis"
   },
   {
    "codigo": "04565",
@@ -3058,7 +3300,8 @@
    "preco": 1904.04,
    "quantidade": 1,
    "ultima_compra": "2024-10-03",
-   "ultima_venda": "2024-04-18"
+   "ultima_venda": "2024-04-18",
+   "busca_foto": "HB Móveis"
   },
   {
    "codigo": "05077",
@@ -3069,7 +3312,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-02-03",
    "ultima_venda": "2026-08-18",
-   "marca": "Sumay"
+   "marca": "Sumay",
+   "busca_foto": "Sumay"
   },
   {
    "codigo": "04386",
@@ -3079,7 +3323,8 @@
    "preco": 49.6,
    "quantidade": 4,
    "ultima_compra": "2023-07-06",
-   "ultima_venda": "2026-02-09"
+   "ultima_venda": "2026-02-09",
+   "busca_foto": "Americanas"
   },
   {
    "codigo": "04863",
@@ -3100,7 +3345,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-04-14",
    "ultima_venda": "2026-06-16",
-   "marca": "Sumay"
+   "marca": "Sumay",
+   "busca_foto": "Sumay"
   },
   {
    "codigo": "04586",
@@ -3111,7 +3357,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-02-02",
    "ultima_venda": "2026-07-15",
-   "marca": "Poliman"
+   "marca": "Poliman",
+   "busca_foto": "Poliman"
   },
   {
    "codigo": "04707",
@@ -3122,7 +3369,8 @@
    "quantidade": 1,
    "ultima_compra": "2024-08-29",
    "ultima_venda": "2025-10-10",
-   "marca": "Poliman"
+   "marca": "Poliman",
+   "busca_foto": "Poliman"
   },
   {
    "codigo": "05412",
@@ -3133,7 +3381,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-07-14",
    "ultima_venda": null,
-   "marca": "Bertolini"
+   "marca": "Bertolini",
+   "busca_foto": "Bertolini"
   },
   {
    "codigo": "05413",
@@ -3144,7 +3393,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-07-14",
    "ultima_venda": null,
-   "marca": "Bertolini"
+   "marca": "Bertolini",
+   "busca_foto": "Bertolini"
   },
   {
    "codigo": "05266",
@@ -3155,7 +3405,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-07-14",
    "ultima_venda": "2026-07-17",
-   "marca": "Bertolini"
+   "marca": "Bertolini",
+   "busca_foto": "Bertolini"
   },
   {
    "codigo": "05267",
@@ -3166,7 +3417,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-07-14",
    "ultima_venda": "2026-05-06",
-   "marca": "Bertolini"
+   "marca": "Bertolini",
+   "busca_foto": "Bertolini"
   },
   {
    "codigo": "05410",
@@ -3177,7 +3429,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-07-14",
    "ultima_venda": null,
-   "marca": "Bertolini"
+   "marca": "Bertolini",
+   "busca_foto": "Bertolini"
   },
   {
    "codigo": "05411",
@@ -3188,7 +3441,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-07-14",
    "ultima_venda": "2026-08-08",
-   "marca": "Bertolini"
+   "marca": "Bertolini",
+   "busca_foto": "Bertolini"
   },
   {
    "codigo": "05382",
@@ -3208,7 +3462,8 @@
    "preco": 563.32,
    "quantidade": 3,
    "ultima_compra": "2026-09-01",
-   "ultima_venda": "2026-09-04"
+   "ultima_venda": "2026-09-04",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05441",
@@ -3218,7 +3473,8 @@
    "preco": 563.32,
    "quantidade": 4,
    "ultima_compra": "2026-09-01",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05442",
@@ -3228,7 +3484,8 @@
    "preco": 1189.82,
    "quantidade": 3,
    "ultima_compra": "2026-09-01",
-   "ultima_venda": "2026-09-04"
+   "ultima_venda": "2026-09-04",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05443",
@@ -3238,7 +3495,8 @@
    "preco": 1189.82,
    "quantidade": 4,
    "ultima_compra": "2026-09-01",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05123",
@@ -3249,7 +3507,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-09-10",
    "ultima_venda": "2026-09-15",
-   "marca": "Nicioli"
+   "marca": "Nicioli",
+   "busca_foto": "Nicioli"
   },
   {
    "codigo": "05124",
@@ -3260,7 +3519,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-09-10",
    "ultima_venda": "2026-09-11",
-   "marca": "Nicioli"
+   "marca": "Nicioli",
+   "busca_foto": "Nicioli"
   },
   {
    "codigo": "05116",
@@ -3271,7 +3531,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-10-28",
    "ultima_venda": null,
-   "marca": "Nicioli"
+   "marca": "Nicioli",
+   "busca_foto": "Nicioli"
   },
   {
    "codigo": "05416",
@@ -3281,7 +3542,8 @@
    "preco": 1294.82,
    "quantidade": 2,
    "ultima_compra": "2026-09-08",
-   "ultima_venda": "2026-09-18"
+   "ultima_venda": "2026-09-18",
+   "busca_foto": "Mercadomóveis"
   },
   {
    "codigo": "05453",
@@ -3292,7 +3554,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-09-10",
    "ultima_venda": null,
-   "marca": "Nicioli"
+   "marca": "Nicioli",
+   "busca_foto": "Nicioli"
   },
   {
    "codigo": "05454",
@@ -3303,7 +3566,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-09-10",
    "ultima_venda": null,
-   "marca": "Nicioli"
+   "marca": "Nicioli",
+   "busca_foto": "Nicioli"
   },
   {
    "codigo": "05114",
@@ -3314,7 +3578,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-10-28",
    "ultima_venda": null,
-   "marca": "Nicioli"
+   "marca": "Nicioli",
+   "busca_foto": "Nicioli"
   },
   {
    "codigo": "05111",
@@ -3325,7 +3590,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-09-10",
    "ultima_venda": "2026-01-13",
-   "marca": "Nicioli"
+   "marca": "Nicioli",
+   "busca_foto": "Nicioli"
   },
   {
    "codigo": "05204",
@@ -3336,7 +3602,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-02-02",
    "ultima_venda": "2026-06-12",
-   "marca": "Poliman"
+   "marca": "Poliman",
+   "busca_foto": "Poliman"
   },
   {
    "codigo": "05203",
@@ -3347,7 +3614,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-02-02",
    "ultima_venda": "2026-07-14",
-   "marca": "Poliman"
+   "marca": "Poliman",
+   "busca_foto": "Poliman"
   },
   {
    "codigo": "05017",
@@ -3358,7 +3626,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-02-02",
    "ultima_venda": "2026-08-18",
-   "marca": "Poliman"
+   "marca": "Poliman",
+   "busca_foto": "Poliman"
   },
   {
    "codigo": "05451",
@@ -3369,7 +3638,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-09-10",
    "ultima_venda": null,
-   "marca": "Nicioli"
+   "marca": "Nicioli",
+   "busca_foto": "Nicioli"
   },
   {
    "codigo": "05117",
@@ -3380,7 +3650,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-10-28",
    "ultima_venda": "2026-08-04",
-   "marca": "Nicioli"
+   "marca": "Nicioli",
+   "busca_foto": "Nicioli"
   },
   {
    "codigo": "05452",
@@ -3391,7 +3662,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-09-10",
    "ultima_venda": null,
-   "marca": "Nicioli"
+   "marca": "Nicioli",
+   "busca_foto": "Nicioli"
   },
   {
    "codigo": "05447",
@@ -3402,7 +3674,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-09-10",
    "ultima_venda": null,
-   "marca": "Nicioli"
+   "marca": "Nicioli",
+   "busca_foto": "Nicioli"
   },
   {
    "codigo": "04748",
@@ -3412,7 +3685,8 @@
    "preco": 1375.83,
    "quantidade": 7,
    "ultima_compra": "2026-05-26",
-   "ultima_venda": "2026-05-27"
+   "ultima_venda": "2026-05-27",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05181",
@@ -3423,7 +3697,8 @@
    "quantidade": 2,
    "ultima_compra": "2025-12-03",
    "ultima_venda": null,
-   "marca": "Imcal"
+   "marca": "Imcal",
+   "busca_foto": "Imcal"
   },
   {
    "codigo": "05239",
@@ -3433,7 +3708,8 @@
    "preco": 784.15,
    "quantidade": 3,
    "ultima_compra": "2026-06-26",
-   "ultima_venda": "2026-09-10"
+   "ultima_venda": "2026-09-10",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05248",
@@ -3443,7 +3719,8 @@
    "preco": 2969.58,
    "quantidade": 1,
    "ultima_compra": "2026-07-15",
-   "ultima_venda": "2026-07-15"
+   "ultima_venda": "2026-07-15",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05380",
@@ -3453,7 +3730,8 @@
    "preco": 871.87,
    "quantidade": 1,
    "ultima_compra": "2026-06-26",
-   "ultima_venda": "2026-08-28"
+   "ultima_venda": "2026-08-28",
+   "busca_foto": "Mercadomóveis"
   },
   {
    "codigo": "04683",
@@ -3463,7 +3741,8 @@
    "preco": 171.83,
    "quantidade": 2,
    "ultima_compra": "2025-09-11",
-   "ultima_venda": "2026-05-25"
+   "ultima_venda": "2026-05-25",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05325",
@@ -3473,7 +3752,8 @@
    "preco": 136.33,
    "quantidade": 1,
    "ultima_compra": "2026-05-26",
-   "ultima_venda": "2026-07-23"
+   "ultima_venda": "2026-07-23",
+   "busca_foto": "Mercadomóveis"
   },
   {
    "codigo": "05010",
@@ -3483,7 +3763,8 @@
    "preco": 180.6,
    "quantidade": 1,
    "ultima_compra": "2026-01-15",
-   "ultima_venda": "2026-03-10"
+   "ultima_venda": "2026-03-10",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "03529",
@@ -3524,7 +3805,8 @@
    "quantidade": 5,
    "ultima_compra": "2025-03-06",
    "ultima_venda": "2025-01-15",
-   "marca": "Multilaser"
+   "marca": "Multilaser",
+   "busca_foto": "Multilaser"
   },
   {
    "codigo": "04457",
@@ -3534,7 +3816,8 @@
    "preco": 154.8,
    "quantidade": 2,
    "ultima_compra": "2023-08-09",
-   "ultima_venda": "2025-07-18"
+   "ultima_venda": "2025-07-18",
+   "busca_foto": "JB Bechara"
   },
   {
    "codigo": "04800",
@@ -3545,7 +3828,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-06-01",
    "ultima_venda": "2026-07-02",
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "04801",
@@ -3556,7 +3840,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-06-01",
    "ultima_venda": "2025-12-16",
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "04485",
@@ -3566,7 +3851,8 @@
    "preco": 225.93,
    "quantidade": 2,
    "ultima_compra": "2025-03-06",
-   "ultima_venda": "2023-09-19"
+   "ultima_venda": "2023-09-19",
+   "busca_foto": "JB Bechara"
   },
   {
    "codigo": "04806",
@@ -3577,7 +3863,8 @@
    "quantidade": 1,
    "ultima_compra": "2024-12-03",
    "ultima_venda": "2025-12-16",
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "04575",
@@ -3587,7 +3874,8 @@
    "preco": 782.6,
    "quantidade": 2,
    "ultima_compra": "2024-10-03",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "HB Móveis"
   },
   {
    "codigo": "05356",
@@ -3607,7 +3895,8 @@
    "preco": 639.84,
    "quantidade": 1,
    "ultima_compra": "2025-07-10",
-   "ultima_venda": "2025-06-03"
+   "ultima_venda": "2025-06-03",
+   "busca_foto": "HB Móveis"
   },
   {
    "codigo": "04858",
@@ -3627,7 +3916,8 @@
    "preco": 493.64,
    "quantidade": 1,
    "ultima_compra": "2024-10-03",
-   "ultima_venda": "2025-01-04"
+   "ultima_venda": "2025-01-04",
+   "busca_foto": "HB Móveis"
   },
   {
    "codigo": "04643",
@@ -3647,7 +3937,8 @@
    "preco": 1030.93,
    "quantidade": 1,
    "ultima_compra": "2025-06-26",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Nara Móveis"
   },
   {
    "codigo": "05095",
@@ -3657,7 +3948,8 @@
    "preco": 104.5,
    "quantidade": 2,
    "ultima_compra": "2026-07-07",
-   "ultima_venda": "2026-07-09"
+   "ultima_venda": "2026-07-09",
+   "busca_foto": "Plastmaster"
   },
   {
    "codigo": "05096",
@@ -3667,7 +3959,8 @@
    "preco": 104.5,
    "quantidade": 8,
    "ultima_compra": "2026-07-07",
-   "ultima_venda": "2026-07-09"
+   "ultima_venda": "2026-07-09",
+   "busca_foto": "Plastmaster"
   },
   {
    "codigo": "05097",
@@ -3677,7 +3970,8 @@
    "preco": 104.5,
    "quantidade": 7,
    "ultima_compra": "2026-07-07",
-   "ultima_venda": "2026-07-09"
+   "ultima_venda": "2026-07-09",
+   "busca_foto": "Plastmaster"
   },
   {
    "codigo": "05131",
@@ -3697,7 +3991,8 @@
    "preco": 206.55,
    "quantidade": 1,
    "ultima_compra": "2024-10-25",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "04090",
@@ -3707,7 +4002,8 @@
    "preco": 593.3,
    "quantidade": 3,
    "ultima_compra": "2022-09-07",
-   "ultima_venda": "2026-03-18"
+   "ultima_venda": "2026-03-18",
+   "busca_foto": "Mercado Livre"
   },
   {
    "codigo": "03985",
@@ -3717,7 +4013,8 @@
    "preco": 1086.24,
    "quantidade": 3,
    "ultima_compra": "2022-05-21",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "03352",
@@ -3728,7 +4025,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-03-06",
    "ultima_venda": "2025-09-17",
-   "marca": "Multilaser"
+   "marca": "Multilaser",
+   "busca_foto": "Multilaser"
   },
   {
    "codigo": "03888",
@@ -3739,7 +4037,8 @@
    "quantidade": 1,
    "ultima_compra": "2022-05-10",
    "ultima_venda": "2026-09-22",
-   "marca": "Ortobom"
+   "marca": "Ortobom",
+   "busca_foto": "Ortobom"
   },
   {
    "codigo": "00409",
@@ -3749,7 +4048,8 @@
    "preco": 86.25,
    "quantidade": 1,
    "ultima_compra": "2025-03-06",
-   "ultima_venda": "2015-11-07"
+   "ultima_venda": "2015-11-07",
+   "busca_foto": "Hayamax"
   },
   {
    "codigo": "05448",
@@ -3760,7 +4060,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-09-08",
    "ultima_venda": null,
-   "marca": "Nicioli"
+   "marca": "Nicioli",
+   "busca_foto": "Nicioli"
   },
   {
    "codigo": "05328",
@@ -3771,7 +4072,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-05-28",
    "ultima_venda": null,
-   "marca": "Henn"
+   "marca": "Henn",
+   "busca_foto": "Henn"
   },
   {
    "codigo": "01421",
@@ -3782,7 +4084,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-03-06",
    "ultima_venda": "2017-01-20",
-   "marca": "Multilaser"
+   "marca": "Multilaser",
+   "busca_foto": "Multilaser"
   },
   {
    "codigo": "05205",
@@ -3793,7 +4096,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-02-02",
    "ultima_venda": "2026-01-23",
-   "marca": "Poliman"
+   "marca": "Poliman",
+   "busca_foto": "Poliman"
   },
   {
    "codigo": "05019",
@@ -3804,7 +4108,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-02-02",
    "ultima_venda": "2025-07-16",
-   "marca": "Poliman"
+   "marca": "Poliman",
+   "busca_foto": "Poliman"
   },
   {
    "codigo": "05182",
@@ -3815,7 +4120,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-09-03",
    "ultima_venda": "2026-09-04",
-   "marca": "ACP Móveis"
+   "marca": "ACP Móveis",
+   "busca_foto": "ACP Móveis"
   },
   {
    "codigo": "05059",
@@ -3826,7 +4132,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-09-03",
    "ultima_venda": "2025-11-08",
-   "marca": "ACP Móveis"
+   "marca": "ACP Móveis",
+   "busca_foto": "ACP Móveis"
   },
   {
    "codigo": "05195",
@@ -3836,7 +4143,8 @@
    "preco": 515.83,
    "quantidade": 2,
    "ultima_compra": "2026-01-15",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "04504",
@@ -3846,7 +4154,8 @@
    "preco": 489.0,
    "quantidade": 1,
    "ultima_compra": "2023-09-15",
-   "ultima_venda": "2024-03-06"
+   "ultima_venda": "2024-03-06",
+   "busca_foto": "JB Bechara"
   },
   {
    "codigo": "04505",
@@ -3856,7 +4165,8 @@
    "preco": 494.76,
    "quantidade": 1,
    "ultima_compra": "2023-09-15",
-   "ultima_venda": "2023-09-19"
+   "ultima_venda": "2023-09-19",
+   "busca_foto": "JB Bechara"
   },
   {
    "codigo": "05090",
@@ -3866,7 +4176,8 @@
    "preco": 825.6,
    "quantidade": 1,
    "ultima_compra": "2026-02-11",
-   "ultima_venda": "2025-10-23"
+   "ultima_venda": "2025-10-23",
+   "busca_foto": "HB Móveis"
   },
   {
    "codigo": "05091",
@@ -3876,7 +4187,8 @@
    "preco": 825.6,
    "quantidade": 1,
    "ultima_compra": "2026-02-11",
-   "ultima_venda": "2025-11-14"
+   "ultima_venda": "2025-11-14",
+   "busca_foto": "HB Móveis"
   },
   {
    "codigo": "04789",
@@ -3887,7 +4199,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-06-01",
    "ultima_venda": "2025-03-12",
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "04790",
@@ -3898,7 +4211,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-06-01",
    "ultima_venda": "2026-06-12",
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "02979",
@@ -3909,7 +4223,8 @@
    "quantidade": 3,
    "ultima_compra": "2025-03-06",
    "ultima_venda": "2026-02-09",
-   "marca": "Belaflex"
+   "marca": "Belaflex",
+   "busca_foto": "Belaflex"
   },
   {
    "codigo": "02980",
@@ -3920,7 +4235,8 @@
    "quantidade": 1,
    "ultima_compra": "2019-10-24",
    "ultima_venda": "2025-03-06",
-   "marca": "Belaflex"
+   "marca": "Belaflex",
+   "busca_foto": "Belaflex"
   },
   {
    "codigo": "05346",
@@ -3931,7 +4247,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-06-01",
    "ultima_venda": null,
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "02864",
@@ -3942,7 +4259,8 @@
    "quantidade": 2,
    "ultima_compra": "2025-01-30",
    "ultima_venda": "2025-01-28",
-   "marca": "Alusol"
+   "marca": "Alusol",
+   "busca_foto": "Alusol"
   },
   {
    "codigo": "02865",
@@ -3953,7 +4271,8 @@
    "quantidade": 2,
    "ultima_compra": "2025-01-30",
    "ultima_venda": "2026-05-25",
-   "marca": "Alusol"
+   "marca": "Alusol",
+   "busca_foto": "Alusol"
   },
   {
    "codigo": "02866",
@@ -3964,7 +4283,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-01-30",
    "ultima_venda": "2025-08-06",
-   "marca": "Alusol"
+   "marca": "Alusol",
+   "busca_foto": "Alusol"
   },
   {
    "codigo": "04842",
@@ -3975,7 +4295,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-01-30",
    "ultima_venda": "2025-01-28",
-   "marca": "Alusol"
+   "marca": "Alusol",
+   "busca_foto": "Alusol"
   },
   {
    "codigo": "02861",
@@ -3986,7 +4307,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-01-30",
    "ultima_venda": "2025-02-18",
-   "marca": "Alusol"
+   "marca": "Alusol",
+   "busca_foto": "Alusol"
   },
   {
    "codigo": "04847",
@@ -3997,7 +4319,8 @@
    "quantidade": 2,
    "ultima_compra": "2025-01-30",
    "ultima_venda": "2025-12-30",
-   "marca": "Alusol"
+   "marca": "Alusol",
+   "busca_foto": "Alusol"
   },
   {
    "codigo": "02862",
@@ -4008,7 +4331,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-01-30",
    "ultima_venda": "2025-07-19",
-   "marca": "Alusol"
+   "marca": "Alusol",
+   "busca_foto": "Alusol"
   },
   {
    "codigo": "04343",
@@ -4019,7 +4343,8 @@
    "quantidade": 1,
    "ultima_compra": "2023-06-06",
    "ultima_venda": "2025-03-06",
-   "marca": "Madine"
+   "marca": "Madine",
+   "busca_foto": "Madine"
   },
   {
    "codigo": "04344",
@@ -4030,7 +4355,8 @@
    "quantidade": 3,
    "ultima_compra": "2025-03-06",
    "ultima_venda": "2023-07-18",
-   "marca": "Madine"
+   "marca": "Madine",
+   "busca_foto": "Madine"
   },
   {
    "codigo": "04696",
@@ -4051,7 +4377,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-09-10",
    "ultima_venda": "2025-10-28",
-   "marca": "Nicioli"
+   "marca": "Nicioli",
+   "busca_foto": "Nicioli"
   },
   {
    "codigo": "05110",
@@ -4062,7 +4389,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-09-10",
    "ultima_venda": "2025-12-10",
-   "marca": "Nicioli"
+   "marca": "Nicioli",
+   "busca_foto": "Nicioli"
   },
   {
    "codigo": "04130",
@@ -4072,7 +4400,8 @@
    "preco": 150.0,
    "quantidade": 1,
    "ultima_compra": "2022-11-30",
-   "ultima_venda": "2025-03-06"
+   "ultima_venda": "2025-03-06",
+   "busca_foto": "Americanas"
   },
   {
    "codigo": "04129",
@@ -4082,7 +4411,8 @@
    "preco": 150.0,
    "quantidade": 3,
    "ultima_compra": "2022-11-30",
-   "ultima_venda": null
+   "ultima_venda": null,
+   "busca_foto": "Americanas"
   },
   {
    "codigo": "04860",
@@ -4102,7 +4432,8 @@
    "preco": 430.0,
    "quantidade": 10,
    "ultima_compra": "2025-03-06",
-   "ultima_venda": "2026-06-10"
+   "ultima_venda": "2026-06-10",
+   "busca_foto": "Tubulares Teixeira"
   },
   {
    "codigo": "03419",
@@ -4133,7 +4464,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-07-13",
    "ultima_venda": "2026-07-09",
-   "marca": "Inoxsul"
+   "marca": "Inoxsul",
+   "busca_foto": "Inoxsul"
   },
   {
    "codigo": "05397",
@@ -4144,7 +4476,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-07-13",
    "ultima_venda": "2026-07-10",
-   "marca": "Inoxsul"
+   "marca": "Inoxsul",
+   "busca_foto": "Inoxsul"
   },
   {
    "codigo": "05398",
@@ -4155,7 +4488,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-07-13",
    "ultima_venda": "2026-07-10",
-   "marca": "Inoxsul"
+   "marca": "Inoxsul",
+   "busca_foto": "Inoxsul"
   },
   {
    "codigo": "05399",
@@ -4166,7 +4500,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-07-13",
    "ultima_venda": "2026-07-10",
-   "marca": "Inoxsul"
+   "marca": "Inoxsul",
+   "busca_foto": "Inoxsul"
   },
   {
    "codigo": "05400",
@@ -4177,7 +4512,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-07-13",
    "ultima_venda": null,
-   "marca": "Inoxsul"
+   "marca": "Inoxsul",
+   "busca_foto": "Inoxsul"
   },
   {
    "codigo": "02477",
@@ -4188,7 +4524,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-04-08",
    "ultima_venda": "2026-07-17",
-   "marca": "Rorato"
+   "marca": "Rorato",
+   "busca_foto": "Rorato"
   },
   {
    "codigo": "05247",
@@ -4199,7 +4536,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-04-08",
    "ultima_venda": "2026-04-02",
-   "marca": "Rorato"
+   "marca": "Rorato",
+   "busca_foto": "Rorato"
   },
   {
    "codigo": "02478",
@@ -4210,7 +4548,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-04-08",
    "ultima_venda": "2026-04-02",
-   "marca": "Rorato"
+   "marca": "Rorato",
+   "busca_foto": "Rorato"
   },
   {
    "codigo": "05100",
@@ -4220,7 +4559,8 @@
    "preco": 62.7,
    "quantidade": 6,
    "ultima_compra": "2026-07-07",
-   "ultima_venda": "2026-08-27"
+   "ultima_venda": "2026-08-27",
+   "busca_foto": "Plastmaster"
   },
   {
    "codigo": "05101",
@@ -4230,7 +4570,8 @@
    "preco": 62.7,
    "quantidade": 24,
    "ultima_compra": "2026-07-07",
-   "ultima_venda": "2026-07-27"
+   "ultima_venda": "2026-07-27",
+   "busca_foto": "Plastmaster"
   },
   {
    "codigo": "05102",
@@ -4240,7 +4581,8 @@
    "preco": 62.7,
    "quantidade": 2,
    "ultima_compra": "2026-07-07",
-   "ultima_venda": "2026-08-27"
+   "ultima_venda": "2026-08-27",
+   "busca_foto": "Plastmaster"
   },
   {
    "codigo": "05098",
@@ -4250,7 +4592,8 @@
    "preco": 95.0,
    "quantidade": 19,
    "ultima_compra": "2026-08-18",
-   "ultima_venda": "2026-07-23"
+   "ultima_venda": "2026-07-23",
+   "busca_foto": "Plastmaster"
   },
   {
    "codigo": "05099",
@@ -4260,7 +4603,8 @@
    "preco": 95.0,
    "quantidade": 4,
    "ultima_compra": "2026-07-07",
-   "ultima_venda": "2026-07-23"
+   "ultima_venda": "2026-07-23",
+   "busca_foto": "Plastmaster"
   },
   {
    "codigo": "04236",
@@ -4270,7 +4614,8 @@
    "preco": 849.68,
    "quantidade": 2,
    "ultima_compra": "2023-03-18",
-   "ultima_venda": "2025-03-06"
+   "ultima_venda": "2025-03-06",
+   "busca_foto": "Yes Estofados"
   },
   {
    "codigo": "04235",
@@ -4280,7 +4625,8 @@
    "preco": 839.8,
    "quantidade": 3,
    "ultima_compra": "2025-03-06",
-   "ultima_venda": "2024-01-25"
+   "ultima_venda": "2024-01-25",
+   "busca_foto": "Yes Estofados"
   },
   {
    "codigo": "03917",
@@ -4290,7 +4636,8 @@
    "preco": 839.8,
    "quantidade": 1,
    "ultima_compra": "2023-03-18",
-   "ultima_venda": "2026-03-13"
+   "ultima_venda": "2026-03-13",
+   "busca_foto": "Yes Estofados"
   },
   {
    "codigo": "04884",
@@ -4300,7 +4647,8 @@
    "preco": 144.5,
    "quantidade": 1,
    "ultima_compra": "2025-02-14",
-   "ultima_venda": "2026-04-23"
+   "ultima_venda": "2026-04-23",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "02637",
@@ -4310,7 +4658,8 @@
    "preco": 125.55,
    "quantidade": 1,
    "ultima_compra": "2025-02-14",
-   "ultima_venda": "2026-06-30"
+   "ultima_venda": "2026-06-30",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "04881",
@@ -4320,7 +4669,8 @@
    "preco": 164.73,
    "quantidade": 1,
    "ultima_compra": "2025-02-14",
-   "ultima_venda": "2026-01-21"
+   "ultima_venda": "2026-01-21",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "03631",
@@ -4331,7 +4681,8 @@
    "quantidade": 1,
    "ultima_compra": "2021-07-29",
    "ultima_venda": "2021-08-10",
-   "marca": "Atualle"
+   "marca": "Atualle",
+   "busca_foto": "Atualle"
   },
   {
    "codigo": "05339",
@@ -4342,7 +4693,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-06-01",
    "ultima_venda": null,
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "05338",
@@ -4353,7 +4705,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-06-01",
    "ultima_venda": null,
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "05341",
@@ -4364,7 +4717,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-06-01",
    "ultima_venda": "2026-05-29",
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "05343",
@@ -4375,7 +4729,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-06-01",
    "ultima_venda": null,
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "04813",
@@ -4386,7 +4741,8 @@
    "quantidade": 1,
    "ultima_compra": "2024-12-03",
    "ultima_venda": "2026-04-30",
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "05340",
@@ -4397,7 +4753,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-06-01",
    "ultima_venda": null,
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "05335",
@@ -4408,7 +4765,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-06-01",
    "ultima_venda": "2026-05-29",
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "05336",
@@ -4419,7 +4777,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-06-01",
    "ultima_venda": null,
-   "marca": "Bechara"
+   "marca": "Bechara",
+   "busca_foto": "Bechara"
   },
   {
    "codigo": "04284",
@@ -4439,7 +4798,8 @@
    "preco": 534.92,
    "quantidade": 1,
    "ultima_compra": "2025-03-06",
-   "ultima_venda": "2024-07-26"
+   "ultima_venda": "2024-07-26",
+   "busca_foto": "PHP Mobília"
   },
   {
    "codigo": "04385",
@@ -4449,7 +4809,8 @@
    "preco": 132.83,
    "quantidade": 1,
    "ultima_compra": "2026-02-02",
-   "ultima_venda": "2026-08-17"
+   "ultima_venda": "2026-08-17",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "04868",
@@ -4469,7 +4830,8 @@
    "preco": 3072.31,
    "quantidade": 1,
    "ultima_compra": "2026-07-15",
-   "ultima_venda": "2026-07-28"
+   "ultima_venda": "2026-07-28",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05363",
@@ -4479,7 +4841,8 @@
    "preco": 2896.23,
    "quantidade": 2,
    "ultima_compra": "2026-09-12",
-   "ultima_venda": "2026-09-15"
+   "ultima_venda": "2026-09-15",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "03303",
@@ -4489,7 +4852,8 @@
    "preco": 4616.83,
    "quantidade": 1,
    "ultima_compra": "2026-01-20",
-   "ultima_venda": "2026-04-20"
+   "ultima_venda": "2026-04-20",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "04828",
@@ -4499,7 +4863,8 @@
    "preco": 4320.21,
    "quantidade": 1,
    "ultima_compra": "2024-12-17",
-   "ultima_venda": "2024-12-17"
+   "ultima_venda": "2024-12-17",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "01526",
@@ -4509,7 +4874,8 @@
    "preco": 16.5,
    "quantidade": 25,
    "ultima_compra": "2025-03-10",
-   "ultima_venda": "2017-10-20"
+   "ultima_venda": "2017-10-20",
+   "busca_foto": "Hayamax"
   },
   {
    "codigo": "05402",
@@ -4520,7 +4886,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-07-13",
    "ultima_venda": null,
-   "marca": "Henn"
+   "marca": "Henn",
+   "busca_foto": "Henn"
   },
   {
    "codigo": "05024",
@@ -4531,7 +4898,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-08-10",
    "ultima_venda": "2025-12-09",
-   "marca": "Henn"
+   "marca": "Henn",
+   "busca_foto": "Henn"
   },
   {
    "codigo": "05392",
@@ -4542,7 +4910,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-07-06",
    "ultima_venda": "2026-08-24",
-   "marca": "Henn"
+   "marca": "Henn",
+   "busca_foto": "Henn"
   },
   {
    "codigo": "05330",
@@ -4553,7 +4922,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-08-14",
    "ultima_venda": "2026-06-11",
-   "marca": "Henn"
+   "marca": "Henn",
+   "busca_foto": "Henn"
   },
   {
    "codigo": "05331",
@@ -4564,7 +4934,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-08-14",
    "ultima_venda": "2026-09-16",
-   "marca": "Henn"
+   "marca": "Henn",
+   "busca_foto": "Henn"
   },
   {
    "codigo": "05329",
@@ -4575,7 +4946,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-08-14",
    "ultima_venda": "2026-09-19",
-   "marca": "Henn"
+   "marca": "Henn",
+   "busca_foto": "Henn"
   },
   {
    "codigo": "05391",
@@ -4586,7 +4958,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-07-06",
    "ultima_venda": "2026-08-10",
-   "marca": "Henn"
+   "marca": "Henn",
+   "busca_foto": "Henn"
   },
   {
    "codigo": "05389",
@@ -4597,7 +4970,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-07-06",
    "ultima_venda": null,
-   "marca": "Henn"
+   "marca": "Henn",
+   "busca_foto": "Henn"
   },
   {
    "codigo": "00624",
@@ -4608,7 +4982,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-28",
    "ultima_venda": "2017-06-16",
-   "marca": "Panan"
+   "marca": "Panan",
+   "busca_foto": "Panan"
   },
   {
    "codigo": "03897",
@@ -4619,7 +4994,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-08-05",
    "ultima_venda": "2026-08-04",
-   "marca": "Henn"
+   "marca": "Henn",
+   "busca_foto": "Henn"
   },
   {
    "codigo": "04917",
@@ -4629,7 +5005,8 @@
    "preco": 632.79,
    "quantidade": 2,
    "ultima_compra": "2025-12-24",
-   "ultima_venda": "2026-03-31"
+   "ultima_venda": "2026-03-31",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05185",
@@ -4639,7 +5016,8 @@
    "preco": 632.79,
    "quantidade": 1,
    "ultima_compra": "2025-12-24",
-   "ultima_venda": "2026-09-01"
+   "ultima_venda": "2026-09-01",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05321",
@@ -4650,7 +5028,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-05-19",
    "ultima_venda": null,
-   "marca": "Henn"
+   "marca": "Henn",
+   "busca_foto": "Henn"
   },
   {
    "codigo": "05320",
@@ -4661,7 +5040,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-19",
    "ultima_venda": "2026-09-11",
-   "marca": "Henn"
+   "marca": "Henn",
+   "busca_foto": "Henn"
   },
   {
    "codigo": "05071",
@@ -4672,7 +5052,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-10-02",
    "ultima_venda": "2026-01-29",
-   "marca": "Rud Rack"
+   "marca": "Rud Rack",
+   "busca_foto": "Rud Rack"
   },
   {
    "codigo": "05332",
@@ -4692,7 +5073,8 @@
    "preco": 1260.0,
    "quantidade": 1,
    "ultima_compra": "2026-08-05",
-   "ultima_venda": "2026-09-18"
+   "ultima_venda": "2026-09-18",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05251",
@@ -4703,7 +5085,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-06-29",
    "ultima_venda": "2026-06-19",
-   "marca": "Panan"
+   "marca": "Panan",
+   "busca_foto": "Panan"
   },
   {
    "codigo": "05175",
@@ -4714,7 +5097,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-11-26",
    "ultima_venda": null,
-   "marca": "Benetil"
+   "marca": "Benetil",
+   "busca_foto": "Benetil"
   },
   {
    "codigo": "05176",
@@ -4725,7 +5109,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-11-26",
    "ultima_venda": null,
-   "marca": "Benetil"
+   "marca": "Benetil",
+   "busca_foto": "Benetil"
   },
   {
    "codigo": "05173",
@@ -4736,7 +5121,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-11-26",
    "ultima_venda": null,
-   "marca": "Benetil"
+   "marca": "Benetil",
+   "busca_foto": "Benetil"
   },
   {
    "codigo": "05174",
@@ -4747,7 +5133,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-11-26",
    "ultima_venda": null,
-   "marca": "Benetil"
+   "marca": "Benetil",
+   "busca_foto": "Benetil"
   },
   {
    "codigo": "05155",
@@ -4758,7 +5145,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-11-21",
    "ultima_venda": "2026-08-14",
-   "marca": "Henn"
+   "marca": "Henn",
+   "busca_foto": "Henn"
   },
   {
    "codigo": "04526",
@@ -4768,7 +5156,8 @@
    "preco": 792.57,
    "quantidade": 1,
    "ultima_compra": "2026-05-21",
-   "ultima_venda": "2026-05-21"
+   "ultima_venda": "2026-05-21",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "04189",
@@ -4778,7 +5167,8 @@
    "preco": 652.04,
    "quantidade": 4,
    "ultima_compra": "2026-05-21",
-   "ultima_venda": "2026-08-05"
+   "ultima_venda": "2026-08-05",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "03804",
@@ -4788,7 +5178,8 @@
    "preco": 345.83,
    "quantidade": 1,
    "ultima_compra": "2022-01-15",
-   "ultima_venda": "2023-10-06"
+   "ultima_venda": "2023-10-06",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05322",
@@ -4799,7 +5190,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-05-19",
    "ultima_venda": null,
-   "marca": "Henn"
+   "marca": "Henn",
+   "busca_foto": "Henn"
   },
   {
    "codigo": "05323",
@@ -4810,7 +5202,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-19",
    "ultima_venda": "2026-07-14",
-   "marca": "Henn"
+   "marca": "Henn",
+   "busca_foto": "Henn"
   },
   {
    "codigo": "04889",
@@ -4821,7 +5214,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-03-11",
    "ultima_venda": "2026-07-31",
-   "marca": "Panan"
+   "marca": "Panan",
+   "busca_foto": "Panan"
   },
   {
    "codigo": "05022",
@@ -4832,7 +5226,8 @@
    "quantidade": 4,
    "ultima_compra": "2026-04-29",
    "ultima_venda": "2025-09-16",
-   "marca": "Poliman"
+   "marca": "Poliman",
+   "busca_foto": "Poliman"
   },
   {
    "codigo": "04753",
@@ -4843,7 +5238,8 @@
    "quantidade": 1,
    "ultima_compra": "2025-07-10",
    "ultima_venda": "2025-11-25",
-   "marca": "Poliman"
+   "marca": "Poliman",
+   "busca_foto": "Poliman"
   },
   {
    "codigo": "04754",
@@ -4854,7 +5250,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-04-29",
    "ultima_venda": "2026-05-15",
-   "marca": "Poliman"
+   "marca": "Poliman",
+   "busca_foto": "Poliman"
   },
   {
    "codigo": "04750",
@@ -4875,7 +5272,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-04-29",
    "ultima_venda": null,
-   "marca": "Poliman"
+   "marca": "Poliman",
+   "busca_foto": "Poliman"
   },
   {
    "codigo": "04749",
@@ -4895,7 +5293,8 @@
    "preco": 127.11,
    "quantidade": 1,
    "ultima_compra": "2025-06-26",
-   "ultima_venda": "2025-08-26"
+   "ultima_venda": "2025-08-26",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05078",
@@ -4906,7 +5305,8 @@
    "quantidade": 3,
    "ultima_compra": "2026-02-03",
    "ultima_venda": "2026-07-27",
-   "marca": "Sumay"
+   "marca": "Sumay",
+   "busca_foto": "Sumay"
   },
   {
    "codigo": "05011",
@@ -4916,7 +5316,8 @@
    "preco": 133.99,
    "quantidade": 1,
    "ultima_compra": "2025-06-26",
-   "ultima_venda": "2025-06-28"
+   "ultima_venda": "2025-06-28",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "04618",
@@ -4926,7 +5327,8 @@
    "preco": 213.11,
    "quantidade": 2,
    "ultima_compra": "2025-01-13",
-   "ultima_venda": "2026-04-23"
+   "ultima_venda": "2026-04-23",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "04874",
@@ -4946,7 +5348,8 @@
    "preco": 1496.0,
    "quantidade": 1,
    "ultima_compra": "2023-03-18",
-   "ultima_venda": "2024-04-18"
+   "ultima_venda": "2024-04-18",
+   "busca_foto": "Yes Estofados"
   },
   {
    "codigo": "02580",
@@ -4957,7 +5360,8 @@
    "quantidade": 8,
    "ultima_compra": "2023-11-07",
    "ultima_venda": "2025-03-06",
-   "marca": "Ortobom"
+   "marca": "Ortobom",
+   "busca_foto": "Ortobom"
   },
   {
    "codigo": "04600",
@@ -4978,7 +5382,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-07",
    "ultima_venda": null,
-   "marca": "Romero"
+   "marca": "Romero",
+   "busca_foto": "Romero"
   },
   {
    "codigo": "05294",
@@ -4989,7 +5394,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-07",
    "ultima_venda": null,
-   "marca": "Romero"
+   "marca": "Romero",
+   "busca_foto": "Romero"
   },
   {
    "codigo": "05309",
@@ -5000,7 +5406,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-13",
    "ultima_venda": null,
-   "marca": "Lancer"
+   "marca": "Lancer",
+   "busca_foto": "Tapetes Lancer"
   },
   {
    "codigo": "04915",
@@ -5021,7 +5428,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-13",
    "ultima_venda": null,
-   "marca": "Lancer"
+   "marca": "Lancer",
+   "busca_foto": "Tapetes Lancer"
   },
   {
    "codigo": "04904",
@@ -5032,7 +5440,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-13",
    "ultima_venda": "2025-05-19",
-   "marca": "Lancer"
+   "marca": "Lancer",
+   "busca_foto": "Tapetes Lancer"
   },
   {
    "codigo": "04901",
@@ -5043,7 +5452,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-13",
    "ultima_venda": "2025-05-20",
-   "marca": "Lancer"
+   "marca": "Lancer",
+   "busca_foto": "Tapetes Lancer"
   },
   {
    "codigo": "04902",
@@ -5054,7 +5464,8 @@
    "quantidade": 2,
    "ultima_compra": "2026-05-13",
    "ultima_venda": "2025-09-11",
-   "marca": "Lancer"
+   "marca": "Lancer",
+   "busca_foto": "Tapetes Lancer"
   },
   {
    "codigo": "05314",
@@ -5065,7 +5476,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-13",
    "ultima_venda": null,
-   "marca": "Lancer"
+   "marca": "Lancer",
+   "busca_foto": "Tapetes Lancer"
   },
   {
    "codigo": "05313",
@@ -5076,7 +5488,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-13",
    "ultima_venda": null,
-   "marca": "Lancer"
+   "marca": "Lancer",
+   "busca_foto": "Tapetes Lancer"
   },
   {
    "codigo": "05306",
@@ -5087,7 +5500,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-13",
    "ultima_venda": "2026-07-02",
-   "marca": "Lancer"
+   "marca": "Lancer",
+   "busca_foto": "Tapetes Lancer"
   },
   {
    "codigo": "04900",
@@ -5098,7 +5512,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-13",
    "ultima_venda": "2026-03-10",
-   "marca": "Lancer"
+   "marca": "Lancer",
+   "busca_foto": "Tapetes Lancer"
   },
   {
    "codigo": "05305",
@@ -5109,7 +5524,8 @@
    "quantidade": 1,
    "ultima_compra": "2026-05-13",
    "ultima_venda": null,
-   "marca": "Lancer"
+   "marca": "Lancer",
+   "busca_foto": "Tapetes Lancer"
   },
   {
    "codigo": "03963",
@@ -5130,7 +5546,8 @@
    "quantidade": 135,
    "ultima_compra": "2023-11-07",
    "ultima_venda": "2026-05-12",
-   "marca": "Ortobom"
+   "marca": "Ortobom",
+   "busca_foto": "Ortobom"
   },
   {
    "codigo": "03661",
@@ -5141,7 +5558,8 @@
    "quantidade": 30,
    "ultima_compra": "2023-11-07",
    "ultima_venda": "2026-05-11",
-   "marca": "Ortobom"
+   "marca": "Ortobom",
+   "busca_foto": "Ortobom"
   },
   {
    "codigo": "00109",
@@ -5152,7 +5570,8 @@
    "quantidade": 97,
    "ultima_compra": "2023-11-07",
    "ultima_venda": "2026-07-17",
-   "marca": "Ortobom"
+   "marca": "Ortobom",
+   "busca_foto": "Ortobom"
   },
   {
    "codigo": "03965",
@@ -5202,7 +5621,8 @@
    "preco": 2435.35,
    "quantidade": 1,
    "ultima_compra": "2026-06-18",
-   "ultima_venda": "2026-07-02"
+   "ultima_venda": "2026-07-02",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "04757",
@@ -5212,7 +5632,8 @@
    "preco": 2322.0,
    "quantidade": 1,
    "ultima_compra": "2025-09-18",
-   "ultima_venda": "2025-12-23"
+   "ultima_venda": "2025-12-23",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "04190",
@@ -5222,7 +5643,8 @@
    "preco": 3009.83,
    "quantidade": 2,
    "ultima_compra": "2026-06-26",
-   "ultima_venda": "2026-07-02"
+   "ultima_venda": "2026-07-02",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05422",
@@ -5242,7 +5664,8 @@
    "preco": 254.45,
    "quantidade": 6,
    "ultima_compra": "2026-08-20",
-   "ultima_venda": "2026-09-15"
+   "ultima_venda": "2026-09-15",
+   "busca_foto": "Gazin"
   },
   {
    "codigo": "05381",
@@ -5252,7 +5675,8 @@
    "preco": 182.15,
    "quantidade": 3,
    "ultima_compra": "2026-06-26",
-   "ultima_venda": "2026-09-21"
+   "ultima_venda": "2026-09-21",
+   "busca_foto": "Mercadomóveis"
   },
   {
    "codigo": "00576",

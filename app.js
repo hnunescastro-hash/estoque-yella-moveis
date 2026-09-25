@@ -4,11 +4,66 @@
 
   const ARQUIVO_LOJAS = 'dados/lojas.json';
   const CHAVE_AJUSTES = 'estoque-yella:ajustes';
-  const POR_PAGINA = 30;
+  const CHAVE_ANUNCIADOS = 'estoque-yella:anunciados';
+  const POR_PAGINA = 40;
+  const TODAS = 'todas'; // opção "Todas as lojas": junta o estoque de todas
 
-  // Buscas rápidas mostradas quando o campo está vazio (só aparecem se houver produto).
-  const ATALHOS = ['Colchão', 'Guarda-roupa', 'Cozinha', 'Sofá', 'Cadeira', 'Mesa', 'Fogão', 'Geladeira',
-    'Home', 'Rack', 'Cômoda', 'Balcão', 'Cama', 'TV', 'Bicicleta', 'Tapete'];
+  // ---------------------------------------------------------------- ícones
+  // Desenhados para 24x24, só com traço: a cor vem do texto em volta.
+  const ICONES = {
+    colchao: '<rect x="2.5" y="10" width="19" height="7.5" rx="1.8"/><path d="M4.5 10V8.6c0-.8.7-1.5 1.5-1.5h12c.8 0 1.5.7 1.5 1.5V10"/><path d="m6 14.8 1.5-1.8 1.5 1.8 1.5-1.8 1.5 1.8 1.5-1.8 1.5 1.8 1.5-1.8 1.5 1.8"/>',
+    guardaRoupa: '<rect x="4.5" y="2.5" width="15" height="17" rx="1.5"/><path d="M12 2.5v17M10 9.5V12M14 9.5V12M6.5 19.5v2M17.5 19.5v2"/>',
+    cozinha: '<rect x="3" y="3" width="18" height="5.5" rx="1"/><path d="M12 3v5.5M2 12.5h20M3.5 12.5V21h17v-8.5M9.5 12.5V21M14.5 12.5V21"/>',
+    sofa: '<path d="M5 11V7.8A2.8 2.8 0 0 1 7.8 5h8.4A2.8 2.8 0 0 1 19 7.8V11"/><path d="M3 11.8a1.6 1.6 0 0 1 3.2 0V13h11.6v-1.2a1.6 1.6 0 0 1 3.2 0V17a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M5 18v2M19 18v2"/>',
+    cadeira: '<rect x="7" y="2.5" width="10" height="8.5" rx="1.6"/><rect x="5" y="12" width="14" height="2.6" rx="1"/><path d="M7 14.6v6.9M17 14.6v6.9M9 11v1M15 11v1"/>',
+    mesa: '<rect x="2.5" y="6.5" width="19" height="3.2" rx="1"/><path d="M5 9.7V20M19 9.7V20M5 14.5h14"/>',
+    fogao: '<rect x="4" y="2.5" width="16" height="19" rx="2"/><circle cx="9" cy="7" r="1.7"/><circle cx="15" cy="7" r="1.7"/><path d="M4 11h16"/><rect x="7.5" y="14" width="9" height="4.5" rx="1"/>',
+    geladeira: '<rect x="6" y="2.5" width="12" height="19" rx="2"/><path d="M6 9.5h12M9 5.2v2M9 12v4"/>',
+    home: '<rect x="2.5" y="3.5" width="19" height="17" rx="1.2"/><path d="M7 3.5v17M17 3.5v17M2.5 9h4.5M17 9h4.5M2.5 14.5h4.5M17 14.5h4.5M7 16h10"/><rect x="8.8" y="6.5" width="6.4" height="5" rx=".6"/>',
+    rack: '<rect x="6" y="3" width="12" height="7.5" rx="1"/><path d="M12 10.5V13"/><rect x="2.5" y="13" width="19" height="6" rx="1"/><path d="M12 13v6M4.5 19v2M19.5 19v2"/>',
+    comoda: '<rect x="4" y="3.5" width="16" height="15.5" rx="1.5"/><path d="M4 8.7h16M4 13.8h16M11 6.1h2M11 11.2h2M11 16.4h2M6 19v2M18 19v2"/>',
+    balcao: '<path d="M2 10h20M3.5 10v11h17V10M3.5 13.5h17M12 13.5V21M10 16.5V18M14 16.5V18"/><path d="M14.5 10V6.8a2 2 0 0 1 4 0"/>',
+    cama: '<path d="M3 4.5V20M3 12.5h15.5A2.5 2.5 0 0 1 21 15v5M3 17h18"/><rect x="5" y="9" width="5.5" height="3.5" rx="1.2"/>',
+    tv: '<rect x="2.5" y="5" width="19" height="12" rx="2"/><path d="M8.5 20.5h7M12 17v3.5M9 2l3 3 3-3"/>',
+    bicicleta: '<circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5 9 9.5h6.5l3 7M9 9.5l3 7H5.5M12 16.5l3.5-7M9 9.5v-2M7.5 7.5h3M15.5 9.5 15 7h1.8"/>',
+    tapete: '<rect x="4" y="5" width="16" height="14" rx="1"/><rect x="7.5" y="8.5" width="9" height="7" rx=".6"/><path d="M6 5V3M9 5V3M12 5V3M15 5V3M18 5V3M6 19v2M9 19v2M12 19v2M15 19v2M18 19v2"/>',
+    megafone: '<path d="M3 10.5v3a1 1 0 0 0 1 1h2.5L15 19V5L6.5 9.5H4a1 1 0 0 0-1 1z"/><path d="m7 14.5 1.2 5h2.3l-1.1-4.2"/><path d="M18.5 9a4 4 0 0 1 0 6"/>',
+    caixa: '<path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="m3 7.5 9 4.5 9-4.5M12 12v9"/>',
+    conversa: '<path d="M4.5 4.5h15A1.5 1.5 0 0 1 21 6v9a1.5 1.5 0 0 1-1.5 1.5H10L5.5 20v-3.5h-1A1.5 1.5 0 0 1 3 15V6a1.5 1.5 0 0 1 1.5-1.5z"/><circle class="ponto" cx="8" cy="10.5" r="1.1"/><circle class="ponto" cx="12" cy="10.5" r="1.1"/><circle class="ponto" cx="16" cy="10.5" r="1.1"/>',
+    relogio: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+    dinheiro: '<rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9.5v.01M18 14.5v.01"/>',
+    caminhao: '<path d="M2.5 6.5H13v9H2.5z"/><path d="M13 9.5h4l3.5 3.8v2.2H13"/><circle cx="6.5" cy="17.8" r="1.8"/><circle cx="16.5" cy="17.8" r="1.8"/>',
+    cancelar: '<circle cx="12" cy="12" r="8.5"/><path d="m9 9 6 6m0-6-6 6"/>',
+    lista: '<path d="M8.5 6H20M8.5 12H20M8.5 18H20"/><circle class="ponto" cx="4.5" cy="6" r="1.2"/><circle class="ponto" cx="4.5" cy="12" r="1.2"/><circle class="ponto" cx="4.5" cy="18" r="1.2"/>',
+    seta: '<path d="m6 9 6 6 6-6"/>',
+    pino: '<path d="M12 21s-6.5-5.7-6.5-11a6.5 6.5 0 0 1 13 0c0 5.3-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
+    loja: '<path d="M3.5 9.5 5 4h14l1.5 5.5"/><path d="M3.5 9.5a2.125 2.125 0 0 0 4.25 0 2.125 2.125 0 0 0 4.25 0 2.125 2.125 0 0 0 4.25 0 2.125 2.125 0 0 0 4.25 0"/><path d="M7.75 9.5 8.6 4M12 9.5V4M16.25 9.5 15.4 4"/><path d="M5 12.5V20h14v-7.5"/><path d="M10 20v-4.5h4V20"/>',
+    lixeira: '<path d="M4 7h16M9.5 7V4.5h5V7M6 7l1 13h10l1-13M10 11v5.5M14 11v5.5"/>',
+    foto: '<rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="9" cy="10" r="2"/><path d="m21 17-5.5-5.5L6 20"/>',
+    moeda: '<circle cx="12" cy="12" r="8.5"/><path d="M14.6 9.4c-.5-.9-1.5-1.4-2.6-1.4-1.5 0-2.6.8-2.6 1.9 0 2.6 5.3 1.3 5.3 4 0 1.1-1.2 2-2.7 2-1.2 0-2.3-.5-2.8-1.5M12 6.6V8M12 16.5v1.2"/>',
+    desconto: '<circle cx="12" cy="12" r="8.5"/><path d="m8.8 15.2 6.4-6.4"/><circle class="ponto" cx="9.2" cy="9.2" r="1.25"/><circle class="ponto" cx="14.8" cy="14.8" r="1.25"/>',
+  };
+
+  const icone = (nome) => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${ICONES[nome]}</svg>`;
+
+  // Buscas rápidas mostradas quando o campo está vazio (só aparecem se a loja tiver o produto).
+  const ATALHOS = [
+    ['Colchão', 'colchao'], ['Guarda-roupa', 'guardaRoupa'], ['Cozinha', 'cozinha'], ['Sofá', 'sofa'],
+    ['Cadeira', 'cadeira'], ['Mesa', 'mesa'], ['Fogão', 'fogao'], ['Geladeira', 'geladeira'],
+    ['Home', 'home'], ['Rack', 'rack'], ['Cômoda', 'comoda'], ['Balcão', 'balcao'],
+    ['Cama', 'cama'], ['TV', 'tv'], ['Bicicleta', 'bicicleta'], ['Tapete', 'tapete'],
+  ];
+
+  // Andamento do pedido na aba Anunciados.
+  const STATUS = [
+    { id: 'anunciado', nome: 'Anunciado', icone: 'megafone' },
+    { id: 'negociando', nome: 'Negociando', icone: 'conversa' },
+    { id: 'reservado', nome: 'Reservado', icone: 'relogio' },
+    { id: 'vendido', nome: 'Vendido', icone: 'dinheiro' },
+    { id: 'entregue', nome: 'Entregue', icone: 'caminhao' },
+    { id: 'cancelado', nome: 'Cancelado', icone: 'cancelar' },
+  ];
+  const STATUS_POR_ID = new Map(STATUS.map((s) => [s.id, s]));
 
   // Palavras equivalentes: quem busca uma também encontra a outra.
   const SINONIMOS = [
@@ -40,19 +95,27 @@
 
   const IGNORAR = new Set(['de', 'da', 'do', 'das', 'dos', 'e', 'a', 'o', 'as', 'os', 'com', 'para', 'um', 'uma']);
 
-  const ICONE_FOTO = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="9" cy="10" r="2"/><path d="m21 17-5.5-5.5L6 20"/></svg>';
-  const ICONE_SETA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+  const ORDENS = ['relevancia', 'az', 'za', 'menor', 'maior'];
 
   const $ = (id) => document.getElementById(id);
   const el = {
-    subtitulo: $('subtitulo'), lojas: $('lojas'), painel: $('painel'), form: $('form-busca'), busca: $('busca'),
+    lojas: $('lojas'), painel: $('painel'), form: $('form-busca'), busca: $('busca'),
     limpar: $('limpar'), comissao: $('comissao'), desconto: $('desconto'), aviso: $('aviso'), atalhos: $('atalhos'),
-    contagem: $('contagem'), lista: $('lista'), mais: $('mais'), vazio: $('vazio'), fonte: $('fonte'),
+    contagem: $('contagem'), ordenar: $('ordenar'), ordem: $('ordem'), lista: $('lista'), mais: $('mais'),
+    vazio: $('vazio'), vazioTitulo: $('vazio-titulo'), vazioTexto: $('vazio-texto'), fonte: $('fonte'),
+    telaEstoque: $('tela-estoque'), telaAnunciados: $('tela-anunciados'), resumoAnunciados: $('anunciados-resumo'),
+    filtrosStatus: $('filtros-status'), ajustesResumo: $('ajustes-resumo'), listaAnunciados: $('lista-anunciados'),
+    vazioAnunciados: $('vazio-anunciados'), abaEstoque: $('aba-estoque'), abaAnunciados: $('aba-anunciados'),
+    contador: $('contador-anunciados'), toast: $('toast'), toastTexto: $('toast-texto'), toastAcao: $('toast-acao'),
   };
+  const TEXTO_VAZIO = { titulo: el.vazioTitulo.textContent, texto: el.vazioTexto.innerHTML };
 
   const estado = {
-    lojas: [], lojaId: null, loja: null, produtos: [], resultado: [], exibidos: 0,
-    consulta: '', comissao: 0, desconto: 0,
+    lojas: [], lojaId: null, selecao: null, dadosLojas: new Map(),
+    produtos: [], porChave: new Map(), resultado: [], exibidos: 0,
+    consulta: '', ordem: 'relevancia', comissao: 0, desconto: 0,
+    anunciados: [], filtroStatus: 'todos',
+    tela: 'estoque', rolagem: { estoque: 0, anunciados: 0 },
   };
 
   // ---------------------------------------------------------------- utilidades
@@ -62,10 +125,11 @@
 
   const reais = (centavos) => moeda.format(centavos / 100);
   const percentual = (valor) => numero.format(valor) + '%';
+  const doisDigitos = (n) => String(n).padStart(2, '0');
 
   function normalizar(texto) {
     return String(texto || '')
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, ' ')
       .trim();
@@ -80,6 +144,14 @@
     if (!iso) return '';
     const [ano, mes, dia] = iso.slice(0, 10).split('-');
     return `${dia}/${mes}/${ano}`;
+  }
+
+  // "25/09 às 14:30" (com o ano quando não é o ano atual), no horário do aparelho
+  function dataHoraBR(iso) {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    const ano = d.getFullYear() !== new Date().getFullYear() ? `/${d.getFullYear()}` : '';
+    return `${doisDigitos(d.getDate())}/${doisDigitos(d.getMonth() + 1)}${ano} às ${doisDigitos(d.getHours())}:${doisDigitos(d.getMinutes())}`;
   }
 
   // "5", "5,5", "5.5", "10%" -> número entre 0 e 100 (qualquer outra coisa vale 0)
@@ -105,10 +177,33 @@
     };
   }
 
+  // Preço de R$ 1,00 ou menos no sistema é marcação provisória: não serve para passar ao cliente.
+  const semPreco = (p) => !(p.preco > 1);
+
+  const rotuloLoja = (loja) => (loja && loja.uf ? `${loja.nome} - ${loja.uf}` : (loja ? loja.nome : ''));
+  const lojaPorId = (id) => estado.lojas.find((l) => l.id === id);
+  const lojaAtual = () => lojaPorId(estado.lojaId);
+  const todasAsLojas = () => estado.lojaId === TODAS;
+  const nomeDaLoja = (id) => (lojaPorId(id) || { nome: id }).nome;
+
   // ---------------------------------------------------------------- busca
 
-  function prepararProdutos(produtos) {
-    estado.produtos = produtos.map((p, ordem) => {
+  const semAcento = (texto) => String(texto).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+  // Junta os produtos das lojas escolhidas. Cada produto guarda a loja de onde veio,
+  // porque o mesmo código pode ser de produtos diferentes em lojas diferentes.
+  function prepararProdutos(partes) {
+    const juntos = [];
+    partes.forEach(({ loja, dados }, posicaoLoja) => {
+      for (const p of dados.produtos || []) juntos.push({ p, loja: loja.id, posicaoLoja, chave: semAcento(p.nome) });
+    });
+    // Cada arquivo já vem em ordem alfabética. Juntando lojas, reordena do mesmo jeito,
+    // para o mesmo produto das duas lojas ficar lado a lado.
+    if (partes.length > 1) {
+      const comparar = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
+      juntos.sort((a, b) => comparar(a.chave, b.chave) || comparar(a.p.codigo, b.p.codigo) || a.posicaoLoja - b.posicaoLoja);
+    }
+    estado.produtos = juntos.map(({ p, loja }, ordem) => {
       const nome = normalizar(p.nome);
       const codigo = String(p.codigo).replace(/^0+/, '');
       let busca = normalizar([p.nome, p.nome_sistema, p.codigo, codigo, p.marca].join(' '));
@@ -120,13 +215,11 @@
         for (const [medida, tamanho] of TAMANHOS) if (medida.test(nome)) busca += ' ' + tamanho;
       }
       return Object.assign({}, p, {
-        _ordem: ordem,
-        _nome: nome,
-        _nomeEspaco: ' ' + nome,
-        _busca: busca,
-        _codigo: codigo,
+        _loja: loja, _chave: `${loja}:${p.codigo}`,
+        _ordem: ordem, _nome: nome, _nomeEspaco: ' ' + nome, _busca: busca, _codigo: codigo,
       });
     });
+    estado.porChave = new Map(estado.produtos.map((p) => [p._chave, p]));
   }
 
   function variantes(termo) {
@@ -199,53 +292,98 @@
     return achados.map((a) => a.p);
   }
 
-  // ---------------------------------------------------------------- desenho da tela
+  // Produto sem preço (R$ 1,00) vai para o fim quando a lista é ordenada por preço.
+  const ORDENACOES = {
+    az: (a, b) => a._ordem - b._ordem,
+    za: (a, b) => b._ordem - a._ordem,
+    menor: (a, b) => semPreco(a) - semPreco(b) || a.preco - b.preco || a._ordem - b._ordem,
+    maior: (a, b) => semPreco(a) - semPreco(b) || b.preco - a.preco || a._ordem - b._ordem,
+  };
 
+  // ---------------------------------------------------------------- pedaços do cartão
+
+  // Busca de foto: nome do produto seguido do fornecedor (quando o fornecedor ajuda a achar a foto).
   function linkFoto(p) {
-    const termos = p.marca ? `${p.nome} ${p.marca}` : p.nome;
+    const termos = p.busca_foto ? `${p.nome} ${p.busca_foto}` : p.nome;
     return 'https://www.google.com/search?udm=2&q=' + encodeURIComponent(termos); // udm=2: aba Imagens
   }
 
-  function precosHTML(p) {
-    const conta = calcular(p.preco, estado.comissao, estado.desconto);
-    const ganho = (centavos) => (estado.comissao > 0
-      ? `<span class="ganho">Você ganha <b>${reais(centavos)}</b></span>` : '');
-    let html = `<div class="linha-preco cheio"><span class="rotulo">Preço</span>`
-      + `<strong class="valor">${reais(conta.cheio)}</strong>${ganho(conta.ganhoCheio)}</div>`;
-    if (estado.desconto > 0) {
-      html += `<div class="linha-preco minimo"><span class="rotulo">Pode chegar até <em>(−${percentual(estado.desconto)})</em></span>`
-        + `<strong class="valor">${reais(conta.minimo)}</strong>${ganho(conta.ganhoMinimo)}</div>`;
-    }
-    return html;
+  function precoHTML(p) {
+    if (semPreco(p)) return '<strong class="valor confirmar">Preço a confirmar</strong>';
+    return `<strong class="valor">${reais(Math.round(p.preco * 100))}</strong>`;
   }
 
-  function estoqueHTML(q) {
-    if (q === 1) return '<span class="estoque ultima">Só 1 em estoque</span>';
-    return `<span class="estoque">${numero.format(q)} em estoque</span>`;
+  function estoqueHTML(p) {
+    const q = p.quantidade;
+    const texto = q === 1 ? 'Só 1 em estoque' : `${numero.format(q)} em estoque`;
+    return `<span class="estoque${q === 1 ? ' ultima' : ''}" title="${texto}" role="img" aria-label="${texto}">${icone('caixa')}${numero.format(q)}</span>`;
+  }
+
+  // Linha curta embaixo do preço: até onde pode chegar e quanto o vendedor ganha.
+  function linhaExtraHTML(p) {
+    if (semPreco(p) || !(estado.desconto > 0 || estado.comissao > 0)) return '';
+    const conta = calcular(p.preco, estado.comissao, estado.desconto);
+    let html = '';
+    if (estado.desconto > 0) {
+      html += `<span class="minimo" title="Preço com ${percentual(estado.desconto)} de desconto">${icone('desconto')}até <b>${reais(conta.minimo)}</b></span>`;
+    }
+    if (estado.comissao > 0) {
+      const ganho = conta.ganhoMinimo !== conta.ganhoCheio
+        ? `<b>${reais(conta.ganhoMinimo)}</b> a <b>${reais(conta.ganhoCheio)}</b>`
+        : `<b>${reais(conta.ganhoCheio)}</b>`;
+      html += `<span class="ganho" title="Comissão de ${percentual(estado.comissao)} sobre o valor pago">${icone('moeda')}você ganha ${ganho}</span>`;
+    }
+    return `<p class="linha-extra">${html}</p>`;
+  }
+
+  // Em "Todas as lojas", cada produto mostra de qual loja é.
+  function seloLojaHTML(idLoja) {
+    if (!todasAsLojas()) return '';
+    const loja = lojaPorId(idLoja);
+    return ` <span class="selo-loja" title="Loja de ${escapar(rotuloLoja(loja) || idLoja)}">${icone('pino')}${escapar(nomeDaLoja(idLoja))}</span>`;
+  }
+
+  function botaoAnunciarHTML(p) {
+    const item = anuncioDe(p._loja, p.codigo);
+    if (!item) {
+      return `<button type="button" class="icone-botao anunciar" data-acao="anunciar" title="Anunciar" aria-label="Anunciar ${escapar(p.nome)}">${icone('megafone')}</button>`;
+    }
+    const s = statusDe(item);
+    return `<button type="button" class="icone-botao anunciar ativo status-${s.id}" data-acao="ver-anuncio" title="${s.nome}: ver nos anunciados" aria-label="${s.nome}: ver ${escapar(p.nome)} nos anunciados">${icone(s.icone)}</button>`;
+  }
+
+  function botaoFotoHTML(p) {
+    return `<a class="icone-botao" href="${escapar(linkFoto(p))}" target="_blank" rel="noopener noreferrer" title="Ver foto na internet" aria-label="Ver foto de ${escapar(p.nome)} na internet">${icone('foto')}</a>`;
+  }
+
+  function detalhesHTML(p, id) {
+    const linhas = [
+      ['Código', escapar(p.codigo)],
+      ['Em estoque', p.quantidade === 1 ? '1 unidade' : `${numero.format(p.quantidade)} unidades`],
+      ['Fornecedor', escapar(p.fornecedor || 'Não identificado')],
+    ];
+    if (p.transferido_de) linhas.push(['Origem', `Transferido da loja de ${escapar(p.transferido_de)}`]);
+    if (semPreco(p)) linhas.push(['Preço no sistema', reais(Math.round(p.preco * 100))]);
+    linhas.push(['Última compra', p.ultima_compra ? dataBR(p.ultima_compra) : 'Não informada']);
+    if ('ultima_venda' in p) linhas.push(['Última venda', p.ultima_venda ? dataBR(p.ultima_venda) : 'Nenhuma venda registrada']);
+    linhas.push(['Nome no sistema', `<span class="sistema">${escapar(p.nome_sistema)}</span>`]);
+    return `<dl class="detalhes" id="${id}" hidden>${linhas.map(([t, v]) => `<dt>${t}</dt><dd>${v}</dd>`).join('')}</dl>`;
   }
 
   function cartaoHTML(p) {
-    const id = 'detalhes-' + p.codigo;
-    const unidades = p.quantidade === 1 ? '1 unidade' : `${numero.format(p.quantidade)} unidades`;
-    return `<li class="card" data-codigo="${escapar(p.codigo)}">
-  <h2 class="nome">${escapar(p.nome)}</h2>
-  <p class="meta"><span class="codigo">Cód. ${escapar(p.codigo)}</span>${estoqueHTML(p.quantidade)}</p>
-  <div class="precos">${precosHTML(p)}</div>
-  <div class="acoes">
-    <a class="botao-foto" href="${escapar(linkFoto(p))}" target="_blank" rel="noopener noreferrer"
-       aria-label="Ver foto de ${escapar(p.nome)} na internet">${ICONE_FOTO}Ver foto</a>
-    <button type="button" class="botao-detalhes" aria-expanded="false" aria-controls="${id}"><span class="texto-detalhes">Detalhes</span>${ICONE_SETA}</button>
+    const id = `detalhes-${p._loja}-${p.codigo}`;
+    return `<li class="card" data-chave="${escapar(p._chave)}">
+  <h2 class="nome">${escapar(p.nome)}${seloLojaHTML(p._loja)}</h2>
+  <div class="linha-principal">
+    ${precoHTML(p)}${estoqueHTML(p)}
+    <div class="botoes">${botaoAnunciarHTML(p)}${botaoFotoHTML(p)}<button type="button" class="icone-botao ver-detalhes" aria-expanded="false" aria-controls="${id}" title="Detalhes" aria-label="Detalhes de ${escapar(p.nome)}">${icone('seta')}</button></div>
   </div>
-  <dl class="detalhes" id="${id}" hidden>
-    <dt>Código</dt><dd>${escapar(p.codigo)}</dd>
-    <dt>Em estoque</dt><dd>${unidades}</dd>
-    <dt>Fornecedor</dt><dd>${escapar(p.fornecedor || 'Não informado')}</dd>
-    <dt>Última compra</dt><dd>${p.ultima_compra ? dataBR(p.ultima_compra) : 'Não informada'}</dd>
-    <dt>Última venda</dt><dd>${p.ultima_venda ? dataBR(p.ultima_venda) : 'Nenhuma venda registrada'}</dd>
-    <dt>Nome no sistema</dt><dd class="sistema">${escapar(p.nome_sistema)}</dd>
-  </dl>
+  <div class="extra">${linhaExtraHTML(p)}</div>
+  ${detalhesHTML(p, id)}
 </li>`;
   }
+
+  // ---------------------------------------------------------------- lista do estoque
 
   function mostrarMais() {
     const proximos = estado.resultado.slice(estado.exibidos, estado.exibidos + POR_PAGINA);
@@ -260,8 +398,11 @@
     const total = estado.resultado.length;
     const consulta = estado.consulta.trim();
     const n = `<strong>${numero.format(total)}</strong>`;
-    if (!consulta) {
-      el.contagem.innerHTML = `${n} ${total === 1 ? 'produto' : 'produtos'} na loja de ${escapar(estado.loja.nome)}`;
+    if (estado.selecao.semDados) {
+      el.contagem.textContent = '';
+    } else if (!consulta) {
+      const onde = todasAsLojas() ? 'em todas as lojas' : `na loja de ${escapar(rotuloLoja(lojaAtual()))}`;
+      el.contagem.innerHTML = `${n} ${total === 1 ? 'produto' : 'produtos'} ${onde}`;
     } else if (!total) {
       el.contagem.innerHTML = `Nenhum produto encontrado para “${escapar(consulta)}”`;
     } else {
@@ -270,66 +411,297 @@
   }
 
   function atualizarLista() {
-    estado.resultado = buscar(estado.consulta);
+    if (!estado.selecao) return; // produtos ainda não carregaram
+    const semDados = Boolean(estado.selecao.semDados);
+    const resultado = semDados ? [] : buscar(estado.consulta);
+    if (ORDENACOES[estado.ordem]) resultado.sort(ORDENACOES[estado.ordem]);
+    estado.resultado = resultado;
     estado.exibidos = 0;
     el.lista.innerHTML = '';
     mostrarMais();
     atualizarContagem();
-    el.vazio.hidden = estado.resultado.length > 0;
-    el.atalhos.hidden = estado.consulta.trim() !== '' || !el.atalhos.children.length;
+    if (semDados) {
+      el.vazioTitulo.textContent = todasAsLojas() ? 'Estoque das lojas ainda não cadastrado'
+        : `Estoque de ${rotuloLoja(lojaAtual())} ainda não cadastrado`;
+      el.vazioTexto.textContent = 'Assim que o relatório do sistema dessa loja for enviado, os produtos aparecem aqui.';
+    } else {
+      el.vazioTitulo.textContent = TEXTO_VAZIO.titulo;
+      el.vazioTexto.innerHTML = TEXTO_VAZIO.texto;
+    }
+    el.vazio.hidden = resultado.length > 0;
+    el.atalhos.hidden = semDados || estado.consulta.trim() !== '' || !el.atalhos.children.length;
+    el.ordenar.hidden = resultado.length < 2;
     carregarSePerto();
   }
 
-  // Leva o começo da lista para logo abaixo do painel fixo, se o usuário tiver rolado para baixo.
+  // Leva o começo da lista para logo abaixo do painel fixo, se a pessoa tiver rolado para baixo.
   function voltarAoTopoDaLista() {
     const alvo = el.contagem.getBoundingClientRect().top + window.scrollY - el.painel.offsetHeight - 8;
     if (window.scrollY > alvo) window.scrollTo(0, Math.max(0, alvo));
   }
 
-  // Só redesenha os preços: não fecha os detalhes que a pessoa abriu.
+  // Só redesenha as contas: não fecha os detalhes que a pessoa abriu.
   function atualizarPrecos() {
-    const porCodigo = new Map(estado.resultado.slice(0, estado.exibidos).map((p) => [p.codigo, p]));
     for (const card of el.lista.children) {
-      const p = porCodigo.get(card.dataset.codigo);
-      const precos = card.querySelector('.precos');
-      if (!p || !precos) continue;
-      precos.innerHTML = precosHTML(p);
+      const p = estado.porChave.get(card.dataset.chave);
+      const extra = card.querySelector('.extra');
+      if (p && extra) extra.innerHTML = linhaExtraHTML(p);
     }
+  }
+
+  function atualizarBotaoAnunciar(card) {
+    const p = estado.porChave.get(card.dataset.chave);
+    const botao = card.querySelector('.anunciar');
+    if (p && botao) botao.outerHTML = botaoAnunciarHTML(p);
+  }
+
+  function atualizarBotoesAnunciar() {
+    for (const card of el.lista.children) atualizarBotaoAnunciar(card);
   }
 
   function montarAtalhos() {
-    el.atalhos.innerHTML = ATALHOS.map((termo) => {
+    el.atalhos.innerHTML = ATALHOS.map(([termo, nomeIcone]) => {
       const total = buscar(termo).length;
-      return total ? `<button type="button" class="atalho" data-busca="${escapar(termo)}">${escapar(termo)}<span>${total}</span></button>` : '';
+      return total
+        ? `<button type="button" class="atalho" data-busca="${escapar(termo)}">${icone(nomeIcone)}<span>${escapar(termo)}</span><span class="atalho-qtd">${total}</span></button>`
+        : '';
     }).join('');
   }
 
+  // Mesmo estilo das abas de baixo: "Todas as lojas" e uma aba para cada loja.
   function montarSeletorLojas() {
-    if (estado.lojas.length < 2) {
-      el.lojas.hidden = true;
-      el.lojas.innerHTML = '';
-      return;
-    }
-    el.lojas.hidden = false;
-    el.lojas.innerHTML = estado.lojas.map((loja) => (
-      `<button type="button" data-loja="${escapar(loja.id)}" aria-pressed="${loja.id === estado.lojaId}">${escapar(loja.nome)}</button>`
+    const opcoes = estado.lojas.map((loja) => ({ id: loja.id, nome: rotuloLoja(loja), icone: 'pino' }));
+    if (opcoes.length > 1) opcoes.unshift({ id: TODAS, nome: 'Todas as lojas', icone: 'loja' });
+    el.lojas.innerHTML = opcoes.map((o) => (
+      `<button type="button" class="aba" data-loja="${escapar(o.id)}" aria-pressed="${o.id === estado.lojaId}">${icone(o.icone)}<span>${escapar(o.nome)}</span></button>`
     )).join('');
+    el.lojas.hidden = opcoes.length < 2;
   }
 
-  function atualizarCabecalho() {
-    const loja = estado.loja;
-    const quando = loja.gerado_em
-      ? ` · estoque de ${dataBR(loja.gerado_em)} às ${loja.gerado_em.slice(11, 16)}` : '';
-    el.subtitulo.textContent = `Loja de ${loja.nome}${quando}`;
-    document.title = `Estoque ${loja.nome} · Yêlla Móveis`;
-    el.fonte.textContent = `Dados do sistema da loja de ${loja.nome}`
-      + (loja.gerado_em ? `, gerados em ${dataBR(loja.gerado_em)} às ${loja.gerado_em.slice(11, 16)}` : '')
-      + ` · ${numero.format(loja.total_produtos)} produtos · ${numero.format(loja.total_unidades)} unidades em estoque.`;
+  // Loja e data do estoque ficam no rodapé.
+  function atualizarRodape() {
+    document.title = todasAsLojas() ? 'Estoque Yêlla Móveis' : `Estoque ${lojaAtual().nome} · Yêlla Móveis`;
+    el.fonte.innerHTML = estado.selecao.partes.map(({ loja, dados }) => {
+      if (dados.semDados) return `Loja de ${escapar(rotuloLoja(loja))} · estoque ainda não cadastrado.`;
+      const quando = dados.gerado_em ? ` de ${dataBR(dados.gerado_em)} às ${dados.gerado_em.slice(11, 16)}` : '';
+      return `Loja de ${escapar(rotuloLoja(loja))} · estoque${quando}`
+        + ` · ${numero.format(dados.total_produtos)} produtos · ${numero.format(dados.total_unidades)} unidades.`;
+    }).join('<br>');
   }
 
   function mostrarAviso(texto) {
     el.aviso.textContent = texto;
     el.aviso.hidden = !texto;
+  }
+
+  // ---------------------------------------------------------------- anunciados (salvos no aparelho)
+
+  function lerAnunciados() {
+    try {
+      const lista = JSON.parse(localStorage.getItem(CHAVE_ANUNCIADOS));
+      return Array.isArray(lista)
+        ? lista.filter((a) => a && a.loja && a.codigo && STATUS_POR_ID.has(a.status))
+          .map((a) => Object.assign({ historico: [] }, a))
+        : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function salvarAnunciados() {
+    try {
+      localStorage.setItem(CHAVE_ANUNCIADOS, JSON.stringify(estado.anunciados));
+    } catch (e) {
+      mostrarToast('Não foi possível salvar neste aparelho.');
+    }
+  }
+
+  // Pede ao navegador para não apagar os anunciados quando faltar espaço (quando ele permite).
+  let pediuPersistencia = false;
+  function pedirPersistencia() {
+    if (pediuPersistencia || !navigator.storage || !navigator.storage.persist) return;
+    pediuPersistencia = true;
+    navigator.storage.persist().catch(() => {});
+  }
+
+  const anuncioDe = (loja, codigo) => estado.anunciados.find((a) => a.loja === loja && a.codigo === codigo);
+  const statusDe = (item) => STATUS_POR_ID.get(item.status) || STATUS[0];
+  const chaveAnuncio = (item) => `${item.loja}:${item.codigo}`;
+  const anunciadosDaLoja = () => (todasAsLojas() ? estado.anunciados.slice() : estado.anunciados.filter((a) => a.loja === estado.lojaId));
+
+  function anunciar(p) {
+    const agora = new Date().toISOString();
+    const item = {
+      loja: p._loja, codigo: p.codigo, nome: p.nome, preco: p.preco, busca_foto: p.busca_foto || '',
+      status: 'anunciado', criadoEm: agora, atualizadoEm: agora, historico: [{ status: 'anunciado', em: agora }],
+    };
+    estado.anunciados.push(item);
+    salvarAnunciados();
+    pedirPersistencia();
+    atualizarContadorAnunciados();
+    mostrarToast('Adicionado aos anunciados.', 'Ver', () => irParaAnuncio(item));
+  }
+
+  function mudarStatus(item, status) {
+    if (item.status === status) return;
+    const agora = new Date().toISOString();
+    item.status = status;
+    item.atualizadoEm = agora;
+    item.historico.push({ status, em: agora });
+    if (item.historico.length > 30) item.historico.splice(0, item.historico.length - 30);
+    salvarAnunciados();
+    renderizarAnunciados();
+    mostrarToast(`Pedido marcado como ${statusDe(item).nome}.`);
+  }
+
+  function removerAnuncio(item) {
+    const posicao = estado.anunciados.indexOf(item);
+    if (posicao < 0) return;
+    estado.anunciados.splice(posicao, 1);
+    salvarAnunciados();
+    renderizarAnunciados();
+    atualizarContadorAnunciados();
+    mostrarToast('Removido dos anunciados.', 'Desfazer', () => {
+      if (anuncioDe(item.loja, item.codigo)) return;
+      estado.anunciados.splice(Math.min(posicao, estado.anunciados.length), 0, item);
+      salvarAnunciados();
+      renderizarAnunciados();
+      atualizarContadorAnunciados();
+    });
+  }
+
+  function historicoTexto(item) {
+    const partes = [`Anunciado em ${dataHoraBR(item.criadoEm)}`];
+    const ultimo = item.historico[item.historico.length - 1];
+    if (ultimo && ultimo.status !== 'anunciado') partes.push(`${statusDe(ultimo).nome} em ${dataHoraBR(ultimo.em)}`);
+    return partes.join(' · ');
+  }
+
+  function anuncioHTML(item) {
+    const atual = estado.porChave.get(chaveAnuncio(item));
+    const p = atual || { nome: item.nome, preco: item.preco, busca_foto: item.busca_foto };
+    const s = statusDe(item);
+    const precoMudou = atual && !semPreco(atual) && Math.round(atual.preco * 100) !== Math.round(item.preco * 100);
+    const estoque = atual ? estoqueHTML(atual) : '<span class="estoque fora">Fora do estoque atual</span>';
+    return `<li class="card anuncio status-${s.id}" data-id="${escapar(chaveAnuncio(item))}">
+  <div class="anuncio-topo">
+    <h2 class="nome">${escapar(p.nome)}${seloLojaHTML(item.loja)}</h2>
+    <span class="selo-status">${icone(s.icone)}${s.nome}</span>
+  </div>
+  <div class="linha-principal">
+    ${precoHTML(p)}${estoque}
+    <div class="botoes">${botaoFotoHTML(p)}<button type="button" class="icone-botao remover" data-acao="remover" title="Remover dos anunciados" aria-label="Remover ${escapar(p.nome)} dos anunciados">${icone('lixeira')}</button></div>
+  </div>
+  <div class="extra">${linhaExtraHTML(p)}</div>
+  ${precoMudou ? `<p class="nota">Preço quando anunciou: ${reais(Math.round(item.preco * 100))}</p>` : ''}
+  <div class="status-grade" role="group" aria-label="Como está o pedido">
+    ${STATUS.map((st) => `<button type="button" class="status-opcao status-${st.id}" data-status="${st.id}" aria-pressed="${st.id === s.id}">${icone(st.icone)}<span>${st.nome}</span></button>`).join('')}
+  </div>
+  <p class="historico">${historicoTexto(item)}</p>
+</li>`;
+  }
+
+  function filtroStatusHTML(id, nome, nomeIcone, total) {
+    const classe = id === 'todos' ? '' : ` status-${id}`;
+    return `<button type="button" class="atalho${classe}" data-status="${id}" aria-pressed="${estado.filtroStatus === id}">${icone(nomeIcone)}<span>${nome}</span><span class="atalho-qtd">${total}</span></button>`;
+  }
+
+  function renderizarAnunciados() {
+    const daLoja = anunciadosDaLoja();
+    const porStatus = new Map();
+    for (const a of daLoja) porStatus.set(a.status, (porStatus.get(a.status) || 0) + 1);
+    if (estado.filtroStatus !== 'todos' && !porStatus.get(estado.filtroStatus)) estado.filtroStatus = 'todos';
+
+    const onde = todasAsLojas() ? 'todas as lojas' : `loja de ${rotuloLoja(lojaAtual())}`;
+    const outras = estado.anunciados.length - daLoja.length;
+    el.resumoAnunciados.textContent = (daLoja.length
+      ? `${daLoja.length} ${daLoja.length === 1 ? 'produto' : 'produtos'} · ${onde}`
+      : onde.charAt(0).toUpperCase() + onde.slice(1)) + (outras ? ` · ${outras} em outra loja` : '');
+
+    el.filtrosStatus.innerHTML = daLoja.length
+      ? [filtroStatusHTML('todos', 'Todos', 'lista', daLoja.length)]
+        .concat(STATUS.filter((s) => porStatus.get(s.id)).map((s) => filtroStatusHTML(s.id, s.nome, s.icone, porStatus.get(s.id))))
+        .join('')
+      : '';
+    el.filtrosStatus.hidden = !daLoja.length;
+
+    const visiveis = daLoja
+      .filter((a) => estado.filtroStatus === 'todos' || a.status === estado.filtroStatus)
+      .sort((a, b) => String(b.criadoEm).localeCompare(String(a.criadoEm)));
+    el.listaAnunciados.innerHTML = visiveis.map(anuncioHTML).join('');
+    el.vazioAnunciados.hidden = daLoja.length > 0;
+
+    if (estado.comissao > 0 || estado.desconto > 0) {
+      const partes = [];
+      if (estado.comissao > 0) partes.push(`comissão de <strong>${percentual(estado.comissao)}</strong>`);
+      if (estado.desconto > 0) partes.push(`desconto máximo de <strong>${percentual(estado.desconto)}</strong>`);
+      el.ajustesResumo.innerHTML = `Contas com ${partes.join(' e ')}. Para mudar, use a aba Estoque.`;
+    } else {
+      el.ajustesResumo.innerHTML = 'Dica: informe sua <strong>comissão</strong> e o <strong>desconto máximo</strong> na aba Estoque para ver quanto você ganha em cada pedido.';
+    }
+    el.ajustesResumo.hidden = !daLoja.length;
+  }
+
+  function atualizarContadorAnunciados() {
+    const total = anunciadosDaLoja().length;
+    el.contador.hidden = total === 0;
+    el.contador.textContent = total > 99 ? '99+' : String(total);
+    el.abaAnunciados.setAttribute('aria-label', total ? `Anunciados: ${total}` : 'Anunciados');
+  }
+
+  // ---------------------------------------------------------------- abas
+
+  const telaDoEndereco = () => (location.hash === '#anunciados' ? 'anunciados' : 'estoque');
+
+  function mostrarTela(tela) {
+    if (tela === estado.tela) return;
+    estado.rolagem[estado.tela] = window.scrollY;
+    estado.tela = tela;
+    el.telaEstoque.hidden = tela !== 'estoque';
+    el.telaAnunciados.hidden = tela !== 'anunciados';
+    el.abaEstoque.toggleAttribute('aria-current', tela === 'estoque');
+    el.abaAnunciados.toggleAttribute('aria-current', tela === 'anunciados');
+    if (tela === 'estoque') el.abaEstoque.setAttribute('aria-current', 'page');
+    else el.abaAnunciados.setAttribute('aria-current', 'page');
+    if (tela === 'anunciados') renderizarAnunciados();
+    else atualizarBotoesAnunciar();
+    window.scrollTo(0, estado.rolagem[tela] || 0);
+  }
+
+  function irParaTela(tela) {
+    const hash = tela === 'anunciados' ? '#anunciados' : '#estoque';
+    if (location.hash !== hash) history.pushState(null, '', hash);
+    mostrarTela(tela);
+  }
+
+  function irParaAnuncio(item) {
+    estado.filtroStatus = 'todos';
+    if (estado.tela === 'anunciados') renderizarAnunciados();
+    irParaTela('anunciados');
+    const card = [...el.listaAnunciados.children].find((li) => li.dataset.id === chaveAnuncio(item));
+    if (!card) return;
+    card.scrollIntoView({ block: 'center' });
+    card.classList.remove('destaque');
+    void card.offsetWidth; // reinicia a animação
+    card.classList.add('destaque');
+  }
+
+  // ---------------------------------------------------------------- aviso flutuante
+
+  let esperaToast = 0;
+  let acaoToast = null;
+  function mostrarToast(texto, rotuloAcao, acao) {
+    el.toastTexto.textContent = texto;
+    el.toastAcao.textContent = rotuloAcao || '';
+    el.toastAcao.hidden = !rotuloAcao;
+    acaoToast = acao || null;
+    el.toast.hidden = false;
+    clearTimeout(esperaToast);
+    esperaToast = setTimeout(esconderToast, rotuloAcao ? 6000 : 3000);
+  }
+  function esconderToast() {
+    el.toast.hidden = true;
+    acaoToast = null;
   }
 
   // ---------------------------------------------------------------- ajustes salvos no aparelho
@@ -348,6 +720,7 @@
         comissao: el.comissao.value.trim(),
         desconto: el.desconto.value.trim(),
         loja: estado.lojaId,
+        ordem: estado.ordem,
       }));
     } catch (e) { /* navegador sem armazenamento: segue funcionando sem salvar */ }
   }
@@ -372,22 +745,54 @@
     return resposta.json();
   }
 
+  // Abre uma loja ou TODAS (junta o estoque de todas as lojas).
   async function carregarLoja(id) {
-    const loja = estado.lojas.find((l) => l.id === id) || estado.lojas[0];
-    el.contagem.textContent = 'Carregando produtos…';
-    try {
-      estado.loja = await buscarJSON(loja.arquivo);
-    } catch (erro) {
-      mostrarAviso('Não foi possível carregar os produtos. Confira a internet e recarregue a página.');
-      el.contagem.textContent = '';
-      return;
-    }
-    estado.lojaId = loja.id;
-    prepararProdutos(estado.loja.produtos);
+    const anterior = estado.lojaId;
+    const pedido = id === TODAS && estado.lojas.length > 1 ? TODAS : (lojaPorId(id) || estado.lojas[0]).id;
+    const escolhidas = pedido === TODAS ? estado.lojas : [lojaPorId(pedido)];
+    estado.lojaId = pedido;
+    estado.filtroStatus = 'todos';
     montarSeletorLojas();
-    atualizarCabecalho();
+    avisoConexao();
+
+    const faltando = escolhidas.filter((loja) => loja.arquivo && !estado.dadosLojas.has(loja.id));
+    const falharam = [];
+    if (faltando.length) {
+      el.contagem.textContent = 'Carregando produtos…';
+      await Promise.all(faltando.map(async (loja) => {
+        try {
+          estado.dadosLojas.set(loja.id, await buscarJSON(loja.arquivo));
+        } catch (erro) {
+          falharam.push(loja);
+        }
+      }));
+      if (estado.lojaId !== pedido) return; // a pessoa trocou de loja enquanto carregava
+    }
+
+    // Loja sem arquivo é loja com o estoque ainda não cadastrado.
+    const partes = escolhidas
+      .filter((loja) => estado.dadosLojas.has(loja.id) || !loja.arquivo)
+      .map((loja) => ({ loja, dados: estado.dadosLojas.get(loja.id) || { semDados: true, produtos: [] } }));
+    if (falharam.length) {
+      mostrarAviso(`Não foi possível carregar os produtos de ${falharam.map(rotuloLoja).join(' e ')}. Confira a internet e recarregue a página.`);
+      if (!partes.length) {
+        el.contagem.textContent = '';
+        if (anterior && estado.selecao) { // continua mostrando a loja que já estava aberta
+          estado.lojaId = anterior;
+          montarSeletorLojas();
+          atualizarContagem();
+        }
+        return;
+      }
+    }
+
+    estado.selecao = { partes, semDados: partes.every((parte) => parte.dados.semDados) };
+    prepararProdutos(partes);
+    atualizarRodape();
     montarAtalhos();
     atualizarLista();
+    renderizarAnunciados();
+    atualizarContadorAnunciados();
     salvarAjustes();
   }
 
@@ -399,6 +804,9 @@
     formatarCampo(el.desconto);
     estado.comissao = lerPercentual(el.comissao.value);
     estado.desconto = lerPercentual(el.desconto.value);
+    estado.ordem = ORDENS.includes(salvos.ordem) ? salvos.ordem : 'relevancia';
+    el.ordem.value = estado.ordem;
+    estado.anunciados = lerAnunciados();
 
     try {
       estado.lojas = (await buscarJSON(ARQUIVO_LOJAS)).lojas || [];
@@ -410,8 +818,10 @@
       el.contagem.textContent = '';
       return;
     }
-    const salva = estado.lojas.some((l) => l.id === salvos.loja) ? salvos.loja : estado.lojas[0].id;
-    await carregarLoja(salva);
+    // Sem escolha salva, começa em "Todas as lojas".
+    const salvaValida = salvos.loja === TODAS || estado.lojas.some((l) => l.id === salvos.loja);
+    await carregarLoja(salvaValida ? salvos.loja : TODAS);
+    mostrarTela(telaDoEndereco());
   }
 
   // ---------------------------------------------------------------- eventos
@@ -454,6 +864,13 @@
     campo.addEventListener('focus', () => setTimeout(() => campo.setSelectionRange(0, campo.value.length), 0));
   }
 
+  el.ordem.addEventListener('change', () => {
+    estado.ordem = ORDENS.includes(el.ordem.value) ? el.ordem.value : 'relevancia';
+    atualizarLista();
+    voltarAoTopoDaLista();
+    salvarAjustes();
+  });
+
   el.atalhos.addEventListener('click', (evento) => {
     const botao = evento.target.closest('.atalho');
     if (!botao) return;
@@ -470,12 +887,51 @@
   });
 
   el.lista.addEventListener('click', (evento) => {
-    const botao = evento.target.closest('.botao-detalhes');
+    const botao = evento.target.closest('button');
     if (!botao) return;
-    const detalhes = document.getElementById(botao.getAttribute('aria-controls'));
-    const abrir = botao.getAttribute('aria-expanded') !== 'true';
-    botao.setAttribute('aria-expanded', String(abrir));
-    detalhes.hidden = !abrir;
+    const card = botao.closest('.card');
+    const p = card && estado.porChave.get(card.dataset.chave);
+    if (botao.classList.contains('ver-detalhes')) {
+      const detalhes = document.getElementById(botao.getAttribute('aria-controls'));
+      const abrir = botao.getAttribute('aria-expanded') !== 'true';
+      botao.setAttribute('aria-expanded', String(abrir));
+      detalhes.hidden = !abrir;
+    } else if (p && botao.dataset.acao === 'anunciar') {
+      if (!anuncioDe(p._loja, p.codigo)) anunciar(p);
+      atualizarBotaoAnunciar(card);
+    } else if (p && botao.dataset.acao === 'ver-anuncio') {
+      const item = anuncioDe(p._loja, p.codigo);
+      if (item) irParaAnuncio(item);
+      else atualizarBotaoAnunciar(card);
+    }
+  });
+
+  el.listaAnunciados.addEventListener('click', (evento) => {
+    const botao = evento.target.closest('button');
+    const card = botao && botao.closest('.anuncio');
+    if (!card) return;
+    const item = estado.anunciados.find((a) => chaveAnuncio(a) === card.dataset.id);
+    if (!item) return;
+    if (botao.classList.contains('status-opcao')) mudarStatus(item, botao.dataset.status);
+    else if (botao.dataset.acao === 'remover') removerAnuncio(item);
+  });
+
+  el.filtrosStatus.addEventListener('click', (evento) => {
+    const botao = evento.target.closest('[data-status]');
+    if (!botao) return;
+    estado.filtroStatus = botao.dataset.status;
+    renderizarAnunciados();
+  });
+
+  el.abaEstoque.addEventListener('click', (evento) => { evento.preventDefault(); irParaTela('estoque'); });
+  el.abaAnunciados.addEventListener('click', (evento) => { evento.preventDefault(); irParaTela('anunciados'); });
+  window.addEventListener('popstate', () => mostrarTela(telaDoEndereco()));
+  window.addEventListener('hashchange', () => mostrarTela(telaDoEndereco()));
+
+  el.toastAcao.addEventListener('click', () => {
+    const acao = acaoToast;
+    esconderToast();
+    if (acao) acao();
   });
 
   el.mais.addEventListener('click', mostrarMais);
@@ -492,6 +948,24 @@
   window.addEventListener('scroll', carregarSePerto, { passive: true });
   window.addEventListener('resize', carregarSePerto);
 
+  // No celular, esconde a barra de abas enquanto o teclado está aberto.
+  const telaDeToque = Boolean(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+  document.addEventListener('focusin', (evento) => {
+    if (telaDeToque && evento.target.matches('input')) document.body.classList.add('digitando');
+  });
+  document.addEventListener('focusout', (evento) => {
+    if (evento.target.matches('input')) document.body.classList.remove('digitando');
+  });
+
+  // Outra aba do navegador mexeu nos anunciados: acompanha aqui também.
+  window.addEventListener('storage', (evento) => {
+    if (evento.key !== CHAVE_ANUNCIADOS) return;
+    estado.anunciados = lerAnunciados();
+    renderizarAnunciados();
+    atualizarContadorAnunciados();
+    atualizarBotoesAnunciar();
+  });
+
   function avisoConexao() {
     mostrarAviso(navigator.onLine ? '' : 'Você está sem internet. Mostrando o último estoque salvo neste aparelho.');
   }
@@ -502,8 +976,8 @@
     window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
   }
 
-  iniciar().then(() => { if (!navigator.onLine) avisoConexao(); });
+  iniciar();
 
   // Exposto só para conferência no console do navegador.
-  window.__estoque = { calcular, buscar, lerPercentual, normalizar, estado };
+  window.__estoque = { calcular, buscar, lerPercentual, normalizar, estado, ORDENACOES };
 })();

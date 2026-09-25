@@ -3,7 +3,14 @@
   {
    "id": "matina",
    "nome": "Matina",
+   "uf": "BA",
    "arquivo": "dados/matina.json"
+  },
+  {
+   "id": "igapora",
+   "nome": "Igaporã",
+   "uf": "BA",
+   "arquivo": "dados/igapora.json"
   }
  ]
 }

@@ -6,15 +6,23 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
 
 ## O que a página faz
 
+- **Lojas:** abas no topo para ver **Todas as lojas**, só **Matina - BA** ou só **Igaporã - BA**.
+  Em "Todas as lojas", cada produto mostra de qual loja é. A escolha fica salva no celular.
 - **Busca** pelo nome ou pelo código do produto. Não precisa acertar acento, plural nem a abreviação do sistema
   (ex.: `geladeira` acha os refrigeradores, `guarda roupa` acha também os roupeiros, `colchão casal` acha os de 138 cm).
-- Mostra **preço, quantidade em estoque**, fornecedor e as datas da última compra e da última venda.
-- **Ver foto:** abre fotos do produto no Google Imagens.
+- **Buscas rápidas** com ícone e quantidade por tipo de produto (colchão, guarda-roupa, cozinha…).
+- **Ordenar** por relevância, nome (A a Z / Z a A) ou preço (menor / maior). Produto com preço provisório
+  de R$ 1,00 no sistema aparece como "Preço a confirmar" e vai para o fim da lista.
+- Cartão compacto: **preço, quantidade em estoque, anunciar, ver foto e detalhes** na mesma linha.
+  Em **Detalhes**: código, fornecedor, origem (transferência entre lojas), última compra, última venda e o nome do sistema.
+- **Ver foto:** abre o Google Imagens com o nome do produto seguido do fornecedor (quando o fornecedor ajuda a achar a foto certa).
 - **Sua comissão:** o vendedor informa o percentual (ex.: 5) e vê quanto ganha em cada produto.
 - **Desconto máximo:** informa o desconto permitido (ex.: 10) e vê até onde pode chegar em cada produto.
 - A comissão é calculada **sobre o valor que o cliente paga**: no preço cheio e no preço com o desconto máximo.
   O preço mínimo é arredondado para cima, para nunca passar do desconto permitido.
-- Os percentuais ficam salvos no próprio celular de cada vendedor.
+- **Anunciados:** o botão de megafone manda o produto para a aba Anunciados, onde o vendedor marca como está o pedido:
+  Anunciado, Negociando, Reservado, Vendido, Entregue ou Cancelado (com filtro por status e histórico).
+- Percentuais, loja escolhida e anunciados ficam salvos **no próprio celular** de cada vendedor.
 - Depois do primeiro acesso, continua funcionando com internet fraca ou sem internet (mostra o último estoque salvo),
   e pode ser adicionada à tela inicial do celular como um aplicativo.
 
@@ -25,10 +33,11 @@ O nome original do sistema continua visível em **Detalhes**, para conferir no C
 ## Como atualizar o estoque
 
 1. No CompuFour, gere o relatório **Controle de estoque** e salve em HTML (mesmo formato do arquivo original).
-2. Na pasta do projeto, rode:
+2. Na pasta do projeto, rode o comando da loja:
 
    ```bash
-   python3 ferramentas/atualizar_estoque.py matina "caminho/do/relatorio.html"
+   python3 ferramentas/atualizar_estoque.py matina "caminho/do/relatorio-matina.html"
+   python3 ferramentas/atualizar_estoque.py igapora "caminho/do/relatorio-igapora.html"
    ```
 
    O script confere o total de produtos e de unidades com os totais do próprio relatório.
@@ -38,18 +47,26 @@ O nome original do sistema continua visível em **Detalhes**, para conferir no C
 4. Publique:
 
    ```bash
-   git add -A && git commit -m "Atualiza estoque de Matina" && git push
+   git add -A && git commit -m "Atualiza estoque" && git push
    ```
 
    A página atualiza sozinha em 1 a 2 minutos.
 
-## Adicionar a loja de Igaporã
+Para cadastrar outra loja, rode o mesmo comando com um identificador novo (sem acento e sem espaço) e,
+se quiser, `--nome "Nome da Cidade" --uf BA`. A aba da loja aparece sozinha na página.
 
-```bash
-python3 ferramentas/atualizar_estoque.py igapora "relatorio-igapora.html" --nome "Igaporã"
-```
+### Fornecedor dos produtos de Igaporã
 
-A página passa a mostrar os botões **Matina / Igaporã** no topo, sem mudar mais nada.
+No relatório de Igaporã, o "último fornecedor" da maioria dos produtos é a própria loja de Matina
+(transferência interna). Por isso o fornecedor verdadeiro foi cruzado com o estoque de Matina:
+mesmo modelo/linha, preço praticamente igual ou marca com fornecedor único em Matina.
+O resultado fica em `ferramentas/correcoes.json`, seção `fornecedor_do_produto` (descrição do sistema → fornecedor).
+Produto sem correspondência segura fica como "Não identificado", em vez de chutar.
+
+### O que nunca é publicado
+
+O relatório de Igaporã traz a coluna **Custo de Compra**. O script ignora essa coluna: ela não vai para os
+dados nem para o GitHub, porque a página é pública (apenas não aparece em buscadores).
 
 ## Arquivos
 
@@ -58,8 +75,8 @@ A página passa a mostrar os botões **Matina / Igaporã** no topo, sem mudar ma
 | `index.html`, `app.css`, `app.js` | a página |
 | `sw.js`, `manifest.webmanifest`, `icons/` | funcionamento sem internet e ícone na tela inicial |
 | `dados/lojas.json` | lista de lojas |
-| `dados/matina.json` | estoque de Matina (gerado pelo script) |
+| `dados/matina.json`, `dados/igapora.json` | estoque de cada loja (gerados pelo script) |
 | `ferramentas/atualizar_estoque.py` | lê o relatório do CompuFour e gera os dados |
-| `ferramentas/correcoes.json` | nomes revisados de produtos e fornecedores |
+| `ferramentas/correcoes.json` | nomes revisados de produtos e fornecedores, fornecedor cruzado de Igaporã, fornecedores usados na busca de foto |
 
-O relatório bruto do CompuFour não vai para o GitHub (está no `.gitignore`).
+Os relatórios brutos do CompuFour não vão para o GitHub (estão no `.gitignore`).

@@ -192,7 +192,7 @@
       }
       if (!todos && !bonusCodigo) continue;
       pontos += bonusCodigo;
-      if (primeiras.some((v) => p._nome.startsWith(v))) pontos += 2;
+      if (primeiras.some((v) => p._nome.startsWith(v))) pontos += 3; // a 1ª palavra buscada costuma ser o tipo do produto
       achados.push({ p, pontos });
     }
     achados.sort((a, b) => b.pontos - a.pontos || a.p._ordem - b.p._ordem);

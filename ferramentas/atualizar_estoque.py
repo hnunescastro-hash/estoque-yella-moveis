@@ -62,6 +62,8 @@ def limpar_celula(bruto):
 
 
 def ler_relatorio(caminho):
+    if not Path(caminho).is_file():
+        raise SystemExit(f"Arquivo não encontrado: {caminho}")
     dados = Path(caminho).read_bytes()
     charset = re.search(rb'charset=["\']?([\w-]+)', dados[:2000], re.I)
     codificacoes = [charset.group(1).decode("ascii")] if charset else []

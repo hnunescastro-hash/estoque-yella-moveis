@@ -49,9 +49,9 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
   ```
 
   - O desconto no Pix é o **Desconto máximo** do vendedor (o mesmo "até R$" do cartão); sem desconto, sai o preço cheio.
-  - Cartão: até **10x sem juros** com **parcela mínima de R$ 50** (ex.: R$ 455,00 em 9x de R$ 50,56;
-    abaixo de R$ 100 aparece só "no cartão"). Ajustável em `PARCELAS_SEM_JUROS` e `PARCELA_MINIMA` no `app.js`.
-  - "🔥 Últimas unidades!" quando só há 1 no estoque; senão "✅ Pronta entrega".
+  - Cartão: até **10x sem juros** com **parcela mínima de R$ 25** (ex.: R$ 180,00 em 7x de R$ 25,71;
+    abaixo de R$ 50 aparece só "no cartão"). Ajustável em `PARCELAS_SEM_JUROS` e `PARCELA_MINIMA` no `app.js`.
+  - "🔥 Últimas unidades!" com até 3 unidades no estoque; acima disso, "✅ Pronta entrega".
   - O **telefone** do vendedor (campo na gaveta do perfil) entra na linha "Tel."; sem telefone, a linha não aparece.
   - A foto não vai junto (o link do WhatsApp só leva texto).
 - **Ver foto:** abre o Google Imagens com o nome do produto seguido do fornecedor (quando o fornecedor ajuda a achar a foto certa).

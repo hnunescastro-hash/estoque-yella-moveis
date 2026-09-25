@@ -411,7 +411,7 @@
   // e o texto ainda pode ser editado antes de enviar.
   // O desconto no Pix é o "Desconto máximo" da gaveta: o preço prometido é o mesmo "até R$" do cartão.
   const PARCELAS_SEM_JUROS = 10; // no máximo
-  const PARCELA_MINIMA = 5000; // R$ 50,00 (em centavos)
+  const PARCELA_MINIMA = 2500; // R$ 25,00 (em centavos)
   function mensagemWhatsApp(p, idLoja) {
     const loja = lojaPorId(idLoja);
     const linhas = [`*${p.nome}*`, ''];
@@ -428,8 +428,8 @@
         : `💳 ${reais(conta.cheio)} no cartão`);
     }
     linhas.push('🚚 Entrega Grátis');
-    if (p.quantidade === 1) linhas.push('🔥 Últimas unidades!');
-    else if (p.quantidade > 1) linhas.push('✅ Pronta entrega');
+    if (p.quantidade >= 1 && p.quantidade <= 3) linhas.push('🔥 Últimas unidades!'); // até 3 unidades
+    else if (p.quantidade > 3) linhas.push('✅ Pronta entrega');
     linhas.push('', 'Quer garantir?', 'É só responder esta mensagem! 😊', '');
     linhas.push(loja ? `Yêlla Móveis · ${rotuloLoja(loja)}` : 'Yêlla Móveis');
     if (estado.nome) linhas.push(`Atendimento: ${estado.nome}`);

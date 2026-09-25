@@ -6,23 +6,31 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
 
 ## O que a página faz
 
+- **Nome do vendedor:** no primeiro acesso, uma janela pede o nome. As iniciais aparecem num círculo no canto
+  direito do topo; tocando nele abre uma gaveta para mudar o nome, a **comissão** e o **desconto máximo**
+  (assim eles não ocupam espaço na página).
 - **Lojas:** abas no topo para ver **Todas as lojas**, só **Matina - BA** ou só **Igaporã - BA**.
   Em "Todas as lojas", cada produto mostra de qual loja é. A escolha fica salva no celular.
 - **Busca** pelo nome ou pelo código do produto. Não precisa acertar acento, plural nem a abreviação do sistema
   (ex.: `geladeira` acha os refrigeradores, `guarda roupa` acha também os roupeiros, `colchão casal` acha os de 138 cm).
-- **Buscas rápidas** com ícone e quantidade por tipo de produto (colchão, guarda-roupa, cozinha…).
-- **Ordenar** por relevância, nome (A a Z / Z a A) ou preço (menor / maior). Produto com preço provisório
-  de R$ 1,00 no sistema aparece como "Preço a confirmar" e vai para o fim da lista.
-- Cartão compacto: **preço, quantidade em estoque, anunciar, ver foto e detalhes** na mesma linha.
+- **Buscar por fornecedor:** quando a busca não acha produto, a página oferece os fornecedores com aquele nome
+  (ou a lista de todos). Se a busca achou produtos mas também é nome de fornecedor (ex.: `gazin`), aparece um atalho
+  para ver tudo daquele fornecedor. Com o filtro ligado, dá para buscar dentro dos produtos dele.
+- **Classificadores** logo abaixo da busca: Relevância, **A → Z** (tocando de novo vira Z → A) e
+  **Menor preço** (tocando de novo vira Maior preço). Produto com preço provisório de R$ 1,00 no sistema aparece
+  como "Preço a confirmar" e vai para o fim da lista.
+- **Categorias** (colchão, guarda-roupa, cozinha…) com ícone e quantidade, abaixo dos classificadores.
+- Cartão compacto: **preço, quantidade em estoque, anunciar, WhatsApp, ver foto e detalhes** na mesma linha.
   Em **Detalhes**: código, fornecedor, origem (transferência entre lojas), última compra, última venda e o nome do sistema.
+- **WhatsApp:** abre o WhatsApp com a mensagem pronta (nome do produto, preço, loja e o nome de quem atende);
+  o vendedor escolhe o contato e ainda pode editar o texto. A foto não vai junto (o link do WhatsApp só leva texto).
 - **Ver foto:** abre o Google Imagens com o nome do produto seguido do fornecedor (quando o fornecedor ajuda a achar a foto certa).
-- **Sua comissão:** o vendedor informa o percentual (ex.: 5) e vê quanto ganha em cada produto.
-- **Desconto máximo:** informa o desconto permitido (ex.: 10) e vê até onde pode chegar em cada produto.
-- A comissão é calculada **sobre o valor que o cliente paga**: no preço cheio e no preço com o desconto máximo.
+- **Comissão e desconto:** o vendedor vê em cada produto até onde pode chegar e quanto ganha.
+  A comissão é calculada **sobre o valor que o cliente paga**: no preço cheio e no preço com o desconto máximo.
   O preço mínimo é arredondado para cima, para nunca passar do desconto permitido.
 - **Anunciados:** o botão de megafone manda o produto para a aba Anunciados, onde o vendedor marca como está o pedido:
   Anunciado, Negociando, Reservado, Vendido, Entregue ou Cancelado (com filtro por status e histórico).
-- Percentuais, loja escolhida e anunciados ficam salvos **no próprio celular** de cada vendedor.
+- Nome, percentuais, loja escolhida e anunciados ficam salvos **no próprio celular** de cada vendedor.
 - Depois do primeiro acesso, continua funcionando com internet fraca ou sem internet (mostra o último estoque salvo),
   e pode ser adicionada à tela inicial do celular como um aplicativo.
 

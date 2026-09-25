@@ -41,6 +41,9 @@
     lixeira: '<path d="M4 7h16M9.5 7V4.5h5V7M6 7l1 13h10l1-13M10 11v5.5M14 11v5.5"/>',
     foto: '<rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="9" cy="10" r="2"/><path d="m21 17-5.5-5.5L6 20"/>',
     moeda: '<circle cx="12" cy="12" r="8.5"/><path d="M14.6 9.4c-.5-.9-1.5-1.4-2.6-1.4-1.5 0-2.6.8-2.6 1.9 0 2.6 5.3 1.3 5.3 4 0 1.1-1.2 2-2.7 2-1.2 0-2.3-.5-2.8-1.5M12 6.6V8M12 16.5v1.2"/>',
+    whatsapp: '<path d="M12 3.2a8.8 8.8 0 0 0-7.6 13.2L3.2 20.8l4.5-1.2A8.8 8.8 0 1 0 12 3.2z"/><path d="M8.9 8.1c.3-.5.8-.6 1.1-.6h.4c.2 0 .4.1.5.4l.8 1.9c.1.3 0 .5-.1.7l-.6.7c.7 1.3 1.8 2.4 3.1 3.1l.7-.6c.2-.2.5-.2.7-.1l1.9.8c.3.1.4.3.4.5v.4c0 .3-.1.8-.6 1.1-.7.4-1.7.6-2.6.3-2.6-.9-4.6-2.9-5.5-5.5-.3-.9-.1-1.9.3-2.6z"/>',
+    fabrica: '<path d="M3 20.5V11l5.5 3.2V11l5.5 3.2V11l4 2.3V4h3v16.5z"/><path d="M7 17.5h2M11.5 17.5h2M16 17.5h2"/>',
+    setaDireita: '<path d="m9 6 6 6-6 6"/>',
     desconto: '<circle cx="12" cy="12" r="8.5"/><path d="m8.8 15.2 6.4-6.4"/><circle class="ponto" cx="9.2" cy="9.2" r="1.25"/><circle class="ponto" cx="14.8" cy="14.8" r="1.25"/>',
   };
 
@@ -101,8 +104,14 @@
   const el = {
     lojas: $('lojas'), painel: $('painel'), form: $('form-busca'), busca: $('busca'),
     limpar: $('limpar'), comissao: $('comissao'), desconto: $('desconto'), aviso: $('aviso'), atalhos: $('atalhos'),
-    contagem: $('contagem'), ordenar: $('ordenar'), ordem: $('ordem'), lista: $('lista'), mais: $('mais'),
+    contagem: $('contagem'), ordens: $('ordens'), lista: $('lista'), mais: $('mais'),
     vazio: $('vazio'), vazioTitulo: $('vazio-titulo'), vazioTexto: $('vazio-texto'), fonte: $('fonte'),
+    vazioFornecedores: $('vazio-fornecedores'), filtroFornecedor: $('filtro-fornecedor'), sugestaoFornecedor: $('sugestao-fornecedor'),
+    filtroFornecedorNome: $('filtro-fornecedor-nome'), filtroFornecedorLimpar: $('filtro-fornecedor-limpar'),
+    perfil: $('perfil'), perfilIniciais: $('perfil-iniciais'), perfilIcone: $('perfil-icone'),
+    camadaGaveta: $('camada-gaveta'), gaveta: $('gaveta'), gavetaIniciais: $('gaveta-iniciais'),
+    gavetaFechar: $('gaveta-fechar'), formGaveta: $('form-gaveta'), nome: $('nome'),
+    modalNome: $('modal-nome'), formNome: $('form-nome'), nomeInicial: $('nome-inicial'), nomeErro: $('nome-erro'),
     telaEstoque: $('tela-estoque'), telaAnunciados: $('tela-anunciados'), resumoAnunciados: $('anunciados-resumo'),
     filtrosStatus: $('filtros-status'), ajustesResumo: $('ajustes-resumo'), listaAnunciados: $('lista-anunciados'),
     vazioAnunciados: $('vazio-anunciados'), abaEstoque: $('aba-estoque'), abaAnunciados: $('aba-anunciados'),
@@ -114,6 +123,7 @@
     lojas: [], lojaId: null, selecao: null, dadosLojas: new Map(),
     produtos: [], porChave: new Map(), resultado: [], exibidos: 0,
     consulta: '', ordem: 'relevancia', comissao: 0, desconto: 0,
+    nome: '', fornecedor: null, verTodosFornecedores: false, consultaMostrada: '',
     anunciados: [], filtroStatus: 'todos',
     tela: 'estoque', rolagem: { estoque: 0, anunciados: 0 },
   };
@@ -260,9 +270,13 @@
     return melhor;
   }
 
+  // Com um fornecedor escolhido, a busca fica só nos produtos dele.
+  const baseDaBusca = () => (estado.fornecedor ? estado.produtos.filter((p) => p.fornecedor === estado.fornecedor) : estado.produtos);
+
   function buscar(consulta) {
+    const base = baseDaBusca();
     const termos = normalizar(consulta).split(' ').filter((t) => t && !IGNORAR.has(t));
-    if (!termos.length) return estado.produtos.slice();
+    if (!termos.length) return base.slice();
 
     const limpa = String(consulta).trim();
     const codigo = /^\d+$/.test(limpa) ? limpa.replace(/^0+/, '') : null;
@@ -270,7 +284,7 @@
     const primeiras = alternativas[0].map((a) => a.termo);
     const achados = [];
 
-    for (const p of estado.produtos) {
+    for (const p of base) {
       let pontos = 0;
       let todos = true;
       for (const opcoes of alternativas) {
@@ -290,6 +304,23 @@
     }
     achados.sort((a, b) => b.pontos - a.pontos || a.p._ordem - b.p._ordem);
     return achados.map((a) => a.p);
+  }
+
+  // Fornecedores dos produtos à mostra, com quantos produtos cada um tem.
+  function fornecedoresComContagem() {
+    const contagem = new Map();
+    for (const p of estado.produtos) if (p.fornecedor) contagem.set(p.fornecedor, (contagem.get(p.fornecedor) || 0) + 1);
+    return [...contagem].map(([nome, total]) => ({ nome, total, _nome: ' ' + normalizar(nome) }));
+  }
+
+  // Cada palavra buscada tem que ser começo de uma palavra do nome do fornecedor ("poli" acha Poliman).
+  function fornecedoresDaBusca(consulta, fornecedores) {
+    const termos = normalizar(consulta).split(' ').filter((t) => t && !IGNORAR.has(t));
+    if (!termos.length) return [];
+    const alternativas = termos.map(variantes);
+    return fornecedores
+      .filter((f) => alternativas.every((opcoes) => opcoes.some((v) => f._nome.includes(' ' + v))))
+      .sort((a, b) => b.total - a.total || a.nome.localeCompare(b.nome, 'pt-BR'));
   }
 
   // Produto sem preço (R$ 1,00) vai para o fim quando a lista é ordenada por preço.
@@ -352,6 +383,23 @@
     return `<button type="button" class="icone-botao anunciar ativo status-${s.id}" data-acao="ver-anuncio" title="${s.nome}: ver nos anunciados" aria-label="${s.nome}: ver ${escapar(p.nome)} nos anunciados">${icone(s.icone)}</button>`;
   }
 
+  // Mensagem pronta para o cliente: nome, preço e loja. O WhatsApp abre para o vendedor
+  // escolher o contato, e o texto ainda pode ser editado antes de enviar.
+  function linkWhatsApp(p, idLoja) {
+    const loja = lojaPorId(idLoja);
+    const linhas = [
+      `*${p.nome}*`,
+      semPreco(p) ? 'Preço: a confirmar' : `Preço: ${reais(Math.round(p.preco * 100))}`,
+      loja ? `Yêlla Móveis · ${rotuloLoja(loja)}` : 'Yêlla Móveis',
+    ];
+    if (estado.nome) linhas.push(`Atendimento: ${estado.nome}`);
+    return 'https://wa.me/?text=' + encodeURIComponent(linhas.join('\n').replace(/ /g, ' '));
+  }
+
+  function botaoWhatsAppHTML(p, idLoja) {
+    return `<a class="icone-botao whatsapp" href="${escapar(linkWhatsApp(p, idLoja))}" target="_blank" rel="noopener noreferrer" title="Enviar pelo WhatsApp" aria-label="Enviar ${escapar(p.nome)} pelo WhatsApp">${icone('whatsapp')}</a>`;
+  }
+
   function botaoFotoHTML(p) {
     return `<a class="icone-botao" href="${escapar(linkFoto(p))}" target="_blank" rel="noopener noreferrer" title="Ver foto na internet" aria-label="Ver foto de ${escapar(p.nome)} na internet">${icone('foto')}</a>`;
   }
@@ -376,7 +424,7 @@
   <h2 class="nome">${escapar(p.nome)}${seloLojaHTML(p._loja)}</h2>
   <div class="linha-principal">
     ${precoHTML(p)}${estoqueHTML(p)}
-    <div class="botoes">${botaoAnunciarHTML(p)}${botaoFotoHTML(p)}<button type="button" class="icone-botao ver-detalhes" aria-expanded="false" aria-controls="${id}" title="Detalhes" aria-label="Detalhes de ${escapar(p.nome)}">${icone('seta')}</button></div>
+    <div class="botoes">${botaoAnunciarHTML(p)}${botaoWhatsAppHTML(p, p._loja)}${botaoFotoHTML(p)}<button type="button" class="icone-botao ver-detalhes" aria-expanded="false" aria-controls="${id}" title="Detalhes" aria-label="Detalhes de ${escapar(p.nome)}">${icone('seta')}</button></div>
   </div>
   <div class="extra">${linhaExtraHTML(p)}</div>
   ${detalhesHTML(p, id)}
@@ -402,7 +450,8 @@
       el.contagem.textContent = '';
     } else if (!consulta) {
       const onde = todasAsLojas() ? 'em todas as lojas' : `na loja de ${escapar(rotuloLoja(lojaAtual()))}`;
-      el.contagem.innerHTML = `${n} ${total === 1 ? 'produto' : 'produtos'} ${onde}`;
+      const deQuem = estado.fornecedor ? ' deste fornecedor' : '';
+      el.contagem.innerHTML = `${n} ${total === 1 ? 'produto' : 'produtos'}${deQuem} ${onde}`;
     } else if (!total) {
       el.contagem.innerHTML = `Nenhum produto encontrado para “${escapar(consulta)}”`;
     } else {
@@ -413,6 +462,11 @@
   function atualizarLista() {
     if (!estado.selecao) return; // produtos ainda não carregaram
     const semDados = Boolean(estado.selecao.semDados);
+    const consulta = estado.consulta.trim();
+    if (consulta !== estado.consultaMostrada) {
+      estado.consultaMostrada = consulta;
+      estado.verTodosFornecedores = false;
+    }
     const resultado = semDados ? [] : buscar(estado.consulta);
     if (ORDENACOES[estado.ordem]) resultado.sort(ORDENACOES[estado.ordem]);
     estado.resultado = resultado;
@@ -420,18 +474,107 @@
     el.lista.innerHTML = '';
     mostrarMais();
     atualizarContagem();
+    el.filtroFornecedor.hidden = !estado.fornecedor;
+    el.filtroFornecedorNome.textContent = estado.fornecedor || '';
+    let fornecedoresHTML = '';
     if (semDados) {
       el.vazioTitulo.textContent = todasAsLojas() ? 'Estoque das lojas ainda não cadastrado'
         : `Estoque de ${rotuloLoja(lojaAtual())} ainda não cadastrado`;
       el.vazioTexto.textContent = 'Assim que o relatório do sistema dessa loja for enviado, os produtos aparecem aqui.';
+    } else if (estado.fornecedor) {
+      el.vazioTitulo.textContent = consulta ? `Nenhum produto deste fornecedor para “${consulta}”` : 'Nenhum produto deste fornecedor aqui';
+      el.vazioTexto.textContent = consulta ? '' : 'Veja em outra loja ou tire o filtro de fornecedor.';
+      fornecedoresHTML = `<button type="button" class="botao-secundario" data-acao="tirar-fornecedor">${icone('cancelar')}Tirar o filtro de fornecedor</button>`;
     } else {
       el.vazioTitulo.textContent = TEXTO_VAZIO.titulo;
       el.vazioTexto.innerHTML = TEXTO_VAZIO.texto;
+      if (!resultado.length && consulta) fornecedoresHTML = buscaPorFornecedorHTML(consulta);
     }
+    el.vazioFornecedores.innerHTML = fornecedoresHTML;
+    el.vazioFornecedores.hidden = !fornecedoresHTML;
+    // Achou produtos, mas a busca também é nome de fornecedor (ex.: "gazin"): oferece ver tudo dele.
+    let sugestao = '';
+    if (!semDados && !estado.fornecedor && consulta && resultado.length) {
+      const achados = fornecedoresDaBusca(consulta, fornecedoresComContagem());
+      if (achados.length && achados.length <= 3) {
+        sugestao = `${icone('fabrica')}<span>Buscar por fornecedor: ${achados.map((f) => (
+          `<button type="button" class="link" data-fornecedor="${escapar(f.nome)}">${escapar(f.nome)} (${numero.format(f.total)})</button>`
+        )).join(', ')}</span>`;
+      }
+    }
+    el.sugestaoFornecedor.innerHTML = sugestao;
+    el.sugestaoFornecedor.hidden = !sugestao;
     el.vazio.hidden = resultado.length > 0;
-    el.atalhos.hidden = semDados || estado.consulta.trim() !== '' || !el.atalhos.children.length;
-    el.ordenar.hidden = resultado.length < 2;
+    el.atalhos.hidden = semDados || consulta !== '' || !el.atalhos.children.length;
     carregarSePerto();
+  }
+
+  // Busca sem resultado: oferece os fornecedores com esse nome, ou a lista completa deles.
+  function buscaPorFornecedorHTML(consulta) {
+    const fornecedores = fornecedoresComContagem();
+    if (!fornecedores.length) return '';
+    const todos = estado.verTodosFornecedores;
+    const achados = todos ? [] : fornecedoresDaBusca(consulta, fornecedores);
+    const lista = todos ? fornecedores.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')) : achados;
+    const texto = escapar(consulta);
+    let html = `<p class="fornecedores-titulo">${icone('fabrica')}Buscar por fornecedor</p>`;
+    if (todos) html += `<p class="fornecedores-dica">Todos os fornecedores (${fornecedores.length}):</p>`;
+    else if (achados.length) html += `<p class="fornecedores-dica">Fornecedores com “${texto}” no nome:</p>`;
+    else html += `<p class="fornecedores-dica">Nenhum fornecedor com “${texto}” no nome.</p>`;
+    html += lista.map((f) => `<button type="button" class="fornecedor-opcao" data-fornecedor="${escapar(f.nome)}">`
+      + `<span class="fornecedor-nome">${escapar(f.nome)}</span>`
+      + `<span class="fornecedor-qtd">${numero.format(f.total)}<span class="sr-only"> ${f.total === 1 ? 'produto' : 'produtos'}</span></span>`
+      + `${icone('setaDireita')}</button>`).join('');
+    if (!todos) html += `<button type="button" class="link" data-acao="todos-fornecedores">Ver todos os fornecedores (${fornecedores.length})</button>`;
+    return html;
+  }
+
+  function filtrarFornecedor(nome) {
+    estado.fornecedor = nome;
+    clearTimeout(esperaBusca);
+    el.busca.value = '';
+    el.limpar.hidden = true;
+    estado.consulta = '';
+    montarAtalhos();
+    atualizarLista();
+    voltarAoTopoDaLista();
+  }
+
+  function limparFornecedor() {
+    estado.fornecedor = null;
+    montarAtalhos();
+    atualizarLista();
+    voltarAoTopoDaLista();
+  }
+
+  // Classificadores: tocar de novo em "A → Z" ou em "Menor preço" inverte a ordem.
+  function atualizarOrdens() {
+    const o = estado.ordem;
+    for (const botao of el.ordens.querySelectorAll('[data-ordem]')) {
+      const tipo = botao.dataset.ordem;
+      let ativo = o === 'relevancia';
+      let rotulo = 'Relevância';
+      let descricao = 'Mais relevantes primeiro';
+      if (tipo === 'nome') {
+        ativo = o === 'az' || o === 'za';
+        rotulo = o === 'za' ? 'Z → A' : 'A → Z';
+        descricao = o === 'za' ? 'Nome de Z a A' : 'Nome de A a Z';
+      } else if (tipo === 'preco') {
+        ativo = o === 'menor' || o === 'maior';
+        rotulo = o === 'maior' ? 'Maior preço' : 'Menor preço';
+        descricao = o === 'maior' ? 'Do maior para o menor preço' : 'Do menor para o maior preço';
+      }
+      botao.setAttribute('aria-pressed', String(ativo));
+      botao.setAttribute('aria-label', descricao);
+      botao.title = ativo && tipo !== 'relevancia' ? `${descricao}. Toque de novo para inverter.` : descricao;
+      botao.querySelector('span').textContent = rotulo;
+    }
+  }
+
+  function proximaOrdem(tipo) {
+    if (tipo === 'nome') return estado.ordem === 'az' ? 'za' : 'az';
+    if (tipo === 'preco') return estado.ordem === 'menor' ? 'maior' : 'menor';
+    return 'relevancia';
   }
 
   // Leva o começo da lista para logo abaixo do painel fixo, se a pessoa tiver rolado para baixo.
@@ -590,7 +733,7 @@
   </div>
   <div class="linha-principal">
     ${precoHTML(p)}${estoque}
-    <div class="botoes">${botaoFotoHTML(p)}<button type="button" class="icone-botao remover" data-acao="remover" title="Remover dos anunciados" aria-label="Remover ${escapar(p.nome)} dos anunciados">${icone('lixeira')}</button></div>
+    <div class="botoes">${botaoWhatsAppHTML(p, item.loja)}${botaoFotoHTML(p)}<button type="button" class="icone-botao remover" data-acao="remover" title="Remover dos anunciados" aria-label="Remover ${escapar(p.nome)} dos anunciados">${icone('lixeira')}</button></div>
   </div>
   <div class="extra">${linhaExtraHTML(p)}</div>
   ${precoMudou ? `<p class="nota">Preço quando anunciou: ${reais(Math.round(item.preco * 100))}</p>` : ''}
@@ -635,9 +778,9 @@
       const partes = [];
       if (estado.comissao > 0) partes.push(`comissão de <strong>${percentual(estado.comissao)}</strong>`);
       if (estado.desconto > 0) partes.push(`desconto máximo de <strong>${percentual(estado.desconto)}</strong>`);
-      el.ajustesResumo.innerHTML = `Contas com ${partes.join(' e ')}. Para mudar, use a aba Estoque.`;
+      el.ajustesResumo.innerHTML = `Contas com ${partes.join(' e ')}. <button type="button" class="link" data-acao="abrir-gaveta">Alterar</button>`;
     } else {
-      el.ajustesResumo.innerHTML = 'Dica: informe sua <strong>comissão</strong> e o <strong>desconto máximo</strong> na aba Estoque para ver quanto você ganha em cada pedido.';
+      el.ajustesResumo.innerHTML = 'Dica: informe sua <strong>comissão</strong> e o <strong>desconto máximo</strong> para ver quanto você ganha em cada pedido. <button type="button" class="link" data-acao="abrir-gaveta">Informar agora</button>';
     }
     el.ajustesResumo.hidden = !daLoja.length;
   }
@@ -704,6 +847,107 @@
     acaoToast = null;
   }
 
+  // ---------------------------------------------------------------- perfil do vendedor: nome, comissão e desconto
+
+  const PARTICULAS = new Set(['da', 'de', 'do', 'das', 'dos', 'e']);
+  const limparNome = (texto) => String(texto || '').replace(/\s+/g, ' ').trim().slice(0, 40);
+  const nomeValido = (nome) => /\p{L}/u.test(nome);
+  const primeiroNome = (nome) => nome.split(' ')[0] || nome;
+
+  // "Maria da Silva" -> "MS"; "Maria" -> "M"
+  function iniciaisDe(nome) {
+    const partes = limparNome(nome).split(' ').filter((p) => p && !PARTICULAS.has(p.toLowerCase()));
+    if (!partes.length) return '';
+    const letra = (palavra) => Array.from(palavra)[0];
+    const iniciais = partes.length > 1 ? letra(partes[0]) + letra(partes[partes.length - 1]) : letra(partes[0]);
+    return iniciais.toLocaleUpperCase('pt-BR');
+  }
+
+  function atualizarPerfil() {
+    const iniciais = iniciaisDe(estado.nome);
+    el.perfilIniciais.textContent = iniciais;
+    el.perfilIcone.toggleAttribute('hidden', Boolean(iniciais));
+    el.gavetaIniciais.textContent = iniciais;
+    el.perfil.title = estado.nome || 'Seu perfil';
+    el.perfil.setAttribute('aria-label', estado.nome
+      ? `${estado.nome}: seu nome, comissão e desconto máximo` : 'Seu perfil: comissão e desconto máximo');
+  }
+
+  function definirNome(nome) {
+    if (!nome || nome === estado.nome) return;
+    estado.nome = nome;
+    atualizarPerfil();
+    salvarAjustes();
+    atualizarLinksWhatsApp(); // a mensagem do WhatsApp leva o nome de quem atende
+  }
+
+  function atualizarLinksWhatsApp() {
+    for (const card of el.lista.children) {
+      const p = estado.porChave.get(card.dataset.chave);
+      const link = card.querySelector('.whatsapp');
+      if (p && link) link.href = linkWhatsApp(p, p._loja);
+    }
+    if (estado.tela === 'anunciados') renderizarAnunciados();
+  }
+
+  // Enquanto a gaveta ou a janela do nome estão abertas, o resto da página não recebe toque nem foco.
+  function travarFundo(travar) {
+    for (const parte of [document.querySelector('.pular'), document.querySelector('.topo'), el.telaEstoque, el.telaAnunciados, $('abas')]) {
+      if (parte) parte.inert = travar;
+    }
+    document.documentElement.classList.toggle('travado', travar);
+  }
+
+  let focoAntesDaGaveta = null;
+  function abrirGaveta() {
+    if (!el.gaveta.hidden) return;
+    focoAntesDaGaveta = document.activeElement;
+    el.nome.value = estado.nome;
+    el.camadaGaveta.hidden = false;
+    el.gaveta.hidden = false;
+    el.perfil.setAttribute('aria-expanded', 'true');
+    esconderToast();
+    travarFundo(true);
+    el.gaveta.focus();
+  }
+
+  function fecharGaveta() {
+    if (el.gaveta.hidden) return;
+    el.nome.value = estado.nome; // nome apagado não vale: fica o anterior
+    formatarCampo(el.comissao);
+    formatarCampo(el.desconto);
+    aoMudarAjuste();
+    el.camadaGaveta.hidden = true;
+    el.gaveta.hidden = true;
+    el.perfil.setAttribute('aria-expanded', 'false');
+    travarFundo(false);
+    const voltar = focoAntesDaGaveta && document.body.contains(focoAntesDaGaveta) ? focoAntesDaGaveta : el.perfil;
+    if (voltar !== document.body) voltar.focus();
+  }
+
+  // Primeiro acesso: pede o nome antes de usar.
+  function abrirModalNome() {
+    el.modalNome.hidden = false;
+    travarFundo(true);
+    el.nomeInicial.focus();
+  }
+
+  function concluirModalNome(evento) {
+    evento.preventDefault();
+    const nome = limparNome(el.nomeInicial.value);
+    if (!nomeValido(nome)) {
+      el.nomeErro.hidden = false;
+      el.nomeInicial.setAttribute('aria-invalid', 'true');
+      el.nomeInicial.focus();
+      return;
+    }
+    definirNome(nome);
+    el.nomeInicial.blur();
+    el.modalNome.hidden = true;
+    travarFundo(false);
+    mostrarToast(`Pronto, ${primeiroNome(nome)}! Sua comissão e o desconto ficam nas suas iniciais, no topo.`, 'Abrir', abrirGaveta);
+  }
+
   // ---------------------------------------------------------------- ajustes salvos no aparelho
 
   function lerAjustes() {
@@ -717,6 +961,7 @@
   function salvarAjustes() {
     try {
       localStorage.setItem(CHAVE_AJUSTES, JSON.stringify({
+        nome: estado.nome,
         comissao: el.comissao.value.trim(),
         desconto: el.desconto.value.trim(),
         loja: estado.lojaId,
@@ -731,9 +976,15 @@
   }
 
   function aoMudarAjuste() {
-    estado.comissao = lerPercentual(el.comissao.value);
-    estado.desconto = lerPercentual(el.desconto.value);
-    atualizarPrecos();
+    const comissao = lerPercentual(el.comissao.value);
+    const desconto = lerPercentual(el.desconto.value);
+    const mudou = comissao !== estado.comissao || desconto !== estado.desconto;
+    estado.comissao = comissao;
+    estado.desconto = desconto;
+    if (mudou) {
+      atualizarPrecos();
+      if (estado.tela === 'anunciados') renderizarAnunciados(); // a gaveta abre nas duas abas
+    }
     salvarAjustes();
   }
 
@@ -798,6 +1049,10 @@
 
   async function iniciar() {
     const salvos = lerAjustes();
+    estado.nome = limparNome(salvos.nome);
+    if (!nomeValido(estado.nome)) estado.nome = '';
+    atualizarPerfil();
+    if (!estado.nome) abrirModalNome();
     el.comissao.value = salvos.comissao || '';
     el.desconto.value = salvos.desconto || '';
     formatarCampo(el.comissao);
@@ -805,7 +1060,7 @@
     estado.comissao = lerPercentual(el.comissao.value);
     estado.desconto = lerPercentual(el.desconto.value);
     estado.ordem = ORDENS.includes(salvos.ordem) ? salvos.ordem : 'relevancia';
-    el.ordem.value = estado.ordem;
+    atualizarOrdens();
     estado.anunciados = lerAnunciados();
 
     try {
@@ -859,16 +1114,73 @@
   for (const campo of [el.comissao, el.desconto]) {
     campo.addEventListener('input', aoMudarAjuste);
     campo.addEventListener('blur', () => { formatarCampo(campo); aoMudarAjuste(); });
-    campo.addEventListener('keydown', (evento) => { if (evento.key === 'Enter') campo.blur(); });
     // seleciona o valor ao tocar, para a pessoa digitar o novo percentual por cima
     campo.addEventListener('focus', () => setTimeout(() => campo.setSelectionRange(0, campo.value.length), 0));
   }
 
-  el.ordem.addEventListener('change', () => {
-    estado.ordem = ORDENS.includes(el.ordem.value) ? el.ordem.value : 'relevancia';
+  // Na gaveta, "Enter" passa para o próximo campo; no último, fecha.
+  const PROXIMO_CAMPO = new Map([[el.nome, el.comissao], [el.comissao, el.desconto]]);
+  el.formGaveta.addEventListener('keydown', (evento) => {
+    if (evento.key !== 'Enter' || !evento.target.matches('input')) return;
+    evento.preventDefault();
+    const proximo = PROXIMO_CAMPO.get(evento.target);
+    if (proximo) proximo.focus();
+    else fecharGaveta();
+  });
+  el.formGaveta.addEventListener('submit', (evento) => { evento.preventDefault(); fecharGaveta(); });
+
+  el.nome.addEventListener('input', () => {
+    const nome = limparNome(el.nome.value);
+    if (nomeValido(nome)) definirNome(nome);
+  });
+  el.nome.addEventListener('blur', () => { el.nome.value = estado.nome; });
+
+  el.perfil.addEventListener('click', abrirGaveta);
+  el.gavetaFechar.addEventListener('click', fecharGaveta);
+  el.camadaGaveta.addEventListener('click', fecharGaveta);
+  document.addEventListener('keydown', (evento) => {
+    if (evento.key === 'Escape' && !el.gaveta.hidden) fecharGaveta();
+  });
+  el.ajustesResumo.addEventListener('click', (evento) => {
+    if (evento.target.closest('[data-acao="abrir-gaveta"]')) abrirGaveta();
+  });
+
+  el.formNome.addEventListener('submit', concluirModalNome);
+  el.nomeInicial.addEventListener('input', () => {
+    if (el.nomeErro.hidden || !nomeValido(limparNome(el.nomeInicial.value))) return;
+    el.nomeErro.hidden = true;
+    el.nomeInicial.removeAttribute('aria-invalid');
+  });
+
+  el.ordens.addEventListener('click', (evento) => {
+    const botao = evento.target.closest('[data-ordem]');
+    if (!botao) return;
+    estado.ordem = proximaOrdem(botao.dataset.ordem);
+    atualizarOrdens();
     atualizarLista();
     voltarAoTopoDaLista();
     salvarAjustes();
+  });
+
+  el.filtroFornecedorLimpar.addEventListener('click', limparFornecedor);
+  el.sugestaoFornecedor.addEventListener('click', (evento) => {
+    const botao = evento.target.closest('[data-fornecedor]');
+    if (botao) filtrarFornecedor(botao.dataset.fornecedor);
+  });
+
+  el.vazioFornecedores.addEventListener('click', (evento) => {
+    const botao = evento.target.closest('button');
+    if (!botao) return;
+    if (botao.dataset.fornecedor) {
+      filtrarFornecedor(botao.dataset.fornecedor);
+    } else if (botao.dataset.acao === 'todos-fornecedores') {
+      estado.verTodosFornecedores = true;
+      atualizarLista();
+      const primeiro = el.vazioFornecedores.querySelector('.fornecedor-opcao');
+      if (primeiro) primeiro.focus();
+    } else if (botao.dataset.acao === 'tirar-fornecedor') {
+      limparFornecedor();
+    }
   });
 
   el.atalhos.addEventListener('click', (evento) => {
@@ -979,5 +1291,5 @@
   iniciar();
 
   // Exposto só para conferência no console do navegador.
-  window.__estoque = { calcular, buscar, lerPercentual, normalizar, estado, ORDENACOES };
+  window.__estoque = { calcular, buscar, lerPercentual, normalizar, estado, ORDENACOES, linkWhatsApp, iniciaisDe, fornecedoresDaBusca, fornecedoresComContagem };
 })();

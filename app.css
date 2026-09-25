@@ -223,13 +223,14 @@ button, input, select { font: inherit; color: inherit; }
   font-size: 14.5px; font-weight: 700; white-space: nowrap;
 }
 .ordem .ic { width: 17px; height: 17px; stroke-width: 2; color: var(--suave); }
-.ordem[aria-pressed="true"] { background: var(--tinta); border-color: var(--tinta); color: #fff; }
-.ordem[aria-pressed="true"] .ic { color: var(--amarelo); }
-:root[data-theme="dark"] .ordem[aria-pressed="true"] { background: var(--amarelo); border-color: var(--amarelo); color: var(--tinta); }
-:root[data-theme="dark"] .ordem[aria-pressed="true"] .ic { color: var(--tinta); }
+/* botão selecionado (classificadores e tema): escuro no tema claro, amarelo no tema escuro */
+.ordem[aria-pressed="true"], .tema[aria-pressed="true"] { background: var(--tinta); border-color: var(--tinta); color: #fff; }
+.ordem[aria-pressed="true"] .ic, .tema[aria-pressed="true"] .ic { color: var(--amarelo); }
+:root[data-theme="dark"] .ordem[aria-pressed="true"], :root[data-theme="dark"] .tema[aria-pressed="true"] { background: var(--amarelo); border-color: var(--amarelo); color: var(--tinta); }
+:root[data-theme="dark"] .ordem[aria-pressed="true"] .ic, :root[data-theme="dark"] .tema[aria-pressed="true"] .ic { color: var(--tinta); }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .ordem[aria-pressed="true"] { background: var(--amarelo); border-color: var(--amarelo); color: var(--tinta); }
-  :root:not([data-theme="light"]) .ordem[aria-pressed="true"] .ic { color: var(--tinta); }
+  :root:not([data-theme="light"]) .ordem[aria-pressed="true"], :root:not([data-theme="light"]) .tema[aria-pressed="true"] { background: var(--amarelo); border-color: var(--amarelo); color: var(--tinta); }
+  :root:not([data-theme="light"]) .ordem[aria-pressed="true"] .ic, :root:not([data-theme="light"]) .tema[aria-pressed="true"] .ic { color: var(--tinta); }
 }
 
 /* ---------- conteúdo ---------- */
@@ -508,6 +509,16 @@ html.travado, html.travado body { overflow: hidden; }
 }
 
 .gaveta-nota { margin: 10px 0 0; text-align: center; font-size: 13px; color: var(--suave); }
+
+/* tema: claro, escuro ou automático */
+.temas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.tema {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  min-height: 58px; padding: 6px 4px; border-radius: 10px; cursor: pointer;
+  border: 1.5px solid var(--linha); background: var(--superficie-2); color: var(--texto);
+  font-size: 13.5px; font-weight: 700; line-height: 1.1;
+}
+.tema .ic { width: 22px; height: 22px; color: var(--suave); }
 
 /* ---------- primeiro acesso: nome do vendedor ---------- */
 

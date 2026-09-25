@@ -110,7 +110,7 @@
     filtroFornecedorNome: $('filtro-fornecedor-nome'), filtroFornecedorLimpar: $('filtro-fornecedor-limpar'),
     perfil: $('perfil'), perfilIniciais: $('perfil-iniciais'), perfilIcone: $('perfil-icone'),
     camadaGaveta: $('camada-gaveta'), gaveta: $('gaveta'), gavetaIniciais: $('gaveta-iniciais'),
-    gavetaFechar: $('gaveta-fechar'), formGaveta: $('form-gaveta'), nome: $('nome'),
+    gavetaFechar: $('gaveta-fechar'), formGaveta: $('form-gaveta'), nome: $('nome'), temas: $('temas'),
     modalNome: $('modal-nome'), formNome: $('form-nome'), nomeInicial: $('nome-inicial'), nomeErro: $('nome-erro'),
     telaEstoque: $('tela-estoque'), telaAnunciados: $('tela-anunciados'), resumoAnunciados: $('anunciados-resumo'),
     filtrosStatus: $('filtros-status'), ajustesResumo: $('ajustes-resumo'), listaAnunciados: $('lista-anunciados'),
@@ -124,7 +124,7 @@
     produtos: [], porChave: new Map(), resultado: [], exibidos: 0,
     consulta: '', ordem: 'relevancia', comissao: 0, desconto: 0,
     nome: '', fornecedor: null, verTodosFornecedores: false, consultaMostrada: '',
-    anunciados: [], filtroStatus: 'todos',
+    anunciados: [], filtroStatus: 'todos', anunciosAbertos: new Set(), tema: 'auto',
     tela: 'estoque', rolagem: { estoque: 0, anunciados: 0 },
   };
 
@@ -404,7 +404,14 @@
     return `<a class="icone-botao" href="${escapar(linkFoto(p))}" target="_blank" rel="noopener noreferrer" title="Ver foto na internet" aria-label="Ver foto de ${escapar(p.nome)} na internet">${icone('foto')}</a>`;
   }
 
-  function detalhesHTML(p, id) {
+  function botaoDetalhesHTML(nome, id, aberto) {
+    return `<button type="button" class="icone-botao ver-detalhes" aria-expanded="${aberto}" aria-controls="${id}" title="Detalhes" aria-label="Detalhes de ${escapar(nome)}">${icone('seta')}</button>`;
+  }
+
+  const listaDetalhesHTML = (linhas, id, aberto) => (
+    `<dl class="detalhes" id="${id}"${aberto ? '' : ' hidden'}>${linhas.map(([t, v]) => `<dt>${t}</dt><dd>${v}</dd>`).join('')}</dl>`);
+
+  function detalhesHTML(p, id, aberto = false) {
     const linhas = [
       ['Código', escapar(p.codigo)],
       ['Em estoque', p.quantidade === 1 ? '1 unidade' : `${numero.format(p.quantidade)} unidades`],
@@ -415,7 +422,17 @@
     linhas.push(['Última compra', p.ultima_compra ? dataBR(p.ultima_compra) : 'Não informada']);
     if ('ultima_venda' in p) linhas.push(['Última venda', p.ultima_venda ? dataBR(p.ultima_venda) : 'Nenhuma venda registrada']);
     linhas.push(['Nome no sistema', `<span class="sistema">${escapar(p.nome_sistema)}</span>`]);
-    return `<dl class="detalhes" id="${id}" hidden>${linhas.map(([t, v]) => `<dt>${t}</dt><dd>${v}</dd>`).join('')}</dl>`;
+    return listaDetalhesHTML(linhas, id, aberto);
+  }
+
+  // Anunciado que não está mais no estoque atual: mostra o que foi guardado ao anunciar.
+  function detalhesForaDoEstoqueHTML(item, id, aberto) {
+    return listaDetalhesHTML([
+      ['Código', escapar(item.codigo)],
+      ['Loja', escapar(rotuloLoja(lojaPorId(item.loja)) || item.loja)],
+      ['Situação', 'Não está no estoque atual: pode ter sido vendido ou transferido.'],
+      ['Preço quando anunciou', semPreco(item) ? 'A confirmar' : reais(Math.round(item.preco * 100))],
+    ], id, aberto);
   }
 
   function cartaoHTML(p) {
@@ -424,7 +441,7 @@
   <h2 class="nome">${escapar(p.nome)}${seloLojaHTML(p._loja)}</h2>
   <div class="linha-principal">
     ${precoHTML(p)}${estoqueHTML(p)}
-    <div class="botoes">${botaoAnunciarHTML(p)}${botaoWhatsAppHTML(p, p._loja)}${botaoFotoHTML(p)}<button type="button" class="icone-botao ver-detalhes" aria-expanded="false" aria-controls="${id}" title="Detalhes" aria-label="Detalhes de ${escapar(p.nome)}">${icone('seta')}</button></div>
+    <div class="botoes">${botaoAnunciarHTML(p)}${botaoWhatsAppHTML(p, p._loja)}${botaoFotoHTML(p)}${botaoDetalhesHTML(p.nome, id, false)}</div>
   </div>
   <div class="extra">${linhaExtraHTML(p)}</div>
   ${detalhesHTML(p, id)}
@@ -602,6 +619,15 @@
     for (const card of el.lista.children) atualizarBotaoAnunciar(card);
   }
 
+  // Abre ou fecha os detalhes do produto (aba Estoque e aba Anunciados). Devolve se ficou aberto.
+  function alternarDetalhes(botao) {
+    const detalhes = document.getElementById(botao.getAttribute('aria-controls'));
+    const abrir = botao.getAttribute('aria-expanded') !== 'true';
+    botao.setAttribute('aria-expanded', String(abrir));
+    if (detalhes) detalhes.hidden = !abrir;
+    return abrir;
+  }
+
   function montarAtalhos() {
     el.atalhos.innerHTML = ATALHOS.map(([termo, nomeIcone]) => {
       const total = buscar(termo).length;
@@ -721,22 +747,26 @@
   }
 
   function anuncioHTML(item) {
-    const atual = estado.porChave.get(chaveAnuncio(item));
+    const chave = chaveAnuncio(item);
+    const atual = estado.porChave.get(chave);
     const p = atual || { nome: item.nome, preco: item.preco, busca_foto: item.busca_foto };
     const s = statusDe(item);
     const precoMudou = atual && !semPreco(atual) && Math.round(atual.preco * 100) !== Math.round(item.preco * 100);
     const estoque = atual ? estoqueHTML(atual) : '<span class="estoque fora">Fora do estoque atual</span>';
-    return `<li class="card anuncio status-${s.id}" data-id="${escapar(chaveAnuncio(item))}">
+    const id = `anuncio-detalhes-${item.loja}-${item.codigo}`;
+    const aberto = estado.anunciosAbertos.has(chave); // continua aberto quando a lista é redesenhada
+    return `<li class="card anuncio status-${s.id}" data-id="${escapar(chave)}">
   <div class="anuncio-topo">
     <h2 class="nome">${escapar(p.nome)}${seloLojaHTML(item.loja)}</h2>
     <span class="selo-status">${icone(s.icone)}${s.nome}</span>
   </div>
   <div class="linha-principal">
     ${precoHTML(p)}${estoque}
-    <div class="botoes">${botaoWhatsAppHTML(p, item.loja)}${botaoFotoHTML(p)}<button type="button" class="icone-botao remover" data-acao="remover" title="Remover dos anunciados" aria-label="Remover ${escapar(p.nome)} dos anunciados">${icone('lixeira')}</button></div>
+    <div class="botoes">${botaoWhatsAppHTML(p, item.loja)}${botaoFotoHTML(p)}<button type="button" class="icone-botao remover" data-acao="remover" title="Remover dos anunciados" aria-label="Remover ${escapar(p.nome)} dos anunciados">${icone('lixeira')}</button>${botaoDetalhesHTML(p.nome, id, aberto)}</div>
   </div>
   <div class="extra">${linhaExtraHTML(p)}</div>
   ${precoMudou ? `<p class="nota">Preço quando anunciou: ${reais(Math.round(item.preco * 100))}</p>` : ''}
+  ${atual ? detalhesHTML(atual, id, aberto) : detalhesForaDoEstoqueHTML(item, id, aberto)}
   <div class="status-grade" role="group" aria-label="Como está o pedido">
     ${STATUS.map((st) => `<button type="button" class="status-opcao status-${st.id}" data-status="${st.id}" aria-pressed="${st.id === s.id}">${icone(st.icone)}<span>${st.nome}</span></button>`).join('')}
   </div>
@@ -925,6 +955,18 @@
     if (voltar !== document.body) voltar.focus();
   }
 
+  // Tema: claro, escuro ou automático (segue o celular). O <head> já aplica o salvo antes de desenhar.
+  const TEMAS = ['auto', 'claro', 'escuro'];
+  function aplicarTema(tema) {
+    estado.tema = TEMAS.includes(tema) ? tema : 'auto';
+    const raiz = document.documentElement;
+    if (estado.tema === 'auto') raiz.removeAttribute('data-theme');
+    else raiz.setAttribute('data-theme', estado.tema === 'escuro' ? 'dark' : 'light');
+    for (const botao of el.temas.querySelectorAll('[data-tema]')) {
+      botao.setAttribute('aria-pressed', String(botao.dataset.tema === estado.tema));
+    }
+  }
+
   // Primeiro acesso: pede o nome antes de usar.
   function abrirModalNome() {
     el.modalNome.hidden = false;
@@ -966,6 +1008,7 @@
         desconto: el.desconto.value.trim(),
         loja: estado.lojaId,
         ordem: estado.ordem,
+        tema: estado.tema,
       }));
     } catch (e) { /* navegador sem armazenamento: segue funcionando sem salvar */ }
   }
@@ -1049,6 +1092,7 @@
 
   async function iniciar() {
     const salvos = lerAjustes();
+    aplicarTema(salvos.tema);
     estado.nome = limparNome(salvos.nome);
     if (!nomeValido(estado.nome)) estado.nome = '';
     atualizarPerfil();
@@ -1135,6 +1179,13 @@
   });
   el.nome.addEventListener('blur', () => { el.nome.value = estado.nome; });
 
+  el.temas.addEventListener('click', (evento) => {
+    const botao = evento.target.closest('[data-tema]');
+    if (!botao) return;
+    aplicarTema(botao.dataset.tema);
+    salvarAjustes();
+  });
+
   el.perfil.addEventListener('click', abrirGaveta);
   el.gavetaFechar.addEventListener('click', fecharGaveta);
   el.camadaGaveta.addEventListener('click', fecharGaveta);
@@ -1204,10 +1255,7 @@
     const card = botao.closest('.card');
     const p = card && estado.porChave.get(card.dataset.chave);
     if (botao.classList.contains('ver-detalhes')) {
-      const detalhes = document.getElementById(botao.getAttribute('aria-controls'));
-      const abrir = botao.getAttribute('aria-expanded') !== 'true';
-      botao.setAttribute('aria-expanded', String(abrir));
-      detalhes.hidden = !abrir;
+      alternarDetalhes(botao);
     } else if (p && botao.dataset.acao === 'anunciar') {
       if (!anuncioDe(p._loja, p.codigo)) anunciar(p);
       atualizarBotaoAnunciar(card);
@@ -1226,6 +1274,10 @@
     if (!item) return;
     if (botao.classList.contains('status-opcao')) mudarStatus(item, botao.dataset.status);
     else if (botao.dataset.acao === 'remover') removerAnuncio(item);
+    else if (botao.classList.contains('ver-detalhes')) {
+      if (alternarDetalhes(botao)) estado.anunciosAbertos.add(card.dataset.id);
+      else estado.anunciosAbertos.delete(card.dataset.id);
+    }
   });
 
   el.filtrosStatus.addEventListener('click', (evento) => {

@@ -7,8 +7,8 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
 ## O que a página faz
 
 - **Nome do vendedor:** no primeiro acesso, uma janela pede o nome. As iniciais aparecem num círculo no canto
-  direito do topo; tocando nele abre uma gaveta para mudar o nome, a **comissão** e o **desconto máximo**
-  (assim eles não ocupam espaço na página).
+  direito do topo; tocando nele abre uma gaveta para mudar o nome, a **comissão**, o **desconto máximo**
+  (assim eles não ocupam espaço na página) e o **tema**: Claro, Escuro ou Automático (segue o celular).
 - **Lojas:** abas no topo para ver **Todas as lojas**, só **Matina - BA** ou só **Igaporã - BA**.
   Em "Todas as lojas", cada produto mostra de qual loja é. A escolha fica salva no celular.
 - **Busca** pelo nome ou pelo código do produto. Não precisa acertar acento, plural nem a abreviação do sistema
@@ -30,6 +30,8 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
   O preço mínimo é arredondado para cima, para nunca passar do desconto permitido.
 - **Anunciados:** o botão de megafone manda o produto para a aba Anunciados, onde o vendedor marca como está o pedido:
   Anunciado, Negociando, Reservado, Vendido, Entregue ou Cancelado (com filtro por status e histórico).
+  Cada anunciado também tem o botão de **detalhes** do produto; se o produto saiu do estoque, mostra o que foi
+  guardado ao anunciar (código, loja e preço da época).
 - Nome, percentuais, loja escolhida e anunciados ficam salvos **no próprio celular** de cada vendedor.
 - Depois do primeiro acesso, continua funcionando com internet fraca ou sem internet (mostra o último estoque salvo),
   e pode ser adicionada à tela inicial do celular como um aplicativo.

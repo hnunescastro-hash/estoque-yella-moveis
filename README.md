@@ -9,6 +9,9 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
 - **Nome do vendedor:** no primeiro acesso, uma janela pede o nome. As iniciais aparecem num círculo no canto
   direito do topo; tocando nele abre uma gaveta para mudar o nome, a **comissão**, o **desconto máximo**
   (assim eles não ocupam espaço na página) e o **tema**: Claro, Escuro ou Automático (segue o celular).
+  O **olhinho** ao lado de "Comissão e desconto" esconde o "até R$…" e o "você ganha…" dos cartões
+  (bom para mostrar o celular ao cliente); escondidos, eles só aparecem ao abrir os detalhes do produto.
+- A página não tem textos de dica nem rodapé: só o necessário para consultar e vender.
 - **Lojas:** abas no topo para ver **Todas as lojas**, só **Matina - BA** ou só **Igaporã - BA**.
   Em "Todas as lojas", cada produto mostra de qual loja é, numa etiqueta no canto direito da linha do nome,
   com uma cor de texto para cada loja. A escolha fica salva no celular.

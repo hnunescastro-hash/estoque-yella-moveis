@@ -265,9 +265,7 @@ button, input, select { font: inherit; color: inherit; }
 .atalho-qtd { color: var(--suave); font-weight: 500; font-variant-numeric: tabular-nums; }
 .atalho:active { background: var(--superficie-2); }
 
-.barra-resultados { display: flex; align-items: center; justify-content: space-between; gap: 6px 12px; flex-wrap: wrap; margin: 0 0 8px; }
-
-.contagem { margin: 0; font-size: 14px; color: var(--suave); }
+.contagem { margin: 0 0 8px; font-size: 14px; color: var(--suave); }
 .contagem strong { color: var(--texto); }
 
 /* filtro de fornecedor ativo */
@@ -293,7 +291,6 @@ button, input, select { font: inherit; color: inherit; }
 .vazio-fornecedores { max-width: 520px; margin: 18px auto 0; text-align: left; }
 .vazio-fornecedores .fornecedores-titulo { display: flex; align-items: center; gap: 6px; margin: 0 0 2px; font-size: 16px; font-weight: 800; color: var(--texto); }
 .vazio-fornecedores .fornecedores-titulo .ic { width: 20px; height: 20px; }
-.vazio-fornecedores .fornecedores-dica { margin: 0 0 8px; font-size: 14px; }
 .fornecedor-opcao {
   display: flex; align-items: center; gap: 8px; width: 100%;
   min-height: 46px; margin: 0 0 6px; padding: 8px 8px 8px 12px; border-radius: 10px; cursor: pointer; text-align: left;
@@ -383,6 +380,8 @@ button, input, select { font: inherit; color: inherit; }
 .icone-botao.remover { color: var(--st-cancelado); }
 .icone-botao.whatsapp { color: var(--whatsapp); }
 
+html.ocultar-contas .card:not(.aberto) .extra { display: none; }
+
 .linha-extra { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; margin: 5px 0 0; font-size: 14px; line-height: 1.3; }
 .linha-extra > span { display: inline-flex; align-items: center; gap: 4px; }
 .linha-extra .ic { width: 16px; height: 16px; stroke-width: 2; }
@@ -406,7 +405,6 @@ dl.detalhes {
 .painel-anunciados { padding-bottom: 2px; }
 .anunciados-topo { display: flex; align-items: baseline; justify-content: space-between; gap: 2px 12px; flex-wrap: wrap; }
 .anunciados-topo h2 { margin: 0; font-size: 19px; font-weight: 800; }
-.anunciados-topo p { margin: 0; font-size: 13.5px; color: var(--suave); }
 .filtros-status { margin-top: 6px; margin-bottom: 4px; }
 .filtros-status .atalho { min-height: 38px; }
 .filtros-status .atalho[class*="status-"] .ic { color: var(--st); }
@@ -422,8 +420,6 @@ dl.detalhes {
   :root:not([data-theme="light"]) .filtros-status .atalho[aria-pressed="true"] .atalho-qtd { color: var(--tinta); }
 }
 
-.dica { margin: 0 0 10px; font-size: 13.5px; color: var(--suave); }
-.dica strong { color: var(--texto); }
 
 .anuncio { border-left: 5px solid var(--st); }
 .status-grade { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; margin-top: 8px; }
@@ -440,7 +436,6 @@ dl.detalhes {
 
 .historico { margin: 6px 0 0; font-size: 12.5px; color: var(--suave); }
 
-.rodape-anunciados { margin: 20px 0 0; font-size: 13px; color: var(--suave); text-align: center; }
 
 .destaque { animation: destaque 1.6s ease; }
 @keyframes destaque { 0%, 60% { box-shadow: 0 0 0 4px var(--amarelo); } 100% { box-shadow: var(--sombra); } }
@@ -467,7 +462,6 @@ html.travado, html.travado body { overflow: hidden; }
 .avatar-grande { width: 48px; height: 48px; margin-left: 0; font-size: 18px; cursor: default; background: var(--amarelo); border-color: var(--amarelo); color: var(--tinta); }
 .gaveta-titulos { flex: 1; min-width: 0; }
 .gaveta-titulos h2 { margin: 0; font-size: 18px; font-weight: 800; }
-.gaveta-titulos p { margin: 1px 0 0; font-size: 13.5px; color: var(--suave); }
 
 .fechar {
   flex: none; width: 42px; height: 42px; display: grid; place-items: center; cursor: pointer;
@@ -482,7 +476,6 @@ html.travado, html.travado body { overflow: hidden; }
 .campo-rotulo .ic { width: 20px; height: 20px; stroke-width: 2; }
 .campo-rotulo .ic-ganho { color: var(--verde); }
 .campo-rotulo .ic-minimo { color: var(--ambar); }
-.campo-ajuda { margin: 6px 0 0; font-size: 13.5px; line-height: 1.35; color: var(--suave); }
 
 .campo-texto {
   width: 100%; height: 48px; padding: 0 14px;
@@ -516,7 +509,17 @@ html.travado, html.travado body { overflow: hidden; }
   :root:not([data-theme="light"]) .botao-principal { background: var(--amarelo); color: var(--tinta); }
 }
 
-.gaveta-nota { margin: 10px 0 0; text-align: center; font-size: 13px; color: var(--suave); }
+
+/* olhinho: mostra ou esconde comissão e desconto nos cartões */
+.grupo-contas { margin-top: 22px; }
+.grupo-contas + .campo { margin-top: 10px; }
+.olho {
+  flex: none; width: 42px; height: 42px; display: grid; place-items: center; cursor: pointer;
+  border: 1.5px solid var(--linha); border-radius: 12px; background: var(--superficie-2); color: var(--texto);
+}
+.olho .ic { width: 22px; height: 22px; }
+.olho[aria-pressed="true"] .olho-fechado, .olho[aria-pressed="false"] .olho-aberto { display: none; }
+.olho[aria-pressed="false"] { color: var(--suave); }
 
 /* tema: claro, escuro ou automático */
 .temas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
@@ -547,7 +550,6 @@ html.travado, html.travado body { overflow: hidden; }
 .modal-caixa .campo-texto { text-align: center; }
 .modal-caixa .botao-principal { margin-top: 12px; }
 .erro { margin: 8px 0 0; font-size: 14px; font-weight: 700; color: var(--st-cancelado); }
-.modal-nota { margin: 10px 0 0; font-size: 13px; color: var(--suave); }
 
 /* ---------- abas (barra inferior) ---------- */
 
@@ -605,10 +607,6 @@ body.digitando .toast { bottom: 12px; }
 .vazio-titulo { margin: 0 0 6px; font-size: 18px; font-weight: 700; color: var(--texto); }
 .vazio p { margin: 0 auto; max-width: 30em; }
 
-.rodape { margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--linha); font-size: 13.5px; color: var(--suave); }
-.rodape p { margin: 0 0 6px; }
-.rodape strong { color: var(--texto); }
-.rodape-fonte { margin-top: 12px !important; }
 
 /* ---------- telas pequenas e grandes ---------- */
 

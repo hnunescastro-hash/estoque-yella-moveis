@@ -105,26 +105,26 @@
     lojas: $('lojas'), painel: $('painel'), form: $('form-busca'), busca: $('busca'),
     limpar: $('limpar'), comissao: $('comissao'), desconto: $('desconto'), aviso: $('aviso'), atalhos: $('atalhos'),
     contagem: $('contagem'), ordens: $('ordens'), lista: $('lista'), mais: $('mais'),
-    vazio: $('vazio'), vazioTitulo: $('vazio-titulo'), vazioTexto: $('vazio-texto'), fonte: $('fonte'),
+    vazio: $('vazio'), vazioTitulo: $('vazio-titulo'),
     vazioFornecedores: $('vazio-fornecedores'), filtroFornecedor: $('filtro-fornecedor'), sugestaoFornecedor: $('sugestao-fornecedor'),
     filtroFornecedorNome: $('filtro-fornecedor-nome'), filtroFornecedorLimpar: $('filtro-fornecedor-limpar'),
     perfil: $('perfil'), perfilIniciais: $('perfil-iniciais'), perfilIcone: $('perfil-icone'),
     camadaGaveta: $('camada-gaveta'), gaveta: $('gaveta'), gavetaIniciais: $('gaveta-iniciais'),
     gavetaFechar: $('gaveta-fechar'), formGaveta: $('form-gaveta'), nome: $('nome'), temas: $('temas'),
+    mostrarContas: $('mostrar-contas'),
     modalNome: $('modal-nome'), formNome: $('form-nome'), nomeInicial: $('nome-inicial'), nomeErro: $('nome-erro'),
-    telaEstoque: $('tela-estoque'), telaAnunciados: $('tela-anunciados'), resumoAnunciados: $('anunciados-resumo'),
-    filtrosStatus: $('filtros-status'), ajustesResumo: $('ajustes-resumo'), listaAnunciados: $('lista-anunciados'),
+    telaEstoque: $('tela-estoque'), telaAnunciados: $('tela-anunciados'),
+    filtrosStatus: $('filtros-status'), listaAnunciados: $('lista-anunciados'),
     vazioAnunciados: $('vazio-anunciados'), abaEstoque: $('aba-estoque'), abaAnunciados: $('aba-anunciados'),
     contador: $('contador-anunciados'), toast: $('toast'), toastTexto: $('toast-texto'), toastAcao: $('toast-acao'),
   };
-  const TEXTO_VAZIO = { titulo: el.vazioTitulo.textContent, texto: el.vazioTexto.innerHTML };
 
   const estado = {
     lojas: [], lojaId: null, selecao: null, dadosLojas: new Map(),
     produtos: [], porChave: new Map(), resultado: [], exibidos: 0,
     consulta: '', ordem: 'relevancia', comissao: 0, desconto: 0,
     nome: '', fornecedor: null, verTodosFornecedores: false, consultaMostrada: '',
-    anunciados: [], filtroStatus: 'todos', anunciosAbertos: new Set(), tema: 'auto',
+    anunciados: [], filtroStatus: 'todos', anunciosAbertos: new Set(), tema: 'auto', mostrarContas: true,
     tela: 'estoque', rolagem: { estoque: 0, anunciados: 0 },
   };
 
@@ -466,21 +466,19 @@
     el.mais.textContent = `Mostrar mais produtos (${numero.format(restantes)} ${restantes === 1 ? 'restante' : 'restantes'})`;
   }
 
+  // Só aparece como retorno de uma busca (sem busca, a lista fala por si).
   function atualizarContagem() {
     const total = estado.resultado.length;
     const consulta = estado.consulta.trim();
     const n = `<strong>${numero.format(total)}</strong>`;
-    if (estado.selecao.semDados) {
+    if (estado.selecao.semDados || !consulta) {
       el.contagem.textContent = '';
-    } else if (!consulta) {
-      const onde = todasAsLojas() ? 'em todas as lojas' : `na loja de ${escapar(rotuloLoja(lojaAtual()))}`;
-      const deQuem = estado.fornecedor ? ' deste fornecedor' : '';
-      el.contagem.innerHTML = `${n} ${total === 1 ? 'produto' : 'produtos'}${deQuem} ${onde}`;
     } else if (!total) {
       el.contagem.innerHTML = `Nenhum produto encontrado para “${escapar(consulta)}”`;
     } else {
       el.contagem.innerHTML = `${n} ${total === 1 ? 'produto encontrado' : 'produtos encontrados'} para “${escapar(consulta)}”`;
     }
+    el.contagem.hidden = !el.contagem.textContent;
   }
 
   function atualizarLista() {
@@ -501,19 +499,17 @@
     el.filtroFornecedor.hidden = !estado.fornecedor;
     el.filtroFornecedorNome.textContent = estado.fornecedor || '';
     let fornecedoresHTML = '';
+    let titulo = ''; // busca sem resultado já avisa na contagem
     if (semDados) {
-      el.vazioTitulo.textContent = todasAsLojas() ? 'Estoque das lojas ainda não cadastrado'
-        : `Estoque de ${rotuloLoja(lojaAtual())} ainda não cadastrado`;
-      el.vazioTexto.textContent = 'Assim que o relatório do sistema dessa loja for enviado, os produtos aparecem aqui.';
+      titulo = todasAsLojas() ? 'Estoque das lojas ainda não cadastrado' : `Estoque de ${rotuloLoja(lojaAtual())} ainda não cadastrado`;
     } else if (estado.fornecedor) {
-      el.vazioTitulo.textContent = consulta ? `Nenhum produto deste fornecedor para “${consulta}”` : 'Nenhum produto deste fornecedor aqui';
-      el.vazioTexto.textContent = consulta ? '' : 'Veja em outra loja ou tire o filtro de fornecedor.';
+      if (!consulta) titulo = 'Nenhum produto deste fornecedor aqui';
       fornecedoresHTML = `<button type="button" class="botao-secundario" data-acao="tirar-fornecedor">${icone('cancelar')}Tirar o filtro de fornecedor</button>`;
-    } else {
-      el.vazioTitulo.textContent = TEXTO_VAZIO.titulo;
-      el.vazioTexto.innerHTML = TEXTO_VAZIO.texto;
-      if (!resultado.length && consulta) fornecedoresHTML = buscaPorFornecedorHTML(consulta);
+    } else if (!resultado.length && consulta) {
+      fornecedoresHTML = buscaPorFornecedorHTML(consulta);
     }
+    el.vazioTitulo.textContent = titulo;
+    el.vazioTitulo.hidden = !titulo;
     el.vazioFornecedores.innerHTML = fornecedoresHTML;
     el.vazioFornecedores.hidden = !fornecedoresHTML;
     // Achou produtos, mas a busca também é nome de fornecedor (ex.: "gazin"): oferece ver tudo dele.
@@ -540,11 +536,7 @@
     const todos = estado.verTodosFornecedores;
     const achados = todos ? [] : fornecedoresDaBusca(consulta, fornecedores);
     const lista = todos ? fornecedores.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')) : achados;
-    const texto = escapar(consulta);
     let html = `<p class="fornecedores-titulo">${icone('fabrica')}Buscar por fornecedor</p>`;
-    if (todos) html += `<p class="fornecedores-dica">Todos os fornecedores (${fornecedores.length}):</p>`;
-    else if (achados.length) html += `<p class="fornecedores-dica">Fornecedores com “${texto}” no nome:</p>`;
-    else html += `<p class="fornecedores-dica">Nenhum fornecedor com “${texto}” no nome.</p>`;
     html += lista.map((f) => `<button type="button" class="fornecedor-opcao" data-fornecedor="${escapar(f.nome)}">`
       + `<span class="fornecedor-nome">${escapar(f.nome)}</span>`
       + `<span class="fornecedor-qtd">${numero.format(f.total)}<span class="sr-only"> ${f.total === 1 ? 'produto' : 'produtos'}</span></span>`
@@ -603,7 +595,8 @@
 
   // Leva o começo da lista para logo abaixo do painel fixo, se a pessoa tiver rolado para baixo.
   function voltarAoTopoDaLista() {
-    const alvo = el.contagem.getBoundingClientRect().top + window.scrollY - el.painel.offsetHeight - 8;
+    const ancora = [el.filtroFornecedor, el.contagem].find((e) => !e.hidden) || el.lista;
+    const alvo = ancora.getBoundingClientRect().top + window.scrollY - el.painel.offsetHeight - 8;
     if (window.scrollY > alvo) window.scrollTo(0, Math.max(0, alvo));
   }
 
@@ -632,6 +625,8 @@
     const abrir = botao.getAttribute('aria-expanded') !== 'true';
     botao.setAttribute('aria-expanded', String(abrir));
     if (detalhes) detalhes.hidden = !abrir;
+    const card = botao.closest('.card');
+    if (card) card.classList.toggle('aberto', abrir);
     return abrir;
   }
 
@@ -654,15 +649,8 @@
     el.lojas.hidden = opcoes.length < 2;
   }
 
-  // Loja e data do estoque ficam no rodapé.
-  function atualizarRodape() {
+  function atualizarTitulo() {
     document.title = todasAsLojas() ? 'Estoque Yêlla Móveis' : `Estoque ${lojaAtual().nome} · Yêlla Móveis`;
-    el.fonte.innerHTML = estado.selecao.partes.map(({ loja, dados }) => {
-      if (dados.semDados) return `Loja de ${escapar(rotuloLoja(loja))} · estoque ainda não cadastrado.`;
-      const quando = dados.gerado_em ? ` de ${dataBR(dados.gerado_em)} às ${dados.gerado_em.slice(11, 16)}` : '';
-      return `Loja de ${escapar(rotuloLoja(loja))} · estoque${quando}`
-        + ` · ${numero.format(dados.total_produtos)} produtos · ${numero.format(dados.total_unidades)} unidades.`;
-    }).join('<br>');
   }
 
   function mostrarAviso(texto) {
@@ -727,7 +715,6 @@
     if (item.historico.length > 30) item.historico.splice(0, item.historico.length - 30);
     salvarAnunciados();
     renderizarAnunciados();
-    mostrarToast(`Pedido marcado como ${statusDe(item).nome}.`);
   }
 
   function removerAnuncio(item) {
@@ -761,7 +748,7 @@
     const precoMudou = atual && !semPreco(atual) && Math.round(atual.preco * 100) !== Math.round(item.preco * 100);
     const id = `anuncio-detalhes-${item.loja}-${item.codigo}`;
     const aberto = estado.anunciosAbertos.has(chave); // continua aberto quando a lista é redesenhada
-    return `<li class="card anuncio status-${s.id}" data-id="${escapar(chave)}">
+    return `<li class="card anuncio status-${s.id}${aberto ? ' aberto' : ''}" data-id="${escapar(chave)}">
   <div class="linha-nome"><h2 class="nome" title="${escapar(p.nome)}">${escapar(p.nome)}</h2>${seloLojaHTML(item.loja)}</div>
   <div class="linha-principal">
     ${precoHTML(p)}
@@ -788,12 +775,6 @@
     for (const a of daLoja) porStatus.set(a.status, (porStatus.get(a.status) || 0) + 1);
     if (estado.filtroStatus !== 'todos' && !porStatus.get(estado.filtroStatus)) estado.filtroStatus = 'todos';
 
-    const onde = todasAsLojas() ? 'todas as lojas' : `loja de ${rotuloLoja(lojaAtual())}`;
-    const outras = estado.anunciados.length - daLoja.length;
-    el.resumoAnunciados.textContent = (daLoja.length
-      ? `${daLoja.length} ${daLoja.length === 1 ? 'produto' : 'produtos'} · ${onde}`
-      : onde.charAt(0).toUpperCase() + onde.slice(1)) + (outras ? ` · ${outras} em outra loja` : '');
-
     el.filtrosStatus.innerHTML = daLoja.length
       ? [filtroStatusHTML('todos', 'Todos', 'lista', daLoja.length)]
         .concat(STATUS.filter((s) => porStatus.get(s.id)).map((s) => filtroStatusHTML(s.id, s.nome, s.icone, porStatus.get(s.id))))
@@ -806,16 +787,6 @@
       .sort((a, b) => String(b.criadoEm).localeCompare(String(a.criadoEm)));
     el.listaAnunciados.innerHTML = visiveis.map(anuncioHTML).join('');
     el.vazioAnunciados.hidden = daLoja.length > 0;
-
-    if (estado.comissao > 0 || estado.desconto > 0) {
-      const partes = [];
-      if (estado.comissao > 0) partes.push(`comissão de <strong>${percentual(estado.comissao)}</strong>`);
-      if (estado.desconto > 0) partes.push(`desconto máximo de <strong>${percentual(estado.desconto)}</strong>`);
-      el.ajustesResumo.innerHTML = `Contas com ${partes.join(' e ')}. <button type="button" class="link" data-acao="abrir-gaveta">Alterar</button>`;
-    } else {
-      el.ajustesResumo.innerHTML = 'Dica: informe sua <strong>comissão</strong> e o <strong>desconto máximo</strong> para ver quanto você ganha em cada pedido. <button type="button" class="link" data-acao="abrir-gaveta">Informar agora</button>';
-    }
-    el.ajustesResumo.hidden = !daLoja.length;
   }
 
   function atualizarContadorAnunciados() {
@@ -885,7 +856,6 @@
   const PARTICULAS = new Set(['da', 'de', 'do', 'das', 'dos', 'e']);
   const limparNome = (texto) => String(texto || '').replace(/\s+/g, ' ').trim().slice(0, 40);
   const nomeValido = (nome) => /\p{L}/u.test(nome);
-  const primeiroNome = (nome) => nome.split(' ')[0] || nome;
 
   // "Maria da Silva" -> "MS"; "Maria" -> "M"
   function iniciaisDe(nome) {
@@ -970,6 +940,13 @@
     }
   }
 
+  // Olhinho: com as contas escondidas, "até" e "você ganha" só aparecem em ver mais (detalhes).
+  function aplicarVisibilidadeContas(visivel) {
+    estado.mostrarContas = visivel;
+    document.documentElement.classList.toggle('ocultar-contas', !visivel);
+    el.mostrarContas.setAttribute('aria-pressed', String(visivel));
+  }
+
   // Primeiro acesso: pede o nome antes de usar.
   function abrirModalNome() {
     el.modalNome.hidden = false;
@@ -990,7 +967,6 @@
     el.nomeInicial.blur();
     el.modalNome.hidden = true;
     travarFundo(false);
-    mostrarToast(`Pronto, ${primeiroNome(nome)}! Sua comissão e o desconto ficam nas suas iniciais, no topo.`, 'Abrir', abrirGaveta);
   }
 
   // ---------------------------------------------------------------- ajustes salvos no aparelho
@@ -1012,6 +988,7 @@
         loja: estado.lojaId,
         ordem: estado.ordem,
         tema: estado.tema,
+        contas: estado.mostrarContas ? 'mostrar' : 'ocultar',
       }));
     } catch (e) { /* navegador sem armazenamento: segue funcionando sem salvar */ }
   }
@@ -1085,7 +1062,7 @@
 
     estado.selecao = { partes, semDados: partes.every((parte) => parte.dados.semDados) };
     prepararProdutos(partes);
-    atualizarRodape();
+    atualizarTitulo();
     montarAtalhos();
     atualizarLista();
     renderizarAnunciados();
@@ -1096,6 +1073,7 @@
   async function iniciar() {
     const salvos = lerAjustes();
     aplicarTema(salvos.tema);
+    aplicarVisibilidadeContas(salvos.contas !== 'ocultar');
     estado.nome = limparNome(salvos.nome);
     if (!nomeValido(estado.nome)) estado.nome = '';
     atualizarPerfil();
@@ -1189,14 +1167,16 @@
     salvarAjustes();
   });
 
+  el.mostrarContas.addEventListener('click', () => {
+    aplicarVisibilidadeContas(!estado.mostrarContas);
+    salvarAjustes();
+  });
+
   el.perfil.addEventListener('click', abrirGaveta);
   el.gavetaFechar.addEventListener('click', fecharGaveta);
   el.camadaGaveta.addEventListener('click', fecharGaveta);
   document.addEventListener('keydown', (evento) => {
     if (evento.key === 'Escape' && !el.gaveta.hidden) fecharGaveta();
-  });
-  el.ajustesResumo.addEventListener('click', (evento) => {
-    if (evento.target.closest('[data-acao="abrir-gaveta"]')) abrirGaveta();
   });
 
   el.formNome.addEventListener('submit', concluirModalNome);

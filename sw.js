@@ -1,7 +1,7 @@
 /* Mantém a consulta funcionando com internet fraca ou sem internet.
    Sempre tenta buscar a versão mais nova primeiro; se a rede falhar ou demorar mais de
    4 segundos, usa a última cópia salva no aparelho. */
-const CACHE = 'estoque-yella-v8';
+const CACHE = 'estoque-yella-v9';
 const ESPERA_MAXIMA = 4000;
 const ESSENCIAIS = [
   './',

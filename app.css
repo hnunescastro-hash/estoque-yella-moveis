@@ -531,6 +531,53 @@ html.travado, html.travado body { overflow: hidden; }
 }
 .tema .ic { width: 22px; height: 22px; color: var(--suave); }
 
+/* ---------- administrador: atualização do estoque pelos relatórios do sistema ---------- */
+
+.admin { margin-top: 26px; padding-top: 16px; border-top: 1px solid var(--linha); }
+.admin-titulo { margin: 0 0 10px; font-size: 16px; font-weight: 800; }
+.admin-entrar { display: flex; gap: 8px; }
+.admin-entrar .campo-texto { flex: 1; min-width: 0; font-size: 16px; }
+.admin-entrar .botao-secundario { flex: none; min-height: 48px; }
+.admin .erro { margin-top: 10px; }
+
+.admin-arquivos { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.arquivo {
+  display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 8px 12px; cursor: pointer;
+  border: 1.5px dashed var(--linha); border-radius: 12px; background: var(--superficie-2);
+}
+.arquivo:focus-within { border-color: var(--foco); }
+.arquivo .ic { width: 22px; height: 22px; color: var(--suave); }
+.arquivo-textos { flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.arquivo-loja { font-weight: 800; font-size: 15px; }
+.arquivo-nome { font-size: 13px; color: var(--suave); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.arquivo.escolhido { border-style: solid; border-color: var(--verde); }
+.arquivo.escolhido .ic, .arquivo.escolhido .arquivo-nome { color: var(--verde); }
+.admin .botao-principal { margin-top: 12px; }
+.admin .botao-principal:disabled { opacity: .6; cursor: default; }
+.admin-sair { display: block; margin: 12px auto 0; }
+
+.admin-relatorio { margin-top: 14px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.relatorio-loja { border: 1px solid var(--linha); border-radius: 12px; padding: 10px 12px; background: var(--superficie-2); }
+.relatorio-topo { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.relatorio-topo strong { font-size: 15px; }
+.relatorio-topo span, .relatorio-totais { font-size: 12.5px; color: var(--suave); }
+.relatorio-totais { margin: 2px 0 6px; }
+.mudancas { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; font-size: 13.5px; }
+.mudanca { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
+.mudanca-ic { flex: none; width: 18px; text-align: center; font-weight: 800; }
+.mudanca-nome { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mudanca-valor { flex: none; font-weight: 700; font-variant-numeric: tabular-nums; }
+.mudanca.sobe .mudanca-ic, .mudanca.novo .mudanca-ic { color: var(--verde); }
+.mudanca.desce .mudanca-ic, .mudanca.saiu .mudanca-ic { color: var(--st-cancelado); }
+.mudanca.preco .mudanca-ic { color: var(--ambar); font-size: 11px; }
+.revisar { margin: 8px 0 0; padding-top: 6px; border-top: 1px dashed var(--linha); font-size: 12.5px; }
+.revisar strong { display: block; color: var(--ambar); }
+.revisar ul { list-style: none; margin: 2px 0 0; padding: 0; display: grid; gap: 2px; }
+.revisar .sistema { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--suave); }
+.relatorio-nada { margin: 0; font-size: 13.5px; color: var(--suave); }
+.relatorio-alerta { margin: 8px 0 0; font-size: 13px; font-weight: 700; color: var(--st-cancelado); }
+.relatorio-resultado { margin: 0; font-size: 14.5px; font-weight: 800; color: var(--verde); }
+
 /* ---------- primeiro acesso: nome do vendedor ---------- */
 
 .modal {

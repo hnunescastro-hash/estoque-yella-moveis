@@ -72,6 +72,39 @@ O nome original do sistema continua visível em **Detalhes**, para conferir no C
 
 ## Como atualizar o estoque
 
+### Pelo site (administrador) — o jeito normal
+
+1. No CompuFour, gere o relatório **Controle de estoque** de cada loja e salve em HTML (mesmo formato de sempre).
+2. No site, toque nas suas iniciais (no topo) → **Administrador** → digite a **chave de administrador** → Entrar.
+   A chave fica no Bitwarden Secrets Manager: `ESTOQUE_YELLA_CHAVE_ADMIN`. O aparelho lembra dela até tocar em
+   "Sair do modo administrador".
+3. Escolha o relatório de cada loja (pode ser só uma) e toque em **Conferir mudanças**. Aparece a lista do que mudou:
+   ▲▼ quantidade, + produto novo, − produto que saiu, R$ preço, e os **nomes automáticos** de produtos novos para conferir.
+4. Toque em **Publicar**. O site atualiza para todos em cerca de 1 minuto (a própria tela avisa quando terminar).
+   Quem estiver com o site aberto recebe o estoque novo ao voltar para a página.
+
+Proteções:
+- O arquivo tem que ser da loja certa (o relatório diz a cidade): trocado, é recusado.
+- Se mais de 10% dos produtos de uma loja saírem de uma vez, a publicação pede confirmação
+  ("Publicar mesmo assim") — protege contra relatório incompleto.
+- O custo de compra nunca é publicado; cada publicação fica no histórico do GitHub (dá para desfazer).
+- Nome de produto novo recebe a correção automática; para deixá-lo do jeito certo, acrescente a linha em
+  `ferramentas/correcoes.json` e publique — o servidor usa sempre a versão mais recente das correções.
+
+Como funciona por dentro: a página envia os relatórios ao servidor `servidor/app.py` no Google Cloud Run
+(projeto `estoque-yella`, serviço `estoque-yella-admin`, região `southamerica-east1`). Ele confere a chave, monta os
+dados com o mesmo código do comando de terminal (`ferramentas/atualizar_estoque.py`), compara com o que está no
+ar e, ao publicar, grava `dados/<loja>.json` no GitHub com uma chave de publicação que só escreve neste repositório.
+
+- Credenciais (nunca no código): Secret Manager `estoque-yella-chave-admin` e `estoque-yella-deploy-key`, com cópia
+  no Bitwarden (`ESTOQUE_YELLA_CHAVE_ADMIN` e `ESTOQUE_YELLA_DEPLOY_KEY`). A chave de publicação aparece no GitHub em
+  Settings → Deploy keys como "Atualização de estoque (Cloud Run)".
+- Trocar a chave de administrador: grave o valor novo no Bitwarden e como nova versão de `estoque-yella-chave-admin`
+  no Secret Manager, e rode `sh servidor/implantar.sh` (o servidor passa a aceitar só a nova).
+- Publicar uma mudança no servidor: `sh servidor/implantar.sh`.
+
+### Pelo terminal
+
 1. No CompuFour, gere o relatório **Controle de estoque** e salve em HTML (mesmo formato do arquivo original).
 2. Na pasta do projeto, rode o comando da loja:
 
@@ -118,5 +151,6 @@ dados nem para o GitHub, porque a página é pública (apenas não aparece em bu
 | `dados/matina.json`, `dados/igapora.json` | estoque de cada loja (gerados pelo script) |
 | `ferramentas/atualizar_estoque.py` | lê o relatório do CompuFour e gera os dados |
 | `ferramentas/correcoes.json` | nomes revisados de produtos e fornecedores, fornecedor cruzado de Igaporã, fornecedores usados na busca de foto |
+| `servidor/` | servidor de atualização pelo site (Cloud Run): `app.py`, `Dockerfile`, `implantar.sh` |
 
 Os relatórios brutos do CompuFour não vão para o GitHub (estão no `.gitignore`).

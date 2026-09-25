@@ -44,6 +44,7 @@
     whatsapp: '<path d="M12 3.2a8.8 8.8 0 0 0-7.6 13.2L3.2 20.8l4.5-1.2A8.8 8.8 0 1 0 12 3.2z"/><path d="M8.9 8.1c.3-.5.8-.6 1.1-.6h.4c.2 0 .4.1.5.4l.8 1.9c.1.3 0 .5-.1.7l-.6.7c.7 1.3 1.8 2.4 3.1 3.1l.7-.6c.2-.2.5-.2.7-.1l1.9.8c.3.1.4.3.4.5v.4c0 .3-.1.8-.6 1.1-.7.4-1.7.6-2.6.3-2.6-.9-4.6-2.9-5.5-5.5-.3-.9-.1-1.9.3-2.6z"/>',
     fabrica: '<path d="M3 20.5V11l5.5 3.2V11l5.5 3.2V11l4 2.3V4h3v16.5z"/><path d="M7 17.5h2M11.5 17.5h2M16 17.5h2"/>',
     setaDireita: '<path d="m9 6 6 6-6 6"/>',
+    arquivo: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
     desconto: '<circle cx="12" cy="12" r="8.5"/><path d="m8.8 15.2 6.4-6.4"/><circle class="ponto" cx="9.2" cy="9.2" r="1.25"/><circle class="ponto" cx="14.8" cy="14.8" r="1.25"/>',
   };
 
@@ -112,6 +113,9 @@
     camadaGaveta: $('camada-gaveta'), gaveta: $('gaveta'), gavetaIniciais: $('gaveta-iniciais'),
     gavetaFechar: $('gaveta-fechar'), formGaveta: $('form-gaveta'), nome: $('nome'), telefone: $('telefone'), temas: $('temas'),
     mostrarContas: $('mostrar-contas'),
+    adminEntrar: $('admin-entrar'), chaveAdmin: $('chave-admin'), adminBotaoEntrar: $('admin-botao-entrar'),
+    adminPainel: $('admin-painel'), adminArquivos: $('admin-arquivos'), adminConferir: $('admin-conferir'),
+    adminRelatorio: $('admin-relatorio'), adminPublicar: $('admin-publicar'), adminSair: $('admin-sair'), adminErro: $('admin-erro'),
     modalNome: $('modal-nome'), formNome: $('form-nome'), nomeInicial: $('nome-inicial'), nomeErro: $('nome-erro'),
     telaEstoque: $('tela-estoque'), telaAnunciados: $('tela-anunciados'),
     filtrosStatus: $('filtros-status'), listaAnunciados: $('lista-anunciados'),
@@ -1159,6 +1163,238 @@
     const salvaValida = salvos.loja === TODAS || estado.lojas.some((l) => l.id === salvos.loja);
     await carregarLoja(salvaValida ? salvos.loja : TODAS);
     mostrarTela(telaDoEndereco());
+    montarAdmin(); // os campos de arquivo dependem das lojas
+  }
+
+  // ---------------------------------------------------------------- administrador: atualização do estoque
+
+  // Servidor que lê os relatórios do sistema e publica o estoque novo para todos (Google Cloud Run).
+  const SERVIDOR = ['localhost', '127.0.0.1'].includes(location.hostname)
+    ? 'http://127.0.0.1:8090'
+    : 'https://estoque-yella-admin-858376181662.southamerica-east1.run.app';
+  const CHAVE_ADMIN_LOCAL = 'estoque-yella:admin';
+  let chaveAdmin = '';
+  let ultimoRelatorio = null;
+
+  function lerChaveAdmin() {
+    try { return localStorage.getItem(CHAVE_ADMIN_LOCAL) || ''; } catch (e) { return ''; }
+  }
+
+  function salvarChaveAdmin(chave) {
+    chaveAdmin = chave;
+    try {
+      if (chave) localStorage.setItem(CHAVE_ADMIN_LOCAL, chave);
+      else localStorage.removeItem(CHAVE_ADMIN_LOCAL);
+    } catch (e) { /* sem armazenamento: vale só enquanto a página estiver aberta */ }
+  }
+
+  function erroAdmin(texto) {
+    el.adminErro.textContent = texto || '';
+    el.adminErro.hidden = !texto;
+  }
+
+  function montarAdmin() {
+    el.adminEntrar.hidden = Boolean(chaveAdmin);
+    el.adminPainel.hidden = !chaveAdmin;
+    if (chaveAdmin) montarArquivosAdmin();
+  }
+
+  // Um campo de arquivo para cada loja (a que tem arquivo de dados).
+  function montarArquivosAdmin() {
+    const lojas = estado.lojas.filter((l) => l.arquivo);
+    const atuais = [...el.adminArquivos.querySelectorAll('input[type="file"]')].map((c) => c.dataset.loja).join();
+    if (atuais === lojas.map((l) => l.id).join()) return; // já montados (mantém os arquivos escolhidos)
+    el.adminArquivos.innerHTML = lojas.map((loja) => (
+      `<label class="arquivo" data-loja="${escapar(loja.id)}">${icone('arquivo')}`
+      + `<span class="arquivo-textos"><span class="arquivo-loja">${escapar(rotuloLoja(loja))}</span>`
+      + '<span class="arquivo-nome">Escolher relatório</span></span>'
+      + `<input class="sr-only" type="file" accept=".html,.htm,text/html" data-loja="${escapar(loja.id)}"></label>`
+    )).join('');
+  }
+
+  function limparRelatorio() {
+    ultimoRelatorio = null;
+    el.adminRelatorio.hidden = true;
+    el.adminRelatorio.innerHTML = '';
+    el.adminPublicar.hidden = true;
+  }
+
+  async function chamarServidor(caminho, corpo) {
+    const json = !(corpo instanceof FormData);
+    let resposta;
+    try {
+      resposta = await fetch(SERVIDOR + caminho, {
+        method: 'POST',
+        body: json ? JSON.stringify(corpo) : corpo,
+        headers: json ? { 'Content-Type': 'application/json' } : undefined,
+      });
+    } catch (erro) {
+      throw Object.assign(new Error('Sem conexão com o servidor. Confira a internet e tente de novo.'), { status: 0 });
+    }
+    let dados = {};
+    try { dados = await resposta.json(); } catch (erro) { /* resposta sem corpo */ }
+    if (!resposta.ok || !dados.ok) {
+      throw Object.assign(new Error(dados.erro || 'Não foi possível concluir agora. Tente de novo em alguns minutos.'), { status: resposta.status });
+    }
+    return dados;
+  }
+
+  function ocupado(botao, texto) {
+    if (texto) {
+      botao.dataset.texto = botao.textContent;
+      botao.textContent = texto;
+      botao.disabled = true;
+    } else {
+      if (botao.dataset.texto) botao.textContent = botao.dataset.texto;
+      botao.disabled = false;
+    }
+  }
+
+  async function entrarAdmin(evento) {
+    evento.preventDefault();
+    const chave = el.chaveAdmin.value.trim();
+    if (!chave) return;
+    erroAdmin('');
+    ocupado(el.adminBotaoEntrar, '…');
+    try {
+      await chamarServidor('/api/entrar', { chave });
+      salvarChaveAdmin(chave);
+      el.chaveAdmin.value = '';
+      montarAdmin();
+    } catch (erro) {
+      erroAdmin(erro.message);
+    } finally {
+      ocupado(el.adminBotaoEntrar);
+    }
+  }
+
+  function sairAdmin() {
+    salvarChaveAdmin('');
+    limparRelatorio();
+    erroAdmin('');
+    el.adminArquivos.innerHTML = '';
+    montarAdmin();
+  }
+
+  function relatorioLojaHTML(l) {
+    const item = (classe, simbolo, nome, valor) => `<li class="mudanca ${classe}">`
+      + `<span class="mudanca-ic" aria-hidden="true">${simbolo}</span>`
+      + `<span class="mudanca-nome" title="${escapar(nome)}">${escapar(nome)}</span>`
+      + `<span class="mudanca-valor">${valor}</span></li>`;
+    const preco = (valor) => reais(Math.round(valor * 100));
+    const itens = [
+      ...l.quantidade.map((p) => item(p.depois > p.antes ? 'sobe' : 'desce', p.depois > p.antes ? '▲' : '▼', p.nome,
+        `${numero.format(p.antes)} → ${numero.format(p.depois)}`)),
+      ...l.novos.map((p) => item('novo', '+', p.nome, `${numero.format(p.quantidade)} un.`)),
+      ...l.removidos.map((p) => item('saiu', '−', p.nome, 'saiu')),
+      ...l.preco.map((p) => item('preco', 'R$', p.nome, `${preco(p.antes)} → ${preco(p.depois)}`)),
+    ];
+    const [produtosAntes, produtosDepois] = l.produtos;
+    const [unidadesAntes, unidadesDepois] = l.unidades;
+    return `<section class="relatorio-loja">
+  <div class="relatorio-topo"><strong>${escapar(l.loja)}</strong><span>${l.gerado_em ? dataHoraBR(l.gerado_em) : ''}</span></div>
+  <p class="relatorio-totais">${numero.format(produtosAntes)} → ${numero.format(produtosDepois)} produtos · ${numero.format(unidadesAntes)} → ${numero.format(unidadesDepois)} unidades</p>
+  ${itens.length ? `<ul class="mudancas">${itens.join('')}</ul>` : '<p class="relatorio-nada">Nenhuma mudança de estoque ou preço</p>'}
+  ${l.queda_grande ? `<p class="relatorio-alerta">${numero.format(l.removidos.length)} produtos saíram de uma vez. Confira se o relatório está completo.</p>` : ''}
+  ${l.avisos.map((aviso) => `<p class="relatorio-alerta">${escapar(aviso)}</p>`).join('')}
+  ${l.nomes_automaticos.length ? `<div class="revisar"><strong>Nomes automáticos (confira)</strong><ul>${l.nomes_automaticos.map((n) => (
+    `<li><span class="sistema">${escapar(n.sistema)}</span> → ${escapar(n.nome)}</li>`)).join('')}</ul></div>` : ''}
+</section>`;
+  }
+
+  function mostrarRelatorio(relatorio) {
+    ultimoRelatorio = relatorio;
+    el.adminRelatorio.innerHTML = relatorio.lojas.map(relatorioLojaHTML).join('');
+    el.adminRelatorio.hidden = false;
+    const temPublicacao = relatorio.lojas.some((l) => l.arquivo_muda);
+    el.adminPublicar.hidden = !temPublicacao;
+    el.adminPublicar.textContent = relatorio.bloqueado ? 'Publicar mesmo assim' : 'Publicar';
+  }
+
+  function arquivosEscolhidos() {
+    return [...el.adminArquivos.querySelectorAll('input[type="file"]')].filter((c) => c.files && c.files[0]);
+  }
+
+  async function enviarRelatorios(publicar) {
+    const campos = arquivosEscolhidos();
+    if (!campos.length) {
+      erroAdmin('Escolha o relatório de pelo menos uma loja.');
+      return;
+    }
+    erroAdmin('');
+    const corpo = new FormData();
+    corpo.append('chave', chaveAdmin);
+    corpo.append('autor', estado.nome);
+    if (publicar) {
+      corpo.append('publicar', '1');
+      if (ultimoRelatorio && ultimoRelatorio.bloqueado) corpo.append('confirmar_queda', '1');
+    }
+    for (const campo of campos) corpo.append(`arquivo_${campo.dataset.loja}`, campo.files[0]);
+    const botao = publicar ? el.adminPublicar : el.adminConferir;
+    ocupado(botao, publicar ? 'Publicando…' : 'Conferindo…');
+    try {
+      const relatorio = await chamarServidor('/api/atualizar', corpo);
+      if (publicar) {
+        el.adminPublicar.hidden = true;
+        const aviso = relatorio.publicado
+          ? '<p class="relatorio-resultado">Publicado. O site atualiza para todos em cerca de 1 minuto.</p>'
+          : '<p class="relatorio-nada">Nada novo para publicar.</p>';
+        el.adminRelatorio.insertAdjacentHTML('afterbegin', aviso);
+        if (relatorio.publicado) acompanharPublicacao(relatorio.lojas.filter((l) => l.arquivo_muda));
+      } else {
+        mostrarRelatorio(relatorio);
+      }
+    } catch (erro) {
+      if (erro.status === 401) sairAdmin();
+      erroAdmin(erro.message);
+    } finally {
+      ocupado(botao);
+    }
+  }
+
+  async function hashTexto(texto) {
+    const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(texto));
+    return [...new Uint8Array(bytes)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  // Depois de publicar, confere até o site mostrar os dados novos e já troca na tela.
+  async function acompanharPublicacao(publicadas) {
+    const pendentes = new Map(publicadas.map((l) => [l.id, l.hash]));
+    for (let tentativa = 0; tentativa < 24 && pendentes.size; tentativa += 1) {
+      await new Promise((pronto) => { setTimeout(pronto, 10000); });
+      for (const [id, hash] of [...pendentes]) {
+        const loja = lojaPorId(id);
+        try {
+          const resposta = await fetch(loja.arquivo, { cache: 'no-cache' });
+          const texto = await resposta.text();
+          if (resposta.ok && await hashTexto(texto) === hash) {
+            estado.dadosLojas.set(id, JSON.parse(texto));
+            pendentes.delete(id);
+          }
+        } catch (erro) { /* tenta de novo na próxima volta */ }
+      }
+    }
+    if (pendentes.size) return;
+    await carregarLoja(estado.lojaId);
+    el.adminRelatorio.insertAdjacentHTML('afterbegin', '<p class="relatorio-resultado">Site atualizado.</p>');
+  }
+
+  // Vendedor com a página aberta: ao voltar para ela, confere se o estoque foi atualizado.
+  let ultimaVerificacao = Date.now();
+  async function verificarAtualizacao() {
+    if (document.hidden || !estado.selecao || Date.now() - ultimaVerificacao < 60000) return;
+    ultimaVerificacao = Date.now();
+    let mudou = false;
+    for (const loja of estado.lojas.filter((l) => l.arquivo && estado.dadosLojas.has(l.id))) {
+      try {
+        const dados = await buscarJSON(loja.arquivo);
+        if (JSON.stringify(dados) !== JSON.stringify(estado.dadosLojas.get(loja.id))) {
+          estado.dadosLojas.set(loja.id, dados);
+          mudou = true;
+        }
+      } catch (erro) { /* sem internet: fica o estoque que já está na tela */ }
+    }
+    if (mudou) await carregarLoja(estado.lojaId);
   }
 
   // ---------------------------------------------------------------- eventos
@@ -1390,6 +1626,25 @@
     window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
   }
 
+  // Administrador
+  el.adminEntrar.addEventListener('submit', entrarAdmin);
+  el.adminSair.addEventListener('click', sairAdmin);
+  el.adminConferir.addEventListener('click', () => enviarRelatorios(false));
+  el.adminPublicar.addEventListener('click', () => enviarRelatorios(true));
+  el.adminArquivos.addEventListener('change', (evento) => {
+    const campo = evento.target.closest('input[type="file"]');
+    if (!campo) return;
+    const linha = campo.closest('.arquivo');
+    const arquivo = campo.files && campo.files[0];
+    linha.classList.toggle('escolhido', Boolean(arquivo));
+    linha.querySelector('.arquivo-nome').textContent = arquivo ? arquivo.name : 'Escolher relatório';
+    limparRelatorio(); // arquivo novo: confere de novo antes de publicar
+    erroAdmin('');
+  });
+  document.addEventListener('visibilitychange', verificarAtualizacao);
+
+  chaveAdmin = lerChaveAdmin();
+  montarAdmin();
   iniciar();
 
   // Exposto só para conferência no console do navegador.

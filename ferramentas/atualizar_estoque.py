@@ -16,6 +16,9 @@ O que o script faz:
 
 O custo de compra, quando vem no relatório, NUNCA é gravado: a página é pública.
 Só usa a biblioteca padrão do Python.
+
+As funções montar_loja() e comparar() também são usadas pelo servidor de atualização
+(servidor/app.py), que faz a mesma coisa a partir dos arquivos enviados pela página.
 """
 
 import argparse
@@ -52,6 +55,11 @@ COLUNAS = {
 OBRIGATORIAS = {"codigo", "descricao", "preco", "quantidade"}
 
 
+class ErroRelatorio(SystemExit):
+    """Problema no relatório, com a mensagem pronta para mostrar a quem enviou.
+    No terminal se comporta como antes (sai com a mensagem)."""
+
+
 def sem_acento(texto):
     return "".join(c for c in unicodedata.normalize("NFD", texto) if unicodedata.category(c) != "Mn")
 
@@ -68,8 +76,12 @@ def limpar_celula(bruto):
 
 def ler_relatorio(caminho):
     if not Path(caminho).is_file():
-        raise SystemExit(f"Arquivo não encontrado: {caminho}")
-    dados = Path(caminho).read_bytes()
+        raise ErroRelatorio(f"Arquivo não encontrado: {caminho}")
+    return decodificar(Path(caminho).read_bytes())
+
+
+def decodificar(dados):
+    """Conteúdo do relatório (bytes) -> texto, pela codificação declarada no arquivo."""
     charset = re.search(rb'charset=["\']?([\w-]+)', dados[:2000], re.I)
     codificacoes = [charset.group(1).decode("ascii")] if charset else []
     codificacoes += ["cp1252", "utf-8"]
@@ -78,7 +90,7 @@ def ler_relatorio(caminho):
             return dados.decode(cod)
         except (LookupError, UnicodeDecodeError):
             continue
-    raise SystemExit("Não consegui ler o arquivo: codificação desconhecida.")
+    raise ErroRelatorio("Não consegui ler o arquivo: codificação desconhecida.")
 
 
 def numero_br(texto):
@@ -100,7 +112,7 @@ def data_br(texto):
 def extrair(conteudo):
     cabecalho = re.search(r"<tr[^>]*>((?:(?!</tr>).)*?<th.*?)</tr>", conteudo, re.S | re.I)
     if not cabecalho:
-        raise SystemExit("Não encontrei o cabeçalho da tabela. Esse arquivo é o relatório de estoque do CompuFour?")
+        raise ErroRelatorio("Não encontrei o cabeçalho da tabela. Esse arquivo é o relatório de estoque do CompuFour?")
     titulos = [sem_acento(limpar_celula(t)).lower() for t in re.findall(r"<th[^>]*>(.*?)</th>", cabecalho.group(1), re.S | re.I)]
     indices = {}
     for i, titulo in enumerate(titulos):
@@ -108,7 +120,7 @@ def extrair(conteudo):
             indices[COLUNAS[titulo]] = i
     faltando = OBRIGATORIAS - set(indices)
     if faltando:
-        raise SystemExit(f"Colunas obrigatórias ausentes no relatório: {', '.join(sorted(faltando))}. Colunas lidas: {titulos}")
+        raise ErroRelatorio(f"Colunas obrigatórias ausentes no relatório: {', '.join(sorted(faltando))}. Colunas lidas: {titulos}")
 
     corpo = conteudo[cabecalho.end():]
     linhas = []
@@ -266,21 +278,15 @@ def formatar_quantidade(valor):
     return int(valor) if valor is not None and float(valor).is_integer() else valor
 
 
-def main():
-    ap = argparse.ArgumentParser(description="Atualiza dados/<loja>.json a partir do relatório do CompuFour.")
-    ap.add_argument("loja", help="identificador da loja, sem acento e sem espaço (ex.: matina, igapora)")
-    ap.add_argument("relatorio", help="arquivo .html exportado pelo CompuFour")
-    ap.add_argument("--nome", help="nome da loja como aparece na página (padrão: o já cadastrado ou a cidade do relatório)")
-    ap.add_argument("--uf", help="estado da loja (padrão: o já cadastrado ou BA)")
-    args = ap.parse_args()
+def montar_loja(loja_id, conteudo, correcoes, lojas, nome=None, uf=None):
+    """Lê o relatório (texto) e monta os dados da loja, sem gravar nada.
 
-    if not re.fullmatch(r"[a-z0-9-]+", args.loja):
-        raise SystemExit("O identificador da loja deve ter só letras minúsculas sem acento, números ou hífen (ex.: igapora).")
-
-    correcoes = json.loads(ARQ_CORRECOES.read_text(encoding="utf-8"))
-    linhas, total_relatorio, gerado_em, cidade, registros, colunas = extrair(ler_relatorio(args.relatorio))
+    Devolve um dicionário com: saida (conteúdo de dados/<loja>.json), registro (entrada de
+    dados/lojas.json), cidade e gerado_em do relatório, revisar (nomes com correção automática),
+    fornecedores_novos e avisos (conferência com os totais do próprio relatório)."""
+    linhas, total_relatorio, gerado_em, cidade, registros, colunas = extrair(conteudo)
     if not linhas:
-        raise SystemExit("Nenhum produto encontrado no relatório.")
+        raise ErroRelatorio("Nenhum produto encontrado no relatório.")
 
     por_produto = correcoes.get("fornecedor_do_produto", {})
     internos = correcoes.get("fornecedores_internos", {})
@@ -289,10 +295,10 @@ def main():
     fornecedores_novos = set()
     for linha in linhas:
         descricao = " ".join(linha["descricao"].split())
-        nome = correcoes["produtos"].get(chave(descricao))
-        if not nome:
-            nome = corrigir_automatico(descricao)
-            revisar.append((linha["codigo"], descricao, nome))
+        nome_produto = correcoes["produtos"].get(chave(descricao))
+        if not nome_produto:
+            nome_produto = corrigir_automatico(descricao)
+            revisar.append((linha["codigo"], descricao, nome_produto))
 
         # Fornecedor: o cruzado (fornecedor_do_produto) vale mais que o do relatório.
         # Fornecedor "interno" é outra loja da rede (transferência), não o fornecedor de verdade.
@@ -306,7 +312,7 @@ def main():
 
         produto = {
             "codigo": linha["codigo"],
-            "nome": nome,
+            "nome": nome_produto,
             "nome_sistema": descricao,
             "fornecedor": fornecedor,
             "preco": numero_br(linha["preco"]),
@@ -318,22 +324,19 @@ def main():
         if transferido_de:
             produto["transferido_de"] = transferido_de
         marca = correcoes["marcas"].get(chave_fornecedor)
-        if marca and not contem(nome, marca):
+        if marca and not contem(nome_produto, marca):
             produto["marca"] = marca
         termo_foto = correcoes.get("fornecedor_na_busca_de_foto", {}).get(chave_fornecedor)
-        if termo_foto and not contem(nome, termo_foto):
+        if termo_foto and not contem(nome_produto, termo_foto):
             produto["busca_foto"] = termo_foto
         produtos.append(produto)
 
     produtos.sort(key=lambda p: (sem_acento(p["nome"]).lower(), p["codigo"]))
     total_unidades = sum(p["quantidade"] or 0 for p in produtos)
 
-    lojas = {"lojas": []}
-    if ARQ_LOJAS.exists():
-        lojas = json.loads(ARQ_LOJAS.read_text(encoding="utf-8"))
-    cadastrada = next((l for l in lojas["lojas"] if l["id"] == args.loja), {})
-    nome_loja = args.nome or cadastrada.get("nome") or cidade or args.loja.capitalize()
-    uf = args.uf or cadastrada.get("uf") or "BA"
+    cadastrada = next((l for l in lojas["lojas"] if l["id"] == loja_id), {})
+    nome_loja = nome or cadastrada.get("nome") or cidade or loja_id.capitalize()
+    uf = uf or cadastrada.get("uf") or "BA"
 
     avisos = []
     if registros is not None and registros != len(produtos):
@@ -345,7 +348,7 @@ def main():
         avisos.append("há códigos de produto repetidos no relatório")
 
     saida = {
-        "loja": args.loja,
+        "loja": loja_id,
         "nome": nome_loja,
         "uf": uf,
         "gerado_em": gerado_em.isoformat() if gerado_em else None,
@@ -353,38 +356,98 @@ def main():
         "total_unidades": formatar_quantidade(total_unidades),
         "produtos": produtos,
     }
+    return {
+        "saida": saida,
+        "registro": {"id": loja_id, "nome": nome_loja, "uf": uf, "arquivo": f"dados/{loja_id}.json"},
+        "cidade": cidade,
+        "gerado_em": gerado_em,
+        "revisar": revisar,
+        "fornecedores_novos": fornecedores_novos,
+        "avisos": avisos,
+    }
+
+
+def registrar_loja(lojas, registro):
+    """Acrescenta ou atualiza a loja em dados/lojas.json (em memória)."""
+    for i, loja in enumerate(lojas["lojas"]):
+        if loja["id"] == registro["id"]:
+            lojas["lojas"][i] = registro
+            return
+    lojas["lojas"].append(registro)
+
+
+def texto_json(dados):
+    """Mesmo formato dos arquivos em dados/ (para comparar e gravar)."""
+    return json.dumps(dados, ensure_ascii=False, indent=1) + "\n"
+
+
+def comparar(antes, depois):
+    """O que mudou no estoque de uma loja: produtos novos, que saíram, e mudança de quantidade ou preço."""
+    velhos = {p["codigo"]: p for p in (antes or {}).get("produtos", [])}
+    novos = {p["codigo"]: p for p in depois["produtos"]}
+    resumo = lambda p: {"codigo": p["codigo"], "nome": p["nome"], "quantidade": p["quantidade"], "preco": p["preco"]}
+    mudancas = {"novos": [], "removidos": [], "quantidade": [], "preco": []}
+    for codigo, p in novos.items():
+        v = velhos.get(codigo)
+        if v is None:
+            mudancas["novos"].append(resumo(p))
+            continue
+        if v["quantidade"] != p["quantidade"]:
+            mudancas["quantidade"].append({**resumo(p), "antes": v["quantidade"], "depois": p["quantidade"]})
+        if v["preco"] != p["preco"]:
+            mudancas["preco"].append({**resumo(p), "antes": v["preco"], "depois": p["preco"]})
+    for codigo, v in velhos.items():
+        if codigo not in novos:
+            mudancas["removidos"].append(resumo(v))
+    for lista in mudancas.values():
+        lista.sort(key=lambda p: (sem_acento(p["nome"]).lower(), p["codigo"]))
+    return mudancas
+
+
+def main():
+    ap = argparse.ArgumentParser(description="Atualiza dados/<loja>.json a partir do relatório do CompuFour.")
+    ap.add_argument("loja", help="identificador da loja, sem acento e sem espaço (ex.: matina, igapora)")
+    ap.add_argument("relatorio", help="arquivo .html exportado pelo CompuFour")
+    ap.add_argument("--nome", help="nome da loja como aparece na página (padrão: o já cadastrado ou a cidade do relatório)")
+    ap.add_argument("--uf", help="estado da loja (padrão: o já cadastrado ou BA)")
+    args = ap.parse_args()
+
+    if not re.fullmatch(r"[a-z0-9-]+", args.loja):
+        raise SystemExit("O identificador da loja deve ter só letras minúsculas sem acento, números ou hífen (ex.: igapora).")
+
+    correcoes = json.loads(ARQ_CORRECOES.read_text(encoding="utf-8"))
+    lojas = {"lojas": []}
+    if ARQ_LOJAS.exists():
+        lojas = json.loads(ARQ_LOJAS.read_text(encoding="utf-8"))
+    r = montar_loja(args.loja, ler_relatorio(args.relatorio), correcoes, lojas, args.nome, args.uf)
+    saida, gerado_em = r["saida"], r["gerado_em"]
+    produtos = saida["produtos"]
+
     PASTA_DADOS.mkdir(exist_ok=True)
     destino = PASTA_DADOS / f"{args.loja}.json"
-    destino.write_text(json.dumps(saida, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-
-    registro = {"id": args.loja, "nome": nome_loja, "uf": uf, "arquivo": f"dados/{args.loja}.json"}
-    for i, loja in enumerate(lojas["lojas"]):
-        if loja["id"] == args.loja:
-            lojas["lojas"][i] = registro
-            break
-    else:
-        lojas["lojas"].append(registro)
-    ARQ_LOJAS.write_text(json.dumps(lojas, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    destino.write_text(texto_json(saida), encoding="utf-8")
+    registrar_loja(lojas, r["registro"])
+    ARQ_LOJAS.write_text(texto_json(lojas), encoding="utf-8")
 
     com_fornecedor = sum(1 for p in produtos if p["fornecedor"])
-    print(f"Loja: {nome_loja} - {uf} ({args.loja})")
+    print(f"Loja: {saida['nome']} - {saida['uf']} ({args.loja})")
     print(f"Relatório gerado em: {gerado_em.strftime('%d/%m/%Y %H:%M') if gerado_em else 'não encontrado'}")
-    print(f"Produtos: {len(produtos)}  |  Unidades em estoque: {formatar_quantidade(total_unidades)}")
+    print(f"Produtos: {len(produtos)}  |  Unidades em estoque: {saida['total_unidades']}")
     print(f"Fornecedor identificado: {com_fornecedor} de {len(produtos)}")
     print(f"Arquivo gravado: {destino.relative_to(RAIZ)}")
-    if fornecedores_novos:
+    if r["fornecedores_novos"]:
         print("\nFornecedores novos (sem revisão em correcoes.json):")
-        for f in sorted(fornecedores_novos):
+        for f in sorted(r["fornecedores_novos"]):
             print(f"  {f}")
-    if revisar:
-        print(f"\n{len(revisar)} produto(s) sem nome revisado (correção automática aplicada, confira):")
-        for codigo, original, nome in revisar:
+    if r["revisar"]:
+        print(f"\n{len(r['revisar'])} produto(s) sem nome revisado (correção automática aplicada, confira):")
+        for codigo, original, nome in r["revisar"]:
             print(f"  {codigo}  {original}\n         -> {nome}")
     else:
         print("Todos os nomes vieram da lista revisada.")
-    for aviso in avisos:
+    for aviso in r["avisos"]:
         print(f"ATENÇÃO: {aviso}")
-    return 1 if avisos else 0
+    return 1 if r["avisos"] else 0
 
 
 if __name__ == "__main__":

@@ -208,6 +208,24 @@
 
       <button type="submit" class="botao-principal">Pronto</button>
     </form>
+
+    <!-- Administrador: envia os relatórios do sistema e atualiza o estoque para todos -->
+    <section class="admin" id="admin" aria-labelledby="admin-titulo">
+      <h3 class="admin-titulo" id="admin-titulo">Administrador</h3>
+      <form class="admin-entrar" id="admin-entrar" novalidate>
+        <label class="sr-only" for="chave-admin">Chave de administrador</label>
+        <input class="campo-texto" id="chave-admin" type="password" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go" placeholder="Chave de administrador">
+        <button type="submit" class="botao-secundario" id="admin-botao-entrar">Entrar</button>
+      </form>
+      <div class="admin-painel" id="admin-painel" hidden>
+        <div class="admin-arquivos" id="admin-arquivos"></div>
+        <button type="button" class="botao-principal" id="admin-conferir">Conferir mudanças</button>
+        <div class="admin-relatorio" id="admin-relatorio" hidden></div>
+        <button type="button" class="botao-principal" id="admin-publicar" hidden>Publicar</button>
+        <button type="button" class="link admin-sair" id="admin-sair">Sair do modo administrador</button>
+      </div>
+      <p class="erro" id="admin-erro" role="alert" hidden></p>
+    </section>
   </aside>
 
   <!-- ============ PRIMEIRO ACESSO: nome do vendedor ============ -->

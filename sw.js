@@ -1,7 +1,7 @@
 /* Mantém a consulta funcionando com internet fraca ou sem internet.
    Sempre tenta buscar a versão mais nova primeiro; se a rede falhar ou demorar mais de
    4 segundos, usa a última cópia salva no aparelho. */
-const CACHE = 'estoque-yella-v1';
+const CACHE = 'estoque-yella-v2';
 const ESPERA_MAXIMA = 4000;
 const ESSENCIAIS = [
   './',
@@ -19,10 +19,11 @@ const ESSENCIAIS = [
 self.addEventListener('install', (evento) => {
   evento.waitUntil((async () => {
     const cache = await caches.open(CACHE);
-    await cache.addAll(ESSENCIAIS);
+    const semCacheAntigo = (url) => new Request(url, { cache: 'reload' });
+    await cache.addAll(ESSENCIAIS.map(semCacheAntigo));
     try {
       const lojas = await (await cache.match('dados/lojas.json')).json();
-      await cache.addAll(lojas.lojas.map((loja) => loja.arquivo));
+      await cache.addAll(lojas.lojas.map((loja) => semCacheAntigo(loja.arquivo)));
     } catch (erro) { /* os dados das lojas entram no cache na primeira consulta */ }
     await self.skipWaiting();
   })());
@@ -41,7 +42,9 @@ self.addEventListener('fetch', (evento) => {
   if (pedido.method !== 'GET') return;
   if (new URL(pedido.url).origin !== self.location.origin) return;
 
-  const daRede = fetch(pedido);
+  // O GitHub Pages manda guardar os arquivos por 10 minutos; "no-cache" confere com o servidor
+  // a cada acesso (resposta curta quando nada mudou), para a versão nova aparecer na hora.
+  const daRede = pedido.mode === 'navigate' ? fetch(pedido) : fetch(pedido, { cache: 'no-cache' });
   // guarda a resposta nova no aparelho, mesmo quando a cópia antiga for usada nesta vez
   evento.waitUntil(daRede.then((resposta) => {
     if (!resposta.ok) return undefined;

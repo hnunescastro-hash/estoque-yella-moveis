@@ -407,18 +407,36 @@
     return `<button type="button" class="icone-botao anunciar ativo status-${s.id}" data-acao="ver-anuncio" title="${s.nome}: ver nos anunciados" aria-label="${s.nome}: ver ${escapar(p.nome)} nos anunciados">${icone(s.icone)}</button>`;
   }
 
-  // Mensagem pronta para o cliente: nome, preço e loja. O WhatsApp abre para o vendedor
-  // escolher o contato, e o texto ainda pode ser editado antes de enviar.
-  function linkWhatsApp(p, idLoja) {
+  // Mensagem pronta para o cliente. O WhatsApp abre para o vendedor escolher o contato,
+  // e o texto ainda pode ser editado antes de enviar.
+  // O desconto no Pix/dinheiro é o "Desconto máximo" da gaveta: o preço prometido é o mesmo "até R$" do cartão.
+  const PARCELAS_SEM_JUROS = 10;
+  function mensagemWhatsApp(p, idLoja) {
     const loja = lojaPorId(idLoja);
-    const linhas = [
-      `*${p.nome}*`,
-      semPreco(p) ? 'Preço: a confirmar' : `Preço: ${reais(Math.round(p.preco * 100))}`,
-      loja ? `Yêlla Móveis · ${rotuloLoja(loja)}` : 'Yêlla Móveis',
-    ];
+    const linhas = [`*${p.nome}*`, ''];
+    if (semPreco(p)) {
+      linhas.push('💰 Preço a confirmar');
+    } else {
+      const conta = calcular(p.preco, 0, estado.desconto);
+      const parcela = reais(Math.round(conta.cheio / PARCELAS_SEM_JUROS));
+      if (estado.desconto > 0) {
+        linhas.push(`💰 *${reais(conta.minimo)}* com ${percentual(estado.desconto)} OFF no Pix ou Dinheiro`);
+        linhas.push(`💳 Ou ${reais(conta.cheio)} em ${PARCELAS_SEM_JUROS}x de ${parcela} sem juros`);
+      } else {
+        linhas.push(`💰 *${reais(conta.cheio)}* no Pix ou Dinheiro`);
+        linhas.push(`💳 Ou em ${PARCELAS_SEM_JUROS}x de ${parcela} sem juros`);
+      }
+    }
+    linhas.push('🚚 Entrega Grátis');
+    if (p.quantidade === 1) linhas.push('🔥 Última unidade!');
+    else if (p.quantidade > 1) linhas.push('✅ Pronta entrega');
+    linhas.push('', 'Quer garantir? É só responder esta mensagem! 😊');
+    linhas.push(loja ? `Yêlla Móveis · ${rotuloLoja(loja)}` : 'Yêlla Móveis');
     if (estado.nome) linhas.push(`Atendimento: ${estado.nome}`);
-    return 'https://wa.me/?text=' + encodeURIComponent(linhas.join('\n').replace(/ /g, ' '));
+    return linhas.join('\n').replace(/ /g, ' ');
   }
+
+  const linkWhatsApp = (p, idLoja) => 'https://wa.me/?text=' + encodeURIComponent(mensagemWhatsApp(p, idLoja));
 
   function botaoWhatsAppHTML(p, idLoja) {
     return `<a class="icone-botao whatsapp" href="${escapar(linkWhatsApp(p, idLoja))}" target="_blank" rel="noopener noreferrer" title="Enviar pelo WhatsApp" aria-label="Enviar ${escapar(p.nome)} pelo WhatsApp">${icone('whatsapp')}</a>`;
@@ -1028,7 +1046,7 @@
     estado.desconto = desconto;
     if (mudou) {
       atualizarPrecos();
-      if (estado.tela === 'anunciados') renderizarAnunciados(); // a gaveta abre nas duas abas
+      atualizarLinksWhatsApp(); // a mensagem leva o preço com desconto; também redesenha os anunciados
     }
     salvarAjustes();
   }
@@ -1348,5 +1366,5 @@
   iniciar();
 
   // Exposto só para conferência no console do navegador.
-  window.__estoque = { calcular, buscar, lerPercentual, normalizar, estado, ORDENACOES, linkWhatsApp, iniciaisDe, fornecedoresDaBusca, fornecedoresComContagem };
+  window.__estoque = { calcular, buscar, lerPercentual, normalizar, estado, ORDENACOES, linkWhatsApp, mensagemWhatsApp, iniciaisDe, fornecedoresDaBusca, fornecedoresComContagem };
 })();

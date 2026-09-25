@@ -20,8 +20,8 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
 - **Buscar por fornecedor:** quando a busca não acha produto, a página oferece os fornecedores com aquele nome
   (ou a lista de todos). Se a busca achou produtos mas também é nome de fornecedor (ex.: `gazin`), aparece um atalho
   para ver tudo daquele fornecedor. Com o filtro ligado, dá para buscar dentro dos produtos dele.
-- **Classificadores** logo abaixo da busca: **Maior estoque** (tocando de novo vira Menor estoque),
-  **A → Z** (vira Z → A, é o padrão) e **Menor preço** (vira Maior preço). Buscando por código, o produto com
+- **Classificadores** logo abaixo da busca: **A → Z** (tocando de novo vira Z → A, é o padrão),
+  **Maior estoque** (vira Menor estoque) e **Menor preço** (vira Maior preço). Buscando por código, o produto com
   aquele código vem primeiro. Produto com preço provisório de R$ 1,00 no sistema aparece como
   "Preço a confirmar" e vai para o fim da lista.
 - **Categorias** (colchão, guarda-roupa, cozinha…) com ícone e quantidade, abaixo dos classificadores.
@@ -30,8 +30,24 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
   seguida dos botões **anunciar, WhatsApp, ver foto e detalhes**, tudo na mesma linha.
   Em **Detalhes**: nome completo, código, fornecedor, origem (transferência entre lojas), última compra,
   última venda e o nome do sistema.
-- **WhatsApp:** abre o WhatsApp com a mensagem pronta (nome do produto, preço, loja e o nome de quem atende);
-  o vendedor escolhe o contato e ainda pode editar o texto. A foto não vai junto (o link do WhatsApp só leva texto).
+- **WhatsApp:** abre o WhatsApp com a mensagem pronta; o vendedor escolhe o contato e ainda pode editar o texto:
+
+  ```
+  *Guarda-Roupa Maya 3 Portas MDP Cinamomo/Off White*
+
+  💰 *R$ 849,00* com 10% OFF no Pix ou Dinheiro
+  💳 Ou R$ 943,33 em 10x de R$ 94,33 sem juros
+  🚚 Entrega Grátis
+  ✅ Pronta entrega            (🔥 Última unidade! quando só há 1)
+
+  Quer garantir? É só responder esta mensagem! 😊
+  Yêlla Móveis · Matina - BA
+  Atendimento: João Pereira
+  ```
+
+  O desconto no Pix/dinheiro é o **Desconto máximo** do vendedor (o mesmo "até R$" do cartão); sem desconto
+  informado, sai o preço cheio. O número de parcelas fica em `PARCELAS_SEM_JUROS` no `app.js`.
+  A foto não vai junto (o link do WhatsApp só leva texto).
 - **Ver foto:** abre o Google Imagens com o nome do produto seguido do fornecedor (quando o fornecedor ajuda a achar a foto certa).
 - **Comissão e desconto:** o vendedor vê em cada produto até onde pode chegar e quanto ganha.
   A comissão é calculada **sobre o valor que o cliente paga**: no preço cheio e no preço com o desconto máximo.

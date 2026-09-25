@@ -20,9 +20,10 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
 - **Buscar por fornecedor:** quando a busca não acha produto, a página oferece os fornecedores com aquele nome
   (ou a lista de todos). Se a busca achou produtos mas também é nome de fornecedor (ex.: `gazin`), aparece um atalho
   para ver tudo daquele fornecedor. Com o filtro ligado, dá para buscar dentro dos produtos dele.
-- **Classificadores** logo abaixo da busca: Relevância, **A → Z** (tocando de novo vira Z → A) e
-  **Menor preço** (tocando de novo vira Maior preço). Produto com preço provisório de R$ 1,00 no sistema aparece
-  como "Preço a confirmar" e vai para o fim da lista.
+- **Classificadores** logo abaixo da busca: **Maior estoque** (tocando de novo vira Menor estoque),
+  **A → Z** (vira Z → A, é o padrão) e **Menor preço** (vira Maior preço). Buscando por código, o produto com
+  aquele código vem primeiro. Produto com preço provisório de R$ 1,00 no sistema aparece como
+  "Preço a confirmar" e vai para o fim da lista.
 - **Categorias** (colchão, guarda-roupa, cozinha…) com ícone e quantidade, abaixo dos classificadores.
 - Cartão compacto: o **nome** numa linha só (cortado com "…" quando não cabe) e, abaixo, o **preço** e,
   à direita, a **quantidade em estoque** (caixinha verde, âmbar na última unidade, cinza fora do estoque)

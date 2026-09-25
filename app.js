@@ -98,7 +98,7 @@
 
   const IGNORAR = new Set(['de', 'da', 'do', 'das', 'dos', 'e', 'a', 'o', 'as', 'os', 'com', 'para', 'um', 'uma']);
 
-  const ORDENS = ['relevancia', 'az', 'za', 'menor', 'maior'];
+  const ORDENS = ['az', 'za', 'menor', 'maior', 'mais-estoque', 'menos-estoque'];
 
   const $ = (id) => document.getElementById(id);
   const el = {
@@ -119,10 +119,27 @@
     contador: $('contador-anunciados'), toast: $('toast'), toastTexto: $('toast-texto'), toastAcao: $('toast-acao'),
   };
 
+  // Logo depois de publicar, o navegador pode juntar a página antiga (guardada) com o código novo.
+  // Faltando alguma parte da página, recarrega uma vez para pegar a versão nova, em vez de travar.
+  const CHAVE_RECARGA = 'estoque-yella:recarregou';
+  if (Object.keys(el).some((parte) => !el[parte])) {
+    let jaRecarregou = true;
+    try {
+      jaRecarregou = sessionStorage.getItem(CHAVE_RECARGA) === '1';
+      sessionStorage.setItem(CHAVE_RECARGA, '1');
+    } catch (e) { /* sem armazenamento: não arrisca recarregar sem parar */ }
+    if (!jaRecarregou) {
+      location.reload();
+      return;
+    }
+  } else {
+    try { sessionStorage.removeItem(CHAVE_RECARGA); } catch (e) { /* nada a limpar */ }
+  }
+
   const estado = {
     lojas: [], lojaId: null, selecao: null, dadosLojas: new Map(),
     produtos: [], porChave: new Map(), resultado: [], exibidos: 0,
-    consulta: '', ordem: 'relevancia', comissao: 0, desconto: 0,
+    consulta: '', ordem: 'az', comissao: 0, desconto: 0,
     nome: '', fornecedor: null, verTodosFornecedores: false, consultaMostrada: '',
     anunciados: [], filtroStatus: 'todos', anunciosAbertos: new Set(), tema: 'auto', mostrarContas: true,
     tela: 'estoque', rolagem: { estoque: 0, anunciados: 0 },
@@ -325,6 +342,8 @@
 
   // Produto sem preço (R$ 1,00) vai para o fim quando a lista é ordenada por preço.
   const ORDENACOES = {
+    'mais-estoque': (a, b) => b.quantidade - a.quantidade || a._ordem - b._ordem,
+    'menos-estoque': (a, b) => a.quantidade - b.quantidade || a._ordem - b._ordem,
     az: (a, b) => a._ordem - b._ordem,
     za: (a, b) => b._ordem - a._ordem,
     menor: (a, b) => semPreco(a) - semPreco(b) || a.preco - b.preco || a._ordem - b._ordem,
@@ -491,6 +510,8 @@
     }
     const resultado = semDados ? [] : buscar(estado.consulta);
     if (ORDENACOES[estado.ordem]) resultado.sort(ORDENACOES[estado.ordem]);
+    const codigoBuscado = /^\d+$/.test(consulta) ? consulta.replace(/^0+/, '') : '';
+    if (codigoBuscado) resultado.sort((a, b) => (b._codigo === codigoBuscado) - (a._codigo === codigoBuscado));
     estado.resultado = resultado;
     estado.exibidos = 0;
     el.lista.innerHTML = '';
@@ -563,14 +584,15 @@
     voltarAoTopoDaLista();
   }
 
-  // Classificadores: tocar de novo em "A → Z" ou em "Menor preço" inverte a ordem.
+  // Classificadores: tocar de novo no que está ativo inverte a ordem
+  // (maior ↔ menor estoque, A → Z ↔ Z → A, menor ↔ maior preço).
   function atualizarOrdens() {
     const o = estado.ordem;
     for (const botao of el.ordens.querySelectorAll('[data-ordem]')) {
       const tipo = botao.dataset.ordem;
-      let ativo = o === 'relevancia';
-      let rotulo = 'Relevância';
-      let descricao = 'Mais relevantes primeiro';
+      let ativo = o === 'mais-estoque' || o === 'menos-estoque';
+      let rotulo = o === 'menos-estoque' ? 'Menor estoque' : 'Maior estoque';
+      let descricao = o === 'menos-estoque' ? 'Do menor para o maior estoque' : 'Do maior para o menor estoque';
       if (tipo === 'nome') {
         ativo = o === 'az' || o === 'za';
         rotulo = o === 'za' ? 'Z → A' : 'A → Z';
@@ -582,15 +604,15 @@
       }
       botao.setAttribute('aria-pressed', String(ativo));
       botao.setAttribute('aria-label', descricao);
-      botao.title = ativo && tipo !== 'relevancia' ? `${descricao}. Toque de novo para inverter.` : descricao;
+      botao.title = descricao;
       botao.querySelector('span').textContent = rotulo;
     }
   }
 
   function proximaOrdem(tipo) {
-    if (tipo === 'nome') return estado.ordem === 'az' ? 'za' : 'az';
+    if (tipo === 'estoque') return estado.ordem === 'mais-estoque' ? 'menos-estoque' : 'mais-estoque';
     if (tipo === 'preco') return estado.ordem === 'menor' ? 'maior' : 'menor';
-    return 'relevancia';
+    return estado.ordem === 'az' ? 'za' : 'az';
   }
 
   // Leva o começo da lista para logo abaixo do painel fixo, se a pessoa tiver rolado para baixo.
@@ -1084,7 +1106,7 @@
     formatarCampo(el.desconto);
     estado.comissao = lerPercentual(el.comissao.value);
     estado.desconto = lerPercentual(el.desconto.value);
-    estado.ordem = ORDENS.includes(salvos.ordem) ? salvos.ordem : 'relevancia';
+    estado.ordem = ORDENS.includes(salvos.ordem) ? salvos.ordem : 'az';
     atualizarOrdens();
     estado.anunciados = lerAnunciados();
 

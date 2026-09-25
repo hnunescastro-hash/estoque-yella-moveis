@@ -1,7 +1,7 @@
 /* Mantém a consulta funcionando com internet fraca ou sem internet.
    Sempre tenta buscar a versão mais nova primeiro; se a rede falhar ou demorar mais de
    4 segundos, usa a última cópia salva no aparelho. */
-const CACHE = 'estoque-yella-v9';
+const CACHE = 'estoque-yella-v10';
 const ESPERA_MAXIMA = 4000;
 const ESSENCIAIS = [
   './',
@@ -37,6 +37,12 @@ self.addEventListener('activate', (evento) => {
   })());
 });
 
+// Resposta de navegação não pode vir marcada como redirecionada: devolve uma cópia limpa.
+function semRedirecionamento(resposta) {
+  if (!resposta.redirected) return resposta;
+  return new Response(resposta.body, { status: resposta.status, statusText: resposta.statusText, headers: resposta.headers });
+}
+
 self.addEventListener('fetch', (evento) => {
   const pedido = evento.request;
   if (pedido.method !== 'GET') return;
@@ -44,7 +50,10 @@ self.addEventListener('fetch', (evento) => {
 
   // O GitHub Pages manda guardar os arquivos por 10 minutos; "no-cache" confere com o servidor
   // a cada acesso (resposta curta quando nada mudou), para a versão nova aparecer na hora.
-  const daRede = pedido.mode === 'navigate' ? fetch(pedido) : fetch(pedido, { cache: 'no-cache' });
+  // A página (navegação) também: senão vinha a página antiga do cache com o código novo.
+  const daRede = pedido.mode === 'navigate'
+    ? fetch(pedido.url, { cache: 'no-cache', credentials: 'same-origin' }).then(semRedirecionamento)
+    : fetch(pedido, { cache: 'no-cache' });
   // guarda a resposta nova no aparelho, mesmo quando a cópia antiga for usada nesta vez
   evento.waitUntil(daRede.then((resposta) => {
     if (!resposta.ok) return undefined;

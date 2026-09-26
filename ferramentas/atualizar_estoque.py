@@ -22,6 +22,7 @@ As funções montar_loja() e comparar() também são usadas pelo servidor de atu
 """
 
 import argparse
+import bisect
 import collections
 import html
 import json
@@ -596,7 +597,16 @@ def _vetado(g, m):
     if g.tipo and m.tipo and not (any(mesmo_tipo(g.tipo[0], b) for b in m.inicio)
                                   and any(mesmo_tipo(m.tipo[0], a) for a in g.inicio)):
         return True  # cadeira x conjunto de 6 cadeiras
+    return _cores_diferentes(g, m)
+
+
+def _cores_diferentes(g, m):
     return bool(g.cores and m.cores and not (_cobre(g.cores, m.cores) and _cobre(m.cores, g.cores)))  # Branco/Lilás x Branco
+
+
+def _palavras_livres(d):
+    """Qualquer palavra do nome (para a busca pelo preço): sem as vazias e sem cor."""
+    return {x for x in d.t if x not in CORES and (len(x) >= 3 or x.isdigit())}
 
 
 def _nota(g, m, idf, raro, medio):
@@ -633,6 +643,9 @@ JEV_DUVIDA = 0.5     # entre isto e JEV_ACEITA: vai para a lista "é o mesmo?" d
 # mais vai para a lista, nunca direto: "Air Fryer" x "Fritadeira Air Fryer", "Off White" x "Freijó/Off White")
 JEV_CONTESTA = 0.8   # ligação da regra que o juiz nega com essa certeza: vai para a lista também
 CANDIDATOS = 8       # quantos produtos da outra loja o juiz compara
+PRECO_PROXIMO = 0.05  # ainda sem par nem sugestão: produto da outra loja com alguma palavra igual e preço até 5%
+# diferente (base: o preço da outra loja) vai ao juiz com uma pergunta mais branda ("rodada": "preco"); o que ele
+# escolher com JEV_DUVIDA ou mais vai para a lista (pedido do Hugo, 26/09/2026)
 
 
 def cruzar_produtos(produtos, outra, lancado=None, julgar=None, confirmados=None):
@@ -668,8 +681,11 @@ def cruzar_produtos(produtos, outra, lancado=None, julgar=None, confirmados=None
         for x in d.t:
             if idf[x] > 2.0:
                 busca[x].append(i)
+    por_preco = sorted((d.p.get("preco") or 0, i) for i, d in enumerate(outros))  # para a busca pelo preço
+    so_precos = [preco for preco, _ in por_preco]
+    livres = [_palavras_livres(d) for d in outros]
 
-    regra, candidatos, soltos = {}, {}, {}
+    regra, candidatos, soltos, pelo_preco = {}, {}, {}, {}
     for g in lado:
         if (confirmados.get(g.p["codigo"]) or {}).get("sim") in por_codigo:
             continue  # o administrador já disse qual é
@@ -711,17 +727,35 @@ def cruzar_produtos(produtos, outra, lancado=None, julgar=None, confirmados=None
                 solta = [outros[i] for _, i in sorted(parecidos + travados, reverse=True)[:CANDIDATOS]]
                 if solta and solta != lista:
                     soltos[g.p["codigo"]] = solta
+                preco = g.p.get("preco") or 0  # e pelo preço quase igual, com alguma palavra igual
+                if preco > 1:  # R$ 1 é preço de marcação
+                    palavras, perto = _palavras_livres(g), []
+                    inicio = bisect.bisect_left(so_precos, preco / (1 + PRECO_PROXIMO))
+                    fim = bisect.bisect_right(so_precos, preco / (1 - PRECO_PROXIMO))
+                    for _, i in por_preco[inicio:fim]:
+                        m, preco_m = outros[i], outros[i].p.get("preco") or 0
+                        if (not preco_m or abs(preco - preco_m) / preco_m > PRECO_PROXIMO or m.p["codigo"] in recusados
+                                or _vetado_forte(g, m) or _cores_diferentes(g, m)):
+                            continue
+                        comuns = {a for a in palavras if any(_iguais(a, b) for b in livres[i])}
+                        if comuns:
+                            perto.append((sum(idf.get(a, 0) for a in comuns), -abs(preco - preco_m) / preco_m, i))
+                    if perto:
+                        pelo_preco[g.p["codigo"]] = [outros[i] for _, _, i in sorted(perto, reverse=True)[:CANDIDATOS]]
 
-    respostas, respostas_soltas = {}, {}
-    if julgar and (candidatos or soltos):
+    respostas, respostas_soltas, respostas_preco = {}, {}, {}
+    rodadas = {"": (candidatos, respostas), "solto": (soltos, respostas_soltas), "preco": (pelo_preco, respostas_preco)}
+    if julgar and (candidatos or soltos or pelo_preco):
         texto = {d.p["codigo"]: d.texto for d in lado}
-        perguntas = [(c, False) for c in candidatos] + [(c, True) for c in soltos]
-        pedidos = [{"produto": texto[c], "candidatos": [m.texto for m in (soltos if solto else candidatos)[c]]} for c, solto in perguntas]
+        perguntas = [(c, rodada) for rodada, (listas, _) in rodadas.items() for c in listas]
+        pedidos = [{"produto": texto[c], "candidatos": [m.texto for m in rodadas[rodada][0][c]],
+                    **({"rodada": "preco"} if rodada == "preco" else {})} for c, rodada in perguntas]
         try:
-            for (c, solto), resposta in zip(perguntas, julgar(pedidos)):
-                (respostas_soltas if solto else respostas)[c] = resposta
+            for (c, rodada), resposta in zip(perguntas, julgar(pedidos)):
+                rodadas[rodada][1][c] = resposta
         except Exception:  # juiz fora do ar: fica só a regra
-            respostas, respostas_soltas = {}, {}
+            for _, guardadas in rodadas.values():
+                guardadas.clear()
 
     resultado = {"codigos": {}, "duvidas": [], "origem": {}}
     for g in lado:
@@ -746,11 +780,13 @@ def cruzar_produtos(produtos, outra, lancado=None, julgar=None, confirmados=None
             resultado["codigos"][codigo], resultado["origem"][codigo] = escolha.p["codigo"], "juiz"
         elif escolha is not None and prob >= JEV_DUVIDA:
             resultado["duvidas"].append({"codigo": codigo, "codigo_para": escolha.p["codigo"], "prob": round(prob, 2)})
-        else:  # com tipo ou cor diferente: só na lista
-            indice_solto, prob_solta = respostas_soltas.get(codigo) or (None, None)
-            if indice_solto is not None and prob_solta is not None and prob_solta >= JEV_DUVIDA:
-                resultado["duvidas"].append({"codigo": codigo, "codigo_para": soltos[codigo][indice_solto].p["codigo"],
-                                             "prob": round(prob_solta, 2)})
+        else:  # com tipo ou cor diferente, ou pelo preço quase igual: só na lista
+            for listas, guardadas in (rodadas["solto"], rodadas["preco"]):
+                indice_r, prob_r = guardadas.get(codigo) or (None, None)
+                if indice_r is not None and prob_r is not None and prob_r >= JEV_DUVIDA:
+                    resultado["duvidas"].append({"codigo": codigo, "codigo_para": listas[codigo][indice_r].p["codigo"],
+                                                 "prob": round(prob_r, 2)})
+                    break
     return resultado
 
 

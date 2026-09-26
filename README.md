@@ -140,12 +140,15 @@ cheio (em verde, ou vermelho quando negativa). Sem preço de compra, a linha mos
      que passam nas travas e diz qual é o mesmo, ou "nenhum", com uma probabilidade. Com 85% ou mais, liga
      sozinho; entre 50% e 85%, vai para a lista **Produtos iguais**; se discorda de uma ligação da regra com
      80% ou mais, ela também vai para a lista. Sem par, ele vê ainda candidatos com tipo ou cor diferente
-     ("Air Fryer" × "Fritadeira Air Fryer"), que só vão para a lista, nunca direto. As travas de
+     ("Air Fryer" × "Fritadeira Air Fryer"), que só vão para a lista, nunca direto. Se ainda assim não houver
+     sugestão, o juiz recebe os de Matina com **alguma palavra igual e preço até 5% diferente** (mesma cor) e
+     escolhe o provável, também só para a lista. As travas de
      número/medida, tamanho e quantidade nunca caem. Cada pergunta fica guardada (`jev/cache.json`,
      privado): só produto novo ou que mudou é perguntado de novo. A primeira rodada completa custou
      cerca de US$ 0,02. Sem a chave, ou com a OpenRouter fora do ar, fica só a regra.
-  3. **O administrador:** no painel, **Produtos iguais (N)** abre a lista com o produto de cada loja lado a
-     lado; **É o mesmo** ou **Não é** vale para sempre, acima da regra e do juiz. **Publicar respostas**
+  3. **O administrador:** no painel, **Produtos iguais (N)** abre a lista com o produto de cada loja, a
+     começar pela **menor diferença de preço** (mostrada ao lado do preço de Matina); **É o mesmo** ou
+     **Não é** vale para sempre, acima da regra e do juiz. **Publicar respostas**
      refaz o cruzamento e publica na hora (as respostas também entram na próxima publicação de relatório).
   Ligado, Igaporã passa a mostrar o **nome e o fornecedor de Matina**, o admin vê o custo de Matina
   ("(Matina)") e as **fotos** de um valem para o outro (`dados/vinculos.json`, público, sem custo).

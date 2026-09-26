@@ -2628,19 +2628,24 @@
     if (!el.modalIguais.hidden) montarIguais();
   }
 
-  function ladoIgualHTML(lojaId, p, semEstoque) {
+  function ladoIgualHTML(lojaId, p, semEstoque, variacao) {
     const loja = lojaPorId(lojaId);
     return `<div class="igual-lado">`
       + `<span class="igual-loja">${escapar(loja ? loja.nome : lojaId)}${semEstoque ? ' · sem estoque' : ''}</span>`
       + `<strong class="igual-nome">${escapar(p.nome)}</strong>`
       + (p.sistema ? `<span class="igual-sistema">${escapar(p.sistema)}</span>` : '')
-      + `<span class="igual-preco">${reais(Math.round(p.preco * 100))}</span></div>`;
+      + `<span class="igual-preco">${reais(Math.round(p.preco * 100))}`
+      + (variacao != null ? `<span class="igual-variacao"> · ${numero.format(Math.round(variacao * 1000) / 10)}%</span>` : '')
+      + '</span></div>';
   }
+
+  // diferença de preço entre as duas lojas (base: Matina); a lista vem do servidor em ordem da menor
+  const variacaoIgual = (d) => (d.para.preco ? Math.abs(d.de.preco - d.para.preco) / d.para.preco : null);
 
   function montarIguais() {
     el.iguaisLista.innerHTML = iguais.duvidas.length
       ? iguais.duvidas.map((d) => `<li class="igual" data-loja="${escapar(d.loja)}" data-codigo="${escapar(d.codigo)}">`
-        + ladoIgualHTML(d.loja, d.de) + ladoIgualHTML(d.outra, d.para, d.para.sem_estoque)
+        + ladoIgualHTML(d.loja, d.de) + ladoIgualHTML(d.outra, d.para, d.para.sem_estoque, variacaoIgual(d))
         + '<div class="igual-acoes"><button type="button" class="botao-secundario" data-resposta="nao">Não é</button>'
         + '<button type="button" class="botao-principal" data-resposta="sim">É o mesmo</button></div></li>').join('')
       : '<li class="relatorio-nada">Nada para conferir</li>';

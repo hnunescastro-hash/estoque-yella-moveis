@@ -652,6 +652,7 @@ html.travado, html.travado body { overflow: hidden; }
 .igual-nome { font-size: 15px; }
 .igual-sistema { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; text-transform: uppercase; color: var(--suave); overflow-wrap: anywhere; }
 .igual-preco { font-size: 13.5px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.igual-variacao { font-weight: 500; color: var(--suave); }
 .igual-acoes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .iguais .igual-acoes button { min-height: 44px; margin: 0; font-size: 15px; }
 .iguais .igual-acoes button:disabled { opacity: .6; cursor: default; }

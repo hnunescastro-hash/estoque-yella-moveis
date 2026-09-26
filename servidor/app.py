@@ -266,6 +266,15 @@ JEV_PERGUNTA = ("Qual candidato de Matina é exatamente o mesmo produto de Igapo
                 "erro de digitação ou marca/linha escrita só numa delas não tornam o produto diferente.")
 JEV_NENHUM = ("Nenhum dos candidatos é o mesmo produto (tipo, modelo/linha, medida ou cor diferente, ou produto "
               "genérico demais para ter certeza).")
+# rodada "preco": candidatos com alguma palavra igual e preço até 5% diferente; pergunta mais branda (a resposta
+# só vai para a lista do administrador, nunca liga sozinha)
+JEV_OBSERVACAO_PRECO = (JEV_OBSERVACAO + " Uma das lojas costuma descrever o produto de forma mais curta ou genérica. "
+                        "Todos os candidatos têm preço quase igual ao do produto de Igaporã (até 5% de diferença).")
+JEV_PERGUNTA_PRECO = ("Qual candidato de Matina provavelmente é o mesmo produto de Igaporã? Precisa ser o mesmo tipo de "
+                      "produto; descrição mais curta, genérica ou sem a marca/modelo numa das lojas não impede, pois o "
+                      "preço quase igual ajuda a confirmar.")
+JEV_NENHUM_PRECO = ("Nenhum candidato é do mesmo tipo de produto (ex.: adaptador × carregador, caixa de som × colchão, "
+                    "mesa × ventilador).")
 
 
 JEV_PRAZO = 70   # segundos para todas as perguntas de uma publicação; o que faltar fica para a próxima
@@ -274,10 +283,13 @@ JEV_FALHAS = 12  # a OpenRouter falhou tantas vezes: para de perguntar (fica só
 
 def _jev(pedido):
     """[índice escolhido ou -1 para "nenhum", probabilidade], custo em dólares."""
+    preco = pedido.get("rodada") == "preco"
     criterios = {f"c{i + 1}": texto for i, texto in enumerate(pedido["candidatos"])}
-    criterios["nenhum"] = JEV_NENHUM
-    corpo = {"model": JEV_MODELO, "state": {"produto_igapora": pedido["produto"], "observacao": JEV_OBSERVACAO},
-             "questions": {"mesmo": {"type": "choice", "instructions": JEV_PERGUNTA, "criteria": criterios}}}
+    criterios["nenhum"] = JEV_NENHUM_PRECO if preco else JEV_NENHUM
+    corpo = {"model": JEV_MODELO,
+             "state": {"produto_igapora": pedido["produto"], "observacao": JEV_OBSERVACAO_PRECO if preco else JEV_OBSERVACAO},
+             "questions": {"mesmo": {"type": "choice", "instructions": JEV_PERGUNTA_PRECO if preco else JEV_PERGUNTA,
+                                     "criteria": criterios}}}
     req = urllib.request.Request(JEV_URL, data=json.dumps(corpo).encode(), method="POST", headers={
         "Authorization": f"Bearer {OPENROUTER_API_KEY}", "Content-Type": "application/json"})
     with urllib.request.urlopen(req, timeout=25) as r:
@@ -292,7 +304,8 @@ def _jev(pedido):
 def julgar_com_jev(pedidos):
     """[{"produto", "candidatos"}] -> [(índice ou None para "nenhum", probabilidade)]; (None, None) se não deu."""
     cache = ler_privado("jev/cache.json", {})[0] or {}
-    chaves = [hashlib.sha256((p["produto"] + "\n" + "\n".join(p["candidatos"])).encode()).hexdigest() for p in pedidos]
+    chaves = [hashlib.sha256(((p["rodada"] + "\n" if p.get("rodada") else "") + p["produto"] + "\n"
+                              + "\n".join(p["candidatos"])).encode()).hexdigest() for p in pedidos]
     faltando = [(c, p) for c, p in zip(chaves, pedidos) if c not in cache]
     prazo, falhas, custo = time.time() + JEV_PRAZO, [0], [0.0]
 
@@ -537,13 +550,19 @@ def vincular_lojas(pasta, por_id, r, saidas=None, enviadas=None):
         r["duvidas"][loja_id] = sorted((
             {"codigo": d["codigo"], "codigo_para": d["codigo_para"], "prob": d["prob"], "de": resumo(deste[d["codigo"]]),
              "para": {**resumo(da_outra[d["codigo_para"]]), "sem_estoque": d["codigo_para"] not in em_estoque}}
-            for d in cruzado["duvidas"]), key=lambda d: (ae.sem_acento(d["de"]["nome"]).lower(), d["codigo"]))
+            for d in cruzado["duvidas"]), key=lambda d: (_variacao(d), ae.sem_acento(d["de"]["nome"]).lower(), d["codigo"]))
     if r["vinculos"]:
         texto = ae.texto_json({"pares": pares})
         caminho = Path(pasta) / "dados/vinculos.json"
         if not caminho.exists() or caminho.read_text(encoding="utf-8") != texto:
             r["arquivos"]["dados/vinculos.json"] = texto
     return r
+
+
+def _variacao(duvida):
+    """Diferença de preço entre as duas lojas (base: a outra loja). A lista começa pela menor (pedido do Hugo)."""
+    preco = duvida["para"]["preco"]
+    return abs(duvida["de"]["preco"] - preco) / preco if preco else 9.0
 
 
 def guardar_vinculos(r):

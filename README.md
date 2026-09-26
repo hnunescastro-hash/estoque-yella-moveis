@@ -36,7 +36,9 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
   à direita, a **quantidade em estoque** (caixinha verde, âmbar na última unidade, cinza fora do estoque)
   seguida dos botões **anunciar, WhatsApp, ver foto e detalhes**, tudo na mesma linha.
   Em **Detalhes**: nome completo, código, fornecedor, origem (transferência entre lojas), última compra,
-  última venda e o nome do sistema.
+  última venda, o nome do sistema e, quando houver, a **galeria de fotos** (até 6; tocando, abre em tela
+  cheia para passar uma a uma). As fotos ficam em `fotos/` e `dados/fotos.json`, buscadas por
+  `ferramentas/buscar_fotos.py`.
 - **WhatsApp:** abre o WhatsApp com a mensagem pronta; o vendedor escolhe o contato e ainda pode editar o texto:
 
   ```
@@ -60,7 +62,9 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
     abaixo de R$ 50 aparece só "no cartão"). Ajustável em `PARCELAS_SEM_JUROS` e `PARCELA_MINIMA` no `app.js`.
   - "🔥 Últimas unidades!" com até 3 unidades no estoque; acima disso, "✅ Pronta entrega".
   - O **telefone** do vendedor (campo na gaveta do perfil) entra na linha "Tel."; sem telefone, a linha não aparece.
-  - A foto não vai junto (o link do WhatsApp só leva texto).
+  - **Fotos junto:** no celular, produto com fotos abre o compartilhamento do aparelho com as fotos (até 6)
+    e a mensagem; é só escolher o WhatsApp e o contato. No computador, ou em produto sem fotos, abre só
+    o texto (o link do WhatsApp não leva imagem).
 - **Ver foto:** abre o Google Imagens com o nome do produto seguido do fornecedor (quando o fornecedor ajuda a achar a foto certa).
 - **Comissão e desconto:** o vendedor vê em cada produto até onde pode chegar e quanto ganha.
   A comissão é calculada **sobre o valor que o cliente paga**: no preço cheio e no preço com o desconto máximo.

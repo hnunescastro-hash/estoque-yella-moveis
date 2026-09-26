@@ -823,10 +823,15 @@ body.visor-aberto { overflow: hidden; }
 .visor[hidden] { display: none; }
 .visor-img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; background: #fff; user-select: none; }
 .visor button {
-  position: absolute; z-index: 1; border: 0; color: #fff; background: rgba(40, 40, 40, .7);
+  position: absolute; z-index: 1; color: #fff; background: rgba(20, 20, 20, .8);
+  border: 2px solid rgba(255, 255, 255, .9); box-shadow: 0 2px 10px rgba(0, 0, 0, .5);
   width: 48px; height: 48px; border-radius: 50%; font-size: 30px; line-height: 1; cursor: pointer;
 }
-.visor button:hover { background: rgba(255, 255, 255, .26); }
+/* Ao passar o mouse ou tocar, escurece (nunca clareia): as fotos quase sempre têm fundo branco
+   e, no celular, o "hover" fica grudado no botão depois do toque. */
+@media (hover: hover) { .visor button:hover { background: rgba(0, 0, 0, .92); } }
+.visor button:active { background: #000; }
+.visor button:focus-visible { outline: 3px solid var(--amarelo); outline-offset: 2px; }
 .visor-fechar { top: max(10px, env(safe-area-inset-top)); right: 10px; }
 .visor-seta { top: 50%; transform: translateY(-50%); }
 .visor-seta.anterior { left: 8px; }

@@ -503,6 +503,74 @@
     return `<a class="icone-botao whatsapp" href="${escapar(linkWhatsApp(p, idLoja))}" target="_blank" rel="noopener noreferrer" title="Enviar pelo WhatsApp" aria-label="Enviar ${escapar(p.nome)} pelo WhatsApp">${icone('whatsapp')}</a>`;
   }
 
+  // Com fotos, no celular o botão abre o compartilhamento do aparelho com as fotos e a mensagem
+  // juntas (o vendedor escolhe o WhatsApp e o contato). O link wa.me só leva texto: continua valendo
+  // no computador, em aparelho que não compartilha arquivos e em produto sem fotos.
+  const fotosProntas = new Map(); // nome no sistema -> fotos já baixadas, prontas para o toque
+  const fotosBaixando = new Map(); // nome no sistema -> download em andamento
+
+  function compartilhaFotos() {
+    if (!navigator.canShare || !matchMedia('(pointer: coarse)').matches) return false;
+    try {
+      return navigator.canShare({ files: [new File([''], 'foto.jpg', { type: 'image/jpeg' })] });
+    } catch (erro) {
+      return false;
+    }
+  }
+
+  function prepararFotos(p) {
+    const chave = p.nome_sistema;
+    if (!fotosBaixando.has(chave)) {
+      const baixando = Promise.all(fotosDe(p).map(async (src, i) => {
+        try {
+          const resposta = await fetch(src);
+          if (!resposta.ok) return null;
+          return new File([await resposta.blob()], `${p.codigo}-${i + 1}.jpg`, { type: 'image/jpeg' });
+        } catch (erro) {
+          return null; // sem internet: essa foto fica de fora
+        }
+      })).then((arquivos) => {
+        const prontas = arquivos.filter(Boolean);
+        if (prontas.length) fotosProntas.set(chave, prontas);
+        else fotosBaixando.delete(chave); // tenta de novo no próximo toque
+        return prontas;
+      });
+      fotosBaixando.set(chave, baixando);
+    }
+    return fotosBaixando.get(chave);
+  }
+
+  const abrirWhatsAppSoTexto = (p, idLoja) => window.open(linkWhatsApp(p, idLoja), '_blank', 'noopener');
+
+  async function enviarComFotos(p, idLoja) {
+    let arquivos = fotosProntas.get(p.nome_sistema);
+    if (!arquivos) {
+      mostrarToast('Preparando as fotos…');
+      arquivos = await prepararFotos(p);
+      esconderToast();
+    }
+    const dados = { files: arquivos, text: mensagemWhatsApp(p, idLoja) };
+    if (!arquivos.length || !navigator.canShare(dados)) {
+      mostrarToast('Não deu para anexar as fotos.', 'Enviar só o texto', () => abrirWhatsAppSoTexto(p, idLoja));
+      return;
+    }
+    try {
+      await navigator.share(dados);
+    } catch (erro) {
+      if (erro.name === 'AbortError') return; // fechou o compartilhamento
+      // Enquanto as fotos baixavam, o aparelho "esqueceu" o toque (acontece no iPhone): pede outro.
+      if (erro.name === 'NotAllowedError') mostrarToast('Fotos prontas.', 'Enviar', () => navigator.share(dados).catch(() => {}));
+      else mostrarToast('Não deu para anexar as fotos.', 'Enviar só o texto', () => abrirWhatsAppSoTexto(p, idLoja));
+    }
+  }
+
+  // Produto do botão do WhatsApp (aba Estoque ou Anunciados); só o que está no estoque atual tem fotos.
+  function produtoDoWhatsApp(link) {
+    const card = link.closest('.card');
+    const p = card && estado.porChave.get(card.dataset.chave || card.dataset.id);
+    return p && fotosDe(p).length && compartilhaFotos() ? p : null;
+  }
+
   function botaoFotoHTML(p) {
     return `<a class="icone-botao" href="${escapar(linkFoto(p))}" target="_blank" rel="noopener noreferrer" title="Ver foto na internet" aria-label="Ver foto de ${escapar(p.nome)} na internet">${icone('foto')}</a>`;
   }
@@ -2370,6 +2438,20 @@
       if (alternarDetalhes(botao)) estado.anunciosAbertos.add(card.dataset.id);
       else estado.anunciosAbertos.delete(card.dataset.id);
     }
+  });
+
+  // WhatsApp com fotos: começa a baixar já no toque (antes do clique), para o compartilhamento abrir na hora.
+  document.addEventListener('pointerdown', (evento) => {
+    const link = evento.target.closest('a.whatsapp');
+    const p = link && produtoDoWhatsApp(link);
+    if (p) prepararFotos(p);
+  });
+  document.addEventListener('click', (evento) => {
+    const link = evento.target.closest('a.whatsapp');
+    const p = link && produtoDoWhatsApp(link);
+    if (!p) return; // segue o link: abre o WhatsApp só com o texto
+    evento.preventDefault();
+    enviarComFotos(p, p._loja);
   });
 
   el.filtrosStatus.addEventListener('click', (evento) => {

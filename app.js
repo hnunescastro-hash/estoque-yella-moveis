@@ -616,7 +616,7 @@
     const linhas = [];
     const conta = semPreco(p) ? null : calcular(p.preco, estado.comissao, estado.desconto);
     if (conta && estado.desconto > 0) linhas.push(['Preço mínimo', reais(conta.minimo), 'conta minimo']);
-    if (conta && estado.comissao > 0) linhas.push(['Você ganha', faixa(conta.ganhoMinimo, conta.ganhoCheio), 'conta ganho']);
+    if (conta && estado.comissao > 0) linhas.push(['Comissão', faixa(conta.ganhoMinimo, conta.ganhoCheio), 'conta ganho']);
     if (!chaveAdmin || !estado.custos) return linhas;
     const custo = custoDe(p);
     const origem = origemDoCusto(p);
@@ -2168,7 +2168,7 @@
     }
   }
 
-  // Olhinho: mostra ou esconde as contas em "ver mais" (preço mínimo, "você ganha" e, no modo
+  // Olhinho: mostra ou esconde as contas em "ver mais" (preço mínimo, comissão e, no modo
   // administrador, preço de compra, imposto e sobra) e a comissão do painel de vendas.
   function aplicarVisibilidadeContas(visivel) {
     estado.mostrarContas = visivel;
@@ -2237,7 +2237,7 @@
     estado.desconto = desconto;
     if (mudou) {
       atualizarLinksWhatsApp(); // a mensagem leva o preço com desconto; também redesenha os anunciados
-      atualizarDetalhes(); // preço mínimo, "você ganha" e a sobra (modo administrador) ficam em "ver mais"
+      atualizarDetalhes(); // preço mínimo, comissão e a sobra (modo administrador) ficam em "ver mais"
     }
     salvarAjustes();
   }

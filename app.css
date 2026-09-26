@@ -451,7 +451,7 @@ dl.detalhes {
 .detalhes dt { color: var(--suave); }
 .detalhes dd { margin: 0; overflow-wrap: anywhere; font-weight: 600; }
 .detalhes .sistema { font-weight: 500; }
-/* contas (preço mínimo, "você ganha", custo, imposto e sobra): cor de destaque, sem negrito extra;
+/* contas (preço mínimo, comissão, custo, imposto e sobra): cor de destaque, sem negrito extra;
    o olhinho da gaveta esconde todas */
 .detalhes dd.conta { font-variant-numeric: tabular-nums; }
 .detalhes dd.minimo { color: var(--ambar); }

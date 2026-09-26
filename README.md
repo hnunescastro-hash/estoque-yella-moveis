@@ -10,7 +10,7 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
   direito do topo; tocando nele abre uma gaveta para mudar o nome, o **telefone** (vai na mensagem do WhatsApp), a **comissão**, o **desconto máximo**
   (assim eles não ocupam espaço na página) e o **tema**: Claro, Escuro ou Automático (segue o celular).
   O **olhinho** ao lado de "Comissão e desconto" mostra ou esconde as contas em **ver mais** (bom para mostrar o
-  celular ao cliente): preço mínimo, "você ganha" e, no modo administrador, preço de compra, imposto e sobra.
+  celular ao cliente): preço mínimo, comissão e, no modo administrador, preço de compra, imposto e sobra.
   Essas contas nunca aparecem no cartão, só nos detalhes, uma por linha, com a cor de destaque.
 - A página não tem textos de dica nem rodapé: só o necessário para consultar e vender.
 - **Lojas:** abas no topo para ver **Todas as lojas**, só **Matina - BA** ou só **Igaporã - BA**.
@@ -40,7 +40,7 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
 - Cartão compacto: o **nome** numa linha só (cortado com "…" quando não cabe) e, abaixo, o **preço** e,
   à direita, a **quantidade em estoque** (caixinha verde, âmbar na última unidade, vermelho discreto sem estoque)
   seguida dos botões **anunciar, WhatsApp, ver foto e detalhes**, tudo na mesma linha.
-  Em **Detalhes**: nome completo, código, quantidade, **preço mínimo** (com o desconto máximo) e **você ganha**
+  Em **Detalhes**: nome completo, código, quantidade, **preço mínimo** (com o desconto máximo) e **comissão**
   (comissão), fornecedor, origem (transferência entre lojas), última compra,
   última venda, o nome do sistema e, quando houver, a **galeria de fotos** (até 6; tocando, abre em tela
   cheia para passar uma a uma). As fotos ficam em `fotos/` e `dados/fotos.json`, buscadas por

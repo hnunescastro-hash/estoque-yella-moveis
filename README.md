@@ -130,12 +130,25 @@ cheio (em verde, ou vermelho quando negativa). Sem preço de compra, a linha mos
   (hoje ele não traz essa coluna).
 - **Igaporã:** tudo o que Igaporã vende sai do depósito de Matina e não existe custo de transferência: o custo
   é o de compra do **mesmo produto em Matina** (Matina é a referência). O "Custo de Compra" do relatório de
-  Igaporã não vale. O mesmo produto é achado a cada publicação (`vincular_produtos` em
-  `ferramentas/atualizar_estoque.py`) **sem usar o código**, que é interno de cada sistema: compara as palavras
-  da descrição revisada e da do sistema, com mais peso para as raras (modelo, linha), tolerando palavra cortada
-  e erro de digitação, e veta tipo, número/medida, cor ou tamanho diferente e um modelo diferente de cada lado.
-  Na dúvida, não liga. Ligado, Igaporã passa a mostrar o **nome e o fornecedor de Matina**, o admin vê o custo de
-  Matina ("(Matina)") e as **fotos** de um valem para o outro (`dados/vinculos.json`, público, sem custo).
+  Igaporã não vale. O mesmo produto é achado a cada publicação (`cruzar_produtos` em
+  `ferramentas/atualizar_estoque.py`) **sem usar o código**, que é interno de cada sistema, em três etapas:
+  1. **A regra:** compara as palavras da descrição revisada e da do sistema, com mais peso para as raras
+     (modelo, linha), tolerando palavra cortada, erro de digitação e cor abreviada ("Carv", "Natu", "Fre"),
+     e veta tipo, número/medida, cor, tamanho ou quantidade (kit com 4 × avulso) diferente e um modelo
+     diferente de cada lado. Na dúvida, não liga.
+  2. **O juiz (Jev, da TypeSafe, pela OpenRouter):** para cada produto, recebe os 8 de Matina mais parecidos
+     que passam nas travas e diz qual é o mesmo, ou "nenhum", com uma probabilidade. Com 85% ou mais, liga
+     sozinho; entre 50% e 85%, vai para a lista **Produtos iguais**; se discorda de uma ligação da regra com
+     80% ou mais, ela também vai para a lista. Sem par, ele vê ainda candidatos com tipo ou cor diferente
+     ("Air Fryer" × "Fritadeira Air Fryer"), que só vão para a lista, nunca direto. As travas de
+     número/medida, tamanho e quantidade nunca caem. Cada pergunta fica guardada (`jev/cache.json`,
+     privado): só produto novo ou que mudou é perguntado de novo. A primeira rodada completa custou
+     cerca de US$ 0,02. Sem a chave, ou com a OpenRouter fora do ar, fica só a regra.
+  3. **O administrador:** no painel, **Produtos iguais (N)** abre a lista com o produto de cada loja lado a
+     lado; **É o mesmo** ou **Não é** vale para sempre, acima da regra e do juiz. **Publicar respostas**
+     refaz o cruzamento e publica na hora (as respostas também entram na próxima publicação de relatório).
+  Ligado, Igaporã passa a mostrar o **nome e o fornecedor de Matina**, o admin vê o custo de Matina
+  ("(Matina)") e as **fotos** de um valem para o outro (`dados/vinculos.json`, público, sem custo).
 - **Relatório de Matina com os produtos sem estoque:** quanto mais produtos de Matina (inclusive os que
   acabaram), mais produtos de Igaporã ganham custo. Os de estoque zero não aparecem no site: só entram no
   cruzamento (ficam no armazenamento privado, `referencia/matina.json`).
@@ -153,9 +166,9 @@ Como funciona por dentro: a página envia os relatórios ao servidor `servidor/a
 dados com o mesmo código do comando de terminal (`ferramentas/atualizar_estoque.py`), compara com o que está no
 ar e, ao publicar, grava `dados/<loja>.json` no GitHub com uma chave de publicação que só escreve neste repositório.
 
-- Credenciais (nunca no código): Secret Manager `estoque-yella-chave-admin`, `estoque-yella-chave-equipe` e
-  `estoque-yella-deploy-key`, com cópia no Bitwarden (`ESTOQUE_YELLA_CHAVE_ADMIN`, `ESTOQUE_YELLA_CHAVE_EQUIPE` e
-  `ESTOQUE_YELLA_DEPLOY_KEY`). A chave de publicação aparece no GitHub em Settings → Deploy keys como
+- Credenciais (nunca no código): Secret Manager `estoque-yella-chave-admin`, `estoque-yella-chave-equipe`,
+  `estoque-yella-deploy-key` e `estoque-yella-openrouter` (juiz do cruzamento), com cópia no Bitwarden
+  (`ESTOQUE_YELLA_CHAVE_ADMIN`, `ESTOQUE_YELLA_CHAVE_EQUIPE`, `ESTOQUE_YELLA_DEPLOY_KEY` e `OPENROUTER_API_KEY`). A chave de publicação aparece no GitHub em Settings → Deploy keys como
   "Atualização de estoque (Cloud Run)".
 - Trocar o código da equipe (ex.: um vendedor saiu): grave o novo no Bitwarden e como nova versão de
   `estoque-yella-chave-equipe`, rode `sh servidor/implantar.sh` e passe o novo aos vendedores.
@@ -202,7 +215,8 @@ A coluna **Custo de Compra** não vai para os dados nem para o GitHub, porque a 
 em buscadores). Ao publicar pelo site, o servidor guarda os custos num armazenamento privado do Google Cloud
 (`estoque-yella-privado`, sem acesso público) e só os entrega a quem tem a chave de administrador. Os **clientes**
 das vendas (nome, CPF, telefone, endereço) ficam no mesmo armazenamento privado e só saem para quem tem o código da
-equipe ou a chave de administrador.
+equipe ou a chave de administrador. A lista **Produtos iguais** e as respostas do administrador também ficam lá
+(`cruzamento/`), assim como as respostas guardadas do juiz (`jev/cache.json`).
 
 ## Arquivos
 

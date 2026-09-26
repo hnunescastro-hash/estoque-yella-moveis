@@ -483,10 +483,21 @@ CORES = set("""branco branca preto preta cinza cinamomo off white freijo nature 
 rosa azul vermelho vermelha amarelo amarela verde marrom bege dourado dourada perola grafite fendi canela mel imbuia ipe
 amendoa tabaco chocolate cacau wood rustico marfim prata cromado inox champagne sintra jequitiba damasco teka teca gris
 lilas violeta laranja vinho mogno tabacco nogueira cedro mocaccino mocacino carbono titanio titanium bronze grafito areia
-camurca capuccino cappuccino caramelo marinho safira ouro cobre rose""".split())
+camurca capuccino cappuccino caramelo marinho safira ouro cobre rose arena canelato""".split())
 TAMANHOS = {"casal", "solteiro", "queen", "king", "viuva", "infantil", "juvenil"}
 SINONIMOS_VINCULO = {"roupeiro": "guardaroupa", "refrigerador": "geladeira", "estofado": "sofa", "estofados": "sofa",
-                     "televisor": "tv", "televisao": "tv", "cznh": "cozinha", "coz": "cozinha"}
+                     "televisor": "tv", "televisao": "tv", "cznh": "cozinha", "coz": "cozinha",
+                     "tel": "telefone", "mic": "microfone", "jg": "jogo"}
+# cor abreviada ou com erro de digitação (senão a trava de cor vê "Carv/Off White" diferente de "Carvalho/Off White")
+SINONIMOS_VINCULO.update({x: cor for cor, abreviadas in {
+    "carvalho": "carv carval", "natural": "nat natu natur natura nature naturale naturaly naturalle",
+    "freijo": "fre frei freijor frejo", "cromado": "crom cromada", "amendoa": "amend amenda amendola", "imbuia": "imb",
+    "titanium": "tit titanio", "vermelho": "verm vermel", "chocolate": "choco",
+    "cinamomo": "cinam cinamo", "cinza": "cinz", "champagne": "champ champane champanhe", "marrom": "marron marro",
+    "grafite": "graf grafi grafit", "castanho": "castan", "areia": "arei", "gris": "grys griss griz",
+    "violeta": "viol", "lilas": "lil lila", "fendi": "fen fend", "caramelo": "caram",
+    "rustico": "rust rustic rusti rustica", "white": "whit",
+}.items() for x in abreviadas.split()})
 TIPOS_IGUAIS = [{"kit", "cozinha"}]  # "Kit 8 Portas Golden" é cozinha
 
 
@@ -495,6 +506,7 @@ def _palavras(texto):
     t = re.sub(r"guarda[\s-]*roupas?", "guardaroupa", t)
     t = re.sub(r"\bconj(?:unto)?\.?\s+(?:de\s+)?(?:sofas?|estofados?)\b", "sofa", t)  # conjunto de sofá = estofado
     t = re.sub(r"\bkit\s*/?\s*cozinha\b", "cozinha", t)
+    t = re.sub(r"\bconj(?:unto)?\.?\s+(?:de\s+)?cozinha\b", "cozinha", t)
     t = re.sub(r"\b(?:roupeiro|guardaroupa)\s+multiuso\b", "multiuso", t)
     # decimal só com 1 dígito inteiro (1,60 m; 2,5 L): "138,24" é separador; unidade sai
     t = re.sub(r"(?<!\d)(\d)[,.](\d{1,2})(?!\d)", lambda m: m.group(1) + (m.group(2).rstrip("0") and "." + m.group(2).rstrip("0")), t)
@@ -523,6 +535,27 @@ def _iguais(a, b):
             and a not in TAMANHOS and b not in TAMANHOS and _distancia1(a, b))  # erro de digitação
 
 
+def _numeros(texto):
+    """Números da descrição num formato só: 2,10 (m) = 210 (cm), 03 = 3, O6 (letra) = 6, CAP47 = CAP 47."""
+    t = sem_acento(texto or "").lower()
+    t = re.sub(r"\bo(?=\d)", "0", t)
+    t = re.sub(r"(?<![\d,.])(\d)[,.](\d{1,2})(?!\d)", lambda m: str(int(m.group(1)) * 100 + int(m.group(2).ljust(2, "0"))), t)
+    return {str(int(n)) for n in re.findall(r"\d+", t)}
+
+
+def _quantidade(texto):
+    """Quantas unidades vêm no produto: "Kit com 4", "Jogo de 6 Cadeiras", "4 Banquetas".
+    ("+" não conta: Igaporã separa medidas com ele, "88+188+58".)"""
+    t = sem_acento(texto or "").lower()
+    m = re.search(r"\b(?:kit|jogo|caixa|cx|conj(?:unto)?)\s*(?:com|c/|de|c)\s*(\d{1,2})\b", t)
+    if m:
+        return int(m.group(1))
+    m = re.search(r"\b(\d{1,2})\s*(?:cad(?:eiras?)?|banquetas?|unid(?:ades)?|und)\b", t)  # "3 peças" de cozinha é 1 produto
+    if m:
+        return int(m.group(1))
+    return 1
+
+
 class _Descricao:
     def __init__(self, p):
         self.p = p
@@ -532,27 +565,44 @@ class _Descricao:
         self.t = self.nome_t | self.sist_t
         self.tipo = nome[:1]
         self.inicio = nome[:2] + sistema[:2]  # onde o tipo do produto aparece
-        self.digitos = {x for x in self.t if re.search(r"\d", x)}
+        bruto = f"{p['nome']} {p.get('nome_sistema') or ''}"
+        self.numeros = _numeros(bruto)
+        self.quantidade = max(_quantidade(p["nome"]), _quantidade(p.get("nome_sistema")))
         self.cores = {x for x in self.t if x in CORES}
         self.tamanhos = {x for x in self.t if x in TAMANHOS}
+        # como o produto vai para o juiz (Jev): nome, descrição do sistema e preço
+        self.texto = f"{p['nome']} (sistema: {p.get('nome_sistema') or ''}; preço R$ {p.get('preco') or 0:.2f})"
 
 
 def _cobre(conjunto, outro):
     return all(any(_iguais(a, b) for b in outro) for a in conjunto)
 
 
-def _nota(g, m, idf, raro, medio):
-    """None (vetado) ou (cobertura de g, cobertura de m, tem palavra forte em comum, mesmo nome)."""
+def _vetado_forte(g, m):
+    """Travas que valem sempre, até para o administrador: número/medida, tamanho e quantidade diferentes."""
+    if g.numeros and m.numeros and not (g.numeros <= m.numeros or m.numeros <= g.numeros):
+        return True  # 4009 x 4064, 138 x 158 (2,10 = 210, 03 = 3)
+    if g.tamanhos and m.tamanhos and g.tamanhos != m.tamanhos:
+        return True  # casal x solteiro
+    return g.quantidade != m.quantidade  # kit com 4 x avulso
+
+
+def _vetado(g, m):
+    """Travas que nem o juiz derruba: as fortes, mais tipo e cor diferentes (produto que só passa com
+    tipo ou cor diferente vai no máximo para a lista "é o mesmo produto?" do administrador)."""
+    if _vetado_forte(g, m):
+        return True
     mesmo_tipo = lambda a, b: _iguais(a, b) or any(a in grupo and b in grupo for grupo in TIPOS_IGUAIS)
     if g.tipo and m.tipo and not (any(mesmo_tipo(g.tipo[0], b) for b in m.inicio)
                                   and any(mesmo_tipo(m.tipo[0], a) for a in g.inicio)):
-        return None  # cadeira x conjunto de 6 cadeiras
-    if g.digitos and m.digitos and not (_cobre(g.digitos, m.digitos) or _cobre(m.digitos, g.digitos)):
-        return None  # 4009 x 4064, 138 x 158
-    if g.cores and m.cores and not (_cobre(g.cores, m.cores) and _cobre(m.cores, g.cores)):
-        return None  # Branco/Lilás x Branco
-    if g.tamanhos and m.tamanhos and g.tamanhos != m.tamanhos:
-        return None  # casal x solteiro
+        return True  # cadeira x conjunto de 6 cadeiras
+    return bool(g.cores and m.cores and not (_cobre(g.cores, m.cores) and _cobre(m.cores, g.cores)))  # Branco/Lilás x Branco
+
+
+def _nota(g, m, idf, raro, medio):
+    """None (vetado) ou (cobertura de g, cobertura de m, tem palavra forte em comum, mesmo nome)."""
+    if _vetado(g, m):
+        return None
 
     def sobra(d, outro):  # na descrição que mais bate: erro de digitação da outra não conta
         restos = [{a for a in r if not any(_iguais(a, b) for b in outro.t)} for r in (d.nome_t, d.sist_t) if r]
@@ -562,27 +612,45 @@ def _nota(g, m, idf, raro, medio):
         return None  # um modelo diferente de cada lado
     if any(idf.get(x, 0) >= medio and len(x) >= 4 for x in so_g) and any(idf.get(x, 0) >= medio and len(x) >= 4 for x in so_m):
         return None  # pedra x premium
-    peso = lambda conjunto: sum(idf.get(x, 0) for x in conjunto)
-    cobertura = lambda rep, outro: peso({a for a in rep if any(_iguais(a, b) for b in outro)}) / (peso(rep) or 1)
-    cg = max(cobertura(g.nome_t, m.t), cobertura(g.sist_t, m.t) if g.sist_t else 0)
-    cm = max(cobertura(m.nome_t, g.t), cobertura(m.sist_t, g.t) if m.sist_t else 0)
+    cg, cm = _coberturas(g, m, idf)
     comuns = {a for a in g.t if any(_iguais(a, b) for b in m.t)}
     forte = any((idf.get(x, 0) >= raro and x not in CORES and len(x) >= 3) or re.search(r"\d", x) for x in comuns)
     return cg, cm, forte, g.nome_t == m.nome_t
 
 
-def vincular_produtos(produtos, outra, lancado=None):
+def _coberturas(g, m, idf):
+    """Quanto de g está em m e de m em g (palavras raras pesam mais), na melhor descrição de cada lado."""
+    peso = lambda conjunto: sum(idf.get(x, 0) for x in conjunto)
+    cobertura = lambda rep, outro: peso({a for a in rep if any(_iguais(a, b) for b in outro)}) / (peso(rep) or 1)
+    cg = max(cobertura(g.nome_t, m.t), cobertura(g.sist_t, m.t) if g.sist_t else 0)
+    cm = max(cobertura(m.nome_t, g.t), cobertura(m.sist_t, g.t) if m.sist_t else 0)
+    return cg, cm
+
+
+JEV_ACEITA = 0.85    # sem ligação pela regra: o juiz liga sozinho com essa certeza
+JEV_DUVIDA = 0.5     # entre isto e JEV_ACEITA: vai para a lista "é o mesmo?" do administrador
+# (sem ligação: o juiz também vê candidatos com tipo ou cor diferente; o que ele escolher com JEV_DUVIDA ou
+# mais vai para a lista, nunca direto: "Air Fryer" x "Fritadeira Air Fryer", "Off White" x "Freijó/Off White")
+JEV_CONTESTA = 0.8   # ligação da regra que o juiz nega com essa certeza: vai para a lista também
+CANDIDATOS = 8       # quantos produtos da outra loja o juiz compara
+
+
+def cruzar_produtos(produtos, outra, lancado=None, julgar=None, confirmados=None):
     """Acha, para cada produto de uma loja (Igaporã), o mesmo produto na outra (Matina).
 
-    outra: produtos da outra loja, de preferência também os sem estoque (o que acabou lá). Cada produto
-    precisa de nome, nome_sistema e preco (ultima_compra desempata cadastros repetidos).
-    lancado: {código: valor lançado como custo na filial} — só uma pista a mais (igual ao preço da
-    outra loja), nunca o custo.
-    Devolve {código: código do mesmo produto na outra loja}."""
+    Três etapas: a regra (palavras, com as travas); o juiz, quando houver (`julgar`: recebe
+    [{"produto": texto, "candidatos": [textos]}] e devolve [(índice ou None para "nenhum", probabilidade)],
+    na mesma ordem — no servidor é o Jev); e as respostas do administrador (`confirmados`:
+    {código: {"sim": código da outra loja, "nao": [códigos]}}), que valem mais que tudo.
+    O código só identifica o produto dentro da própria loja: nunca entra na comparação.
+
+    Devolve {"codigos": {código: código na outra loja}, "duvidas": [{"codigo", "codigo_para", "prob"}],
+    "origem": {código: "regra" | "juiz" | "confirmado"}}."""
     import math
-    lancado = lancado or {}
+    lancado, confirmados = lancado or {}, confirmados or {}
     lado = [_Descricao(p) for p in produtos]
     outros = [_Descricao(q) for q in outra]
+    por_codigo = {d.p["codigo"]: d for d in outros}
     frequencia = collections.Counter()
     for d in lado + outros:
         frequencia.update(d.t)
@@ -595,10 +663,21 @@ def vincular_produtos(produtos, outra, lancado=None):
         for x in d.t:
             if idf[x] >= raro * 0.7:
                 indice[x].append(i)
-    vinculos = {}
+    busca = collections.defaultdict(list)   # para o juiz: quem divide qualquer palavra não muito comum
+    for i, d in enumerate(outros):
+        for x in d.t:
+            if idf[x] > 2.0:
+                busca[x].append(i)
+
+    regra, candidatos, soltos = {}, {}, {}
     for g in lado:
+        if (confirmados.get(g.p["codigo"]) or {}).get("sim") in por_codigo:
+            continue  # o administrador já disse qual é
+        recusados = set((confirmados.get(g.p["codigo"]) or {}).get("nao") or ())
         notas = []
         for i in {i for x in g.t for i in indice.get(x, ())}:
+            if outros[i].p["codigo"] in recusados:
+                continue
             r = _nota(g, outros[i], idf, raro, medio)
             if not r:
                 continue
@@ -608,15 +687,76 @@ def vincular_produtos(produtos, outra, lancado=None):
             if mesmo_nome or (cg >= 0.75 and cm >= (0.25 if forte else 0.45) and (forte or cm >= 0.75)):
                 pista = 0.05 if abs(outros[i].p["preco"] - lancado.get(g.p["codigo"], -1)) < 0.005 else 0
                 notas.append((cg + 0.25 * cm + pista, i))
-        if not notas:
+        if notas:
+            notas.sort(reverse=True)
+            empatados = [n for n in notas if notas[0][0] - n[0] < 0.03]
+            if len({tuple(sorted(outros[i].nome_t)) for _, i in empatados}) == 1:  # na dúvida, não liga
+                escolhido = max(empatados, key=lambda n: outros[n[1]].p.get("ultima_compra") or "")  # cadastro repetido: o mais recente
+                regra[g.p["codigo"]] = outros[escolhido[1]]
+        if julgar:  # os mais parecidos que passam nas travas (o da regra sempre entre eles)
+            parecidos, travados = [], []
+            for i in {i for x in g.t for i in busca.get(x, ())}:
+                m = outros[i]
+                if m.p["codigo"] in recusados or _vetado_forte(g, m):
+                    continue
+                cg, cm = _coberturas(g, m, idf)
+                (travados if _vetado(g, m) else parecidos).append((cg + 0.3 * cm, i))
+            lista = [outros[i] for _, i in sorted(parecidos, reverse=True)[:CANDIDATOS]]
+            da_regra = regra.get(g.p["codigo"])
+            if da_regra and da_regra not in lista:
+                lista = [da_regra] + lista[:CANDIDATOS - 1]
+            if lista:
+                candidatos[g.p["codigo"]] = lista
+            if not da_regra:  # sem ligação: também com tipo ou cor diferente (só para a lista do administrador)
+                solta = [outros[i] for _, i in sorted(parecidos + travados, reverse=True)[:CANDIDATOS]]
+                if solta and solta != lista:
+                    soltos[g.p["codigo"]] = solta
+
+    respostas, respostas_soltas = {}, {}
+    if julgar and (candidatos or soltos):
+        texto = {d.p["codigo"]: d.texto for d in lado}
+        perguntas = [(c, False) for c in candidatos] + [(c, True) for c in soltos]
+        pedidos = [{"produto": texto[c], "candidatos": [m.texto for m in (soltos if solto else candidatos)[c]]} for c, solto in perguntas]
+        try:
+            for (c, solto), resposta in zip(perguntas, julgar(pedidos)):
+                (respostas_soltas if solto else respostas)[c] = resposta
+        except Exception:  # juiz fora do ar: fica só a regra
+            respostas, respostas_soltas = {}, {}
+
+    resultado = {"codigos": {}, "duvidas": [], "origem": {}}
+    for g in lado:
+        codigo = g.p["codigo"]
+        confirmado = (confirmados.get(codigo) or {}).get("sim")
+        if confirmado and confirmado in por_codigo:
+            resultado["codigos"][codigo], resultado["origem"][codigo] = confirmado, "confirmado"
             continue
-        notas.sort(reverse=True)
-        empatados = [n for n in notas if notas[0][0] - n[0] < 0.03]
-        if len({tuple(sorted(outros[i].nome_t)) for _, i in empatados}) > 1:
-            continue  # dois produtos diferentes servem: na dúvida, não liga
-        escolhido = max(empatados, key=lambda n: outros[n[1]].p.get("ultima_compra") or "")  # cadastro repetido: o mais recente
-        vinculos[g.p["codigo"]] = outros[escolhido[1]].p["codigo"]
-    return vinculos
+        da_regra = regra.get(codigo)
+        resposta = respostas.get(codigo)
+        escolha = prob = None
+        if resposta and resposta[1] is not None:
+            indice_escolhido, prob = resposta
+            escolha = candidatos[codigo][indice_escolhido] if indice_escolhido is not None else None
+        if da_regra:
+            contestada = resposta and prob is not None and prob >= JEV_CONTESTA and escolha is not da_regra
+            if contestada:  # a regra ligou, o juiz discorda com certeza: o administrador decide
+                resultado["duvidas"].append({"codigo": codigo, "codigo_para": (escolha or da_regra).p["codigo"], "prob": round(prob, 2)})
+            else:
+                resultado["codigos"][codigo], resultado["origem"][codigo] = da_regra.p["codigo"], "regra"
+        elif escolha is not None and prob >= JEV_ACEITA:
+            resultado["codigos"][codigo], resultado["origem"][codigo] = escolha.p["codigo"], "juiz"
+        elif escolha is not None and prob >= JEV_DUVIDA:
+            resultado["duvidas"].append({"codigo": codigo, "codigo_para": escolha.p["codigo"], "prob": round(prob, 2)})
+        else:  # com tipo ou cor diferente: só na lista
+            indice_solto, prob_solta = respostas_soltas.get(codigo) or (None, None)
+            if indice_solto is not None and prob_solta is not None and prob_solta >= JEV_DUVIDA:
+                resultado["duvidas"].append({"codigo": codigo, "codigo_para": soltos[codigo][indice_solto].p["codigo"],
+                                             "prob": round(prob_solta, 2)})
+    return resultado
+
+
+def vincular_produtos(produtos, outra, lancado=None):
+    """Só a regra (sem juiz nem respostas do administrador): {código: código na outra loja}."""
+    return cruzar_produtos(produtos, outra, lancado)["codigos"]
 
 
 def main():

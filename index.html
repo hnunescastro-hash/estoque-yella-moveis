@@ -276,6 +276,7 @@
         <button type="button" class="botao-principal" id="admin-conferir">Conferir mudanças</button>
         <div class="admin-relatorio" id="admin-relatorio" hidden></div>
         <button type="button" class="botao-principal" id="admin-publicar" hidden>Publicar</button>
+        <button type="button" class="botao-secundario admin-iguais" id="admin-iguais" hidden>Produtos iguais</button>
         <button type="button" class="link admin-sair" id="admin-sair">Sair do modo administrador</button>
       </div>
       <p class="erro" id="admin-erro" role="alert" hidden></p>
@@ -325,6 +326,18 @@
         <button type="button" class="botao-secundario" id="comprovante-editar">Editar</button>
       </div>
       <button type="button" class="link" id="comprovante-fechar">Fechar</button>
+    </div>
+  </div>
+
+  <!-- ============ ADMINISTRADOR: é o mesmo produto nas duas lojas? ============ -->
+  <div class="modal" id="modal-iguais" role="dialog" aria-modal="true" aria-labelledby="iguais-titulo" hidden>
+    <div class="modal-caixa iguais">
+      <h2 id="iguais-titulo" tabindex="-1">Produtos iguais</h2>
+      <ul class="iguais-lista" id="iguais-lista"></ul>
+      <div class="iguais-aviso" id="iguais-aviso"></div>
+      <p class="erro" id="iguais-erro" role="alert" hidden></p>
+      <button type="button" class="botao-principal" id="iguais-publicar" hidden>Publicar respostas</button>
+      <button type="button" class="link" id="iguais-fechar">Fechar</button>
     </div>
   </div>
 

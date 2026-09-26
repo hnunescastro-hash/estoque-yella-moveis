@@ -138,6 +138,8 @@
     adminEntrar: $('admin-entrar'), chaveAdmin: $('chave-admin'), adminBotaoEntrar: $('admin-botao-entrar'),
     adminPainel: $('admin-painel'), adminArquivos: $('admin-arquivos'), adminConferir: $('admin-conferir'),
     adminRelatorio: $('admin-relatorio'), adminPublicar: $('admin-publicar'), adminSair: $('admin-sair'), adminErro: $('admin-erro'),
+    adminIguais: $('admin-iguais'), modalIguais: $('modal-iguais'), iguaisTitulo: $('iguais-titulo'), iguaisAviso: $('iguais-aviso'),
+    iguaisLista: $('iguais-lista'), iguaisErro: $('iguais-erro'), iguaisPublicar: $('iguais-publicar'), iguaisFechar: $('iguais-fechar'),
     modalNome: $('modal-nome'), formNome: $('form-nome'), nomeInicial: $('nome-inicial'), nomeErro: $('nome-erro'),
     telaEstoque: $('tela-estoque'), telaAnunciados: $('tela-anunciados'),
     filtrosStatus: $('filtros-status'), listaAnunciados: $('lista-anunciados'),
@@ -2387,6 +2389,7 @@
     el.adminEntrar.hidden = Boolean(chaveAdmin);
     el.adminPainel.hidden = !chaveAdmin;
     if (chaveAdmin) montarArquivosAdmin();
+    carregarIguais();
   }
 
   // Um campo de arquivo para cada loja (a que tem arquivo de dados) e, na loja com lista de produtos
@@ -2465,6 +2468,9 @@
 
   function sairAdmin() {
     salvarChaveAdmin('');
+    iguais.duvidas = [];
+    iguais.respondidas = 0;
+    fecharIguais();
     estado.custos = null;
     estado.origemCustos = null;
     atualizarDetalhes();
@@ -2547,6 +2553,7 @@
         el.adminRelatorio.insertAdjacentHTML('afterbegin', aviso);
         if (relatorio.publicado) acompanharPublicacao(relatorio.lojas.filter((l) => l.arquivo_muda));
         carregarCustos(); // o preço de compra pode ter mudado com o relatório novo
+        carregarIguais(); // e o cruzamento com a outra loja foi refeito
       } else {
         mostrarRelatorio(relatorio);
       }
@@ -2564,7 +2571,7 @@
   }
 
   // Depois de publicar, confere até o site mostrar os dados novos e já troca na tela.
-  async function acompanharPublicacao(publicadas) {
+  async function acompanharPublicacao(publicadas, aviso = el.adminRelatorio) {
     const pendentes = new Map(publicadas.map((l) => [l.arquivo || lojaPorId(l.id).arquivo, l]));
     for (let tentativa = 0; tentativa < 24 && pendentes.size; tentativa += 1) {
       await new Promise((pronto) => { setTimeout(pronto, 10000); });
@@ -2584,7 +2591,132 @@
     estado.vinculos = null;
     montarAdmin();
     await carregarLoja(estado.lojaId);
-    el.adminRelatorio.insertAdjacentHTML('afterbegin', '<p class="relatorio-resultado">Site atualizado.</p>');
+    aviso.insertAdjacentHTML('afterbegin', '<p class="relatorio-resultado">Site atualizado.</p>');
+  }
+
+  // ---------------------------------------------------------------- administrador: mesmo produto nas duas lojas
+  // O servidor liga sozinho o que tem certeza (regra e juiz). O que o juiz achou provável, mas não certo, ou em
+  // que discordou da regra, vem para esta lista; a resposta do administrador vale para sempre.
+
+  const iguais = { duvidas: [], respondidas: 0 };
+
+  function erroIguais(texto) {
+    el.iguaisErro.textContent = texto || '';
+    el.iguaisErro.hidden = !texto;
+  }
+
+  function mostrarBotaoIguais() {
+    el.adminIguais.hidden = !chaveAdmin || !(iguais.duvidas.length || iguais.respondidas);
+    el.adminIguais.textContent = `Produtos iguais (${numero.format(iguais.duvidas.length)})`;
+    el.iguaisPublicar.hidden = !iguais.respondidas;
+    el.iguaisPublicar.textContent = `Publicar respostas (${numero.format(iguais.respondidas)})`;
+  }
+
+  async function carregarIguais() {
+    if (!chaveAdmin) {
+      mostrarBotaoIguais();
+      return;
+    }
+    try {
+      const resposta = await chamarServidor('/api/vinculos/duvidas', { chave: chaveAdmin });
+      iguais.duvidas = resposta.duvidas || [];
+      iguais.respondidas = resposta.respondidas || 0;
+    } catch (erro) {
+      return; // sem conexão: fica o que já estava
+    }
+    mostrarBotaoIguais();
+    if (!el.modalIguais.hidden) montarIguais();
+  }
+
+  function ladoIgualHTML(lojaId, p, semEstoque) {
+    const loja = lojaPorId(lojaId);
+    return `<div class="igual-lado">`
+      + `<span class="igual-loja">${escapar(loja ? loja.nome : lojaId)}${semEstoque ? ' · sem estoque' : ''}</span>`
+      + `<strong class="igual-nome">${escapar(p.nome)}</strong>`
+      + (p.sistema ? `<span class="igual-sistema">${escapar(p.sistema)}</span>` : '')
+      + `<span class="igual-preco">${reais(Math.round(p.preco * 100))}</span></div>`;
+  }
+
+  function montarIguais() {
+    el.iguaisLista.innerHTML = iguais.duvidas.length
+      ? iguais.duvidas.map((d) => `<li class="igual" data-loja="${escapar(d.loja)}" data-codigo="${escapar(d.codigo)}">`
+        + ladoIgualHTML(d.loja, d.de) + ladoIgualHTML(d.outra, d.para, d.para.sem_estoque)
+        + '<div class="igual-acoes"><button type="button" class="botao-secundario" data-resposta="nao">Não é</button>'
+        + '<button type="button" class="botao-principal" data-resposta="sim">É o mesmo</button></div></li>').join('')
+      : '<li class="relatorio-nada">Nada para conferir</li>';
+    mostrarBotaoIguais();
+  }
+
+  function abrirIguais() {
+    erroIguais('');
+    el.iguaisAviso.innerHTML = '';
+    montarIguais();
+    el.modalIguais.hidden = false;
+    el.modalIguais.scrollTop = 0;
+    el.gaveta.inert = true; // a lista abre por cima da gaveta
+    el.iguaisTitulo.focus({ preventScroll: true });
+  }
+
+  function fecharIguais() {
+    if (el.modalIguais.hidden) return;
+    el.modalIguais.hidden = true;
+    el.gaveta.inert = false;
+    if (!el.adminIguais.hidden) el.adminIguais.focus();
+  }
+
+  async function responderIgual(botao) {
+    const item = botao.closest('.igual');
+    const d = iguais.duvidas.find((x) => x.loja === item.dataset.loja && x.codigo === item.dataset.codigo);
+    if (!d) return;
+    const botoes = [...item.querySelectorAll('button')];
+    if (botoes.some((b) => b.disabled)) return;
+    botoes.forEach((b) => { b.disabled = true; });
+    erroIguais('');
+    try {
+      const resposta = await chamarServidor('/api/vinculos/responder', {
+        chave: chaveAdmin, loja: d.loja, codigo: d.codigo, codigo_para: d.codigo_para, resposta: botao.dataset.resposta,
+      });
+      iguais.duvidas = iguais.duvidas.filter((x) => x !== d);
+      iguais.respondidas = resposta.respondidas;
+      const proximo = item.nextElementSibling || item.previousElementSibling;
+      item.remove();
+      if (!iguais.duvidas.length) montarIguais(); // "nada para conferir"
+      else if (proximo) proximo.querySelector('button').focus({ preventScroll: true });
+      mostrarBotaoIguais();
+    } catch (erro) {
+      if (erro.status === 401) {
+        sairAdmin();
+        erroAdmin(erro.message);
+        return;
+      }
+      botoes.forEach((b) => { b.disabled = false; });
+      erroIguais(erro.message);
+    }
+  }
+
+  async function publicarIguais() {
+    erroIguais('');
+    ocupado(el.iguaisPublicar, 'Publicando…');
+    let resposta = null;
+    try {
+      resposta = await chamarServidor('/api/vinculos/publicar', { chave: chaveAdmin, autor: estado.nome });
+    } catch (erro) {
+      if (erro.status === 401) {
+        ocupado(el.iguaisPublicar);
+        sairAdmin();
+        erroAdmin(erro.message);
+        return;
+      }
+      erroIguais(erro.message);
+    }
+    ocupado(el.iguaisPublicar);
+    if (!resposta) return;
+    el.iguaisAviso.innerHTML = resposta.publicado
+      ? '<p class="relatorio-resultado">Publicado. O site atualiza para todos em cerca de 1 minuto.</p>'
+      : '<p class="relatorio-nada">Nada novo para publicar.</p>';
+    if (resposta.publicado) acompanharPublicacao([{ arquivo: resposta.arquivo, hash: resposta.hash }], el.iguaisAviso);
+    carregarCustos(); // o preço de compra de Igaporã muda com as respostas
+    carregarIguais(); // a lista recomeça (e pode ter sugestão nova para quem recebeu "não é")
   }
 
   // Vendedor com a página aberta: ao voltar para ela, confere se o estoque foi atualizado.
@@ -2705,7 +2837,8 @@
   el.camadaGaveta.addEventListener('click', fecharGaveta);
   document.addEventListener('keydown', (evento) => {
     if (evento.key !== 'Escape') return;
-    if (!el.modalComprovante.hidden) fecharComprovante();
+    if (!el.modalIguais.hidden) fecharIguais();
+    else if (!el.modalComprovante.hidden) fecharComprovante();
     else if (!el.modalVenda.hidden) fecharVenda();
     else if (!el.gaveta.hidden) fecharGaveta();
   });
@@ -3007,6 +3140,13 @@
   el.adminSair.addEventListener('click', sairAdmin);
   el.adminConferir.addEventListener('click', () => enviarRelatorios(false));
   el.adminPublicar.addEventListener('click', () => enviarRelatorios(true));
+  el.adminIguais.addEventListener('click', abrirIguais);
+  el.iguaisFechar.addEventListener('click', fecharIguais);
+  el.iguaisPublicar.addEventListener('click', publicarIguais);
+  el.iguaisLista.addEventListener('click', (evento) => {
+    const botao = evento.target.closest('[data-resposta]');
+    if (botao) responderIgual(botao);
+  });
   el.adminArquivos.addEventListener('change', (evento) => {
     const campo = evento.target.closest('input[type="file"]');
     if (!campo) return;

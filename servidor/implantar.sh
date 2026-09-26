@@ -7,7 +7,8 @@
 # Monta uma pasta só com o necessário (app.py + o mesmo código de leitura do relatório do
 # comando de terminal): nenhum relatório bruto do sistema (que tem custo de compra) vai junto.
 # As credenciais vêm do Secret Manager (cópia do Bitwarden): estoque-yella-chave-admin,
-# estoque-yella-chave-equipe (código dos vendedores) e estoque-yella-deploy-key.
+# estoque-yella-chave-equipe (código dos vendedores), estoque-yella-deploy-key e
+# estoque-yella-openrouter (juiz do cruzamento Matina x Igaporã).
 set -eu
 
 PROJETO="${PROJETO:-estoque-yella}"
@@ -26,5 +27,5 @@ gcloud run deploy "$SERVICO" --source "$PASTA" \
   --memory 512Mi --cpu 1 --timeout 180 --concurrency 4 \
   --min-instances 0 --max-instances 2 \
   --set-env-vars "RAMO=$RAMO,BALDE_PRIVADO=estoque-yella-privado" \
-  --set-secrets "CHAVE_ADMIN=estoque-yella-chave-admin:latest,CHAVE_EQUIPE=estoque-yella-chave-equipe:latest,DEPLOY_KEY=estoque-yella-deploy-key:latest" \
+  --set-secrets "CHAVE_ADMIN=estoque-yella-chave-admin:latest,CHAVE_EQUIPE=estoque-yella-chave-equipe:latest,DEPLOY_KEY=estoque-yella-deploy-key:latest,OPENROUTER_API_KEY=estoque-yella-openrouter:latest" \
   --allow-unauthenticated --quiet

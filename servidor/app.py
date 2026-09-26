@@ -8,6 +8,9 @@ A página chama este servidor quando um administrador envia os relatórios do Co
                         publicar=1                 -> e publica no GitHub (o site atualiza para todos)
                         confirmar_queda=1          -> publica mesmo com muitos produtos saindo de uma vez
   POST /api/custos      chave                      -> preço de compra de cada produto (só administrador)
+  POST /api/vinculos/duvidas    chave              -> lista "é o mesmo produto?" (Igaporã x Matina)
+  POST /api/vinculos/responder  chave, loja, codigo, codigo_para, resposta ("sim"/"nao") -> vale para sempre
+  POST /api/vinculos/publicar   chave              -> refaz o cruzamento com as respostas e publica
   POST /api/equipe      codigo                     -> confere o código da equipe (vendedores)
   POST /api/clientes/buscar  codigo, termo         -> clientes cadastrados cujo nome começa com o termo
   POST /api/clientes/salvar  codigo, cliente       -> cadastra ou atualiza (vale a última atualização)
@@ -24,6 +27,7 @@ só saem para quem tem o código da equipe (ou a chave de administrador).
 Variáveis de ambiente (as três primeiras vêm do Secret Manager, nunca do código):
   CHAVE_ADMIN   chave de administrador
   CHAVE_EQUIPE  código da equipe (vendedores: clientes compartilhados)
+  OPENROUTER_API_KEY  juiz do cruzamento Matina x Igaporã (Jev, da TypeSafe, pela OpenRouter)
   DEPLOY_KEY    chave SSH que só pode escrever neste repositório
   REPO          repositório (padrão: git@github.com:hnunescastro-hash/estoque-yella-moveis.git)
   RAMO          ramo publicado (padrão: main)
@@ -42,7 +46,9 @@ import subprocess
 import tempfile
 import threading
 import time
+import urllib.request
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date
 from pathlib import Path
 
@@ -53,6 +59,7 @@ import atualizar_estoque as ae
 
 CHAVE_ADMIN = os.environ.get("CHAVE_ADMIN", "")
 CHAVE_EQUIPE = os.environ.get("CHAVE_EQUIPE", "")
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")  # juiz do cruzamento (Jev); sem ela, só a regra
 REPO = os.environ.get("REPO", "git@github.com:hnunescastro-hash/estoque-yella-moveis.git")
 RAMO = os.environ.get("RAMO", "main")
 ORIGENS = {o.strip() for o in os.environ.get("ORIGENS", "https://hnunescastro-hash.github.io").split(",") if o.strip()}
@@ -143,6 +150,9 @@ def publicar(arquivos, mensagem):
 # referencia/<loja>.json todos os produtos do último relatório do estoque (para achar o mesmo produto)
 # custos-sem-estoque/<loja>.json e referencia-sem-estoque/<loja>.json: o mesmo, dos produtos sem estoque
 # clientes/clientes.json clientes das vendas, compartilhados entre os vendedores
+# cruzamento/confirmados-<loja>.json respostas do administrador {código: {"sim": código, "nao": [códigos]}}
+# cruzamento/duvidas-<loja>.json     lista "é o mesmo produto?" {"duvidas": [...], "respondidas": n}
+# jev/cache.json         respostas do juiz do cruzamento (a mesma pergunta não é paga de novo)
 
 _trava_local = threading.Lock()
 
@@ -196,6 +206,20 @@ def salvar_custos(loja_id, custos):
     gravar_privado(f"custos/{loja_id}.json", custos)
 
 
+def alterar_privado(caminho, mudar):
+    """Lê, muda (mudar recebe os dados ou None e devolve os novos) e grava sem apagar o que outro
+    pedido gravou no meio."""
+    for tentativa in range(6):
+        dados, versao = ler_privado(caminho)
+        novo = mudar(dados)
+        try:
+            gravar_privado(caminho, novo, versao)
+            return novo
+        except Conflito:
+            time.sleep(0.2 * (tentativa + 1))
+    raise Recusado("Não foi possível salvar agora. Tente de novo.", 503)
+
+
 def ler_todos(prefixo):
     resultado = {}
     if BALDE_PRIVADO:
@@ -225,6 +249,82 @@ def custos_para_a_pagina():
         custos[loja_id] = {c: da_outra[o] for c, o in codigos.items() if o in da_outra}
         origem[loja_id] = {"loja": outra, "codigos": {c: o for c, o in codigos.items() if o in da_outra}}
     return custos, origem
+
+
+# ---------------------------------------------------------------- juiz do cruzamento (Jev)
+# Para cada produto de Igaporã, a regra separa os produtos de Matina mais parecidos que passam nas travas e
+# o Jev (modelo de decisão da TypeSafe, pela OpenRouter) escolhe qual é o mesmo, ou "nenhum", com uma
+# probabilidade. Cada pergunta é guardada (jev/cache.json): a mesma pergunta não é paga de novo.
+
+JEV_MODELO = "typesafe/jev-1.13"
+JEV_URL = "https://openrouter.ai/api/alpha/decisions"
+JEV_OBSERVACAO = ("Igaporã recebe tudo do depósito de Matina; as descrições foram digitadas por pessoas diferentes, "
+                  "com abreviações, palavras cortadas em 45 letras e erros de digitação. O preço pode diferir um "
+                  "pouco entre as lojas.")
+JEV_PERGUNTA = ("Qual candidato de Matina é exatamente o mesmo produto de Igaporã (mesmo tipo, mesmo modelo/linha, "
+                "mesma medida/tamanho e mesma cor quando as duas descrições informam)? Abreviação, palavra cortada, "
+                "erro de digitação ou marca/linha escrita só numa delas não tornam o produto diferente.")
+JEV_NENHUM = ("Nenhum dos candidatos é o mesmo produto (tipo, modelo/linha, medida ou cor diferente, ou produto "
+              "genérico demais para ter certeza).")
+
+
+JEV_PRAZO = 70   # segundos para todas as perguntas de uma publicação; o que faltar fica para a próxima
+JEV_FALHAS = 12  # a OpenRouter falhou tantas vezes: para de perguntar (fica só a regra)
+
+
+def _jev(pedido):
+    """[índice escolhido ou -1 para "nenhum", probabilidade], custo em dólares."""
+    criterios = {f"c{i + 1}": texto for i, texto in enumerate(pedido["candidatos"])}
+    criterios["nenhum"] = JEV_NENHUM
+    corpo = {"model": JEV_MODELO, "state": {"produto_igapora": pedido["produto"], "observacao": JEV_OBSERVACAO},
+             "questions": {"mesmo": {"type": "choice", "instructions": JEV_PERGUNTA, "criteria": criterios}}}
+    req = urllib.request.Request(JEV_URL, data=json.dumps(corpo).encode(), method="POST", headers={
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}", "Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=25) as r:
+        resposta = json.loads(r.read())
+    a = resposta["answers"]["mesmo"]
+    escolha = a["choice"]
+    prob = float(a["probabilities"].get(escolha, 0.0))
+    custo = float((resposta.get("usage") or {}).get("cost") or 0)
+    return [-1 if escolha == "nenhum" else int(escolha[1:]) - 1, round(prob, 4)], custo
+
+
+def julgar_com_jev(pedidos):
+    """[{"produto", "candidatos"}] -> [(índice ou None para "nenhum", probabilidade)]; (None, None) se não deu."""
+    cache = ler_privado("jev/cache.json", {})[0] or {}
+    chaves = [hashlib.sha256((p["produto"] + "\n" + "\n".join(p["candidatos"])).encode()).hexdigest() for p in pedidos]
+    faltando = [(c, p) for c, p in zip(chaves, pedidos) if c not in cache]
+    prazo, falhas, custo = time.time() + JEV_PRAZO, [0], [0.0]
+
+    def perguntar(item):
+        chave, pedido = item
+        if time.time() > prazo or falhas[0] >= JEV_FALHAS:
+            return chave, None
+        try:
+            resposta, gasto = _jev(pedido)
+            custo[0] += gasto
+            return chave, resposta
+        except Exception as erro:  # sem resposta: esse produto fica só com a regra desta vez
+            falhas[0] += 1
+            app.logger.warning("jev: %s", type(erro).__name__)
+            return chave, None
+    if faltando:
+        respondidas = 0
+        with ThreadPoolExecutor(max_workers=8) as grupo:
+            for chave, resposta in grupo.map(perguntar, faltando):
+                if resposta is not None:
+                    cache[chave] = resposta
+                    respondidas += 1
+        app.logger.warning("jev: %d perguntas novas, %d respondidas, US$ %.4f", len(faltando), respondidas, custo[0])
+    try:  # guarda só as perguntas de agora (as de produtos que mudaram não voltam)
+        gravar_privado("jev/cache.json", {c: cache[c] for c in chaves if c in cache})
+    except Exception:  # cache é só economia: se não gravar, pergunta de novo na próxima
+        app.logger.warning("jev: cache não gravado")
+    saida = []
+    for chave in chaves:
+        r = cache.get(chave)
+        saida.append((None if r[0] < 0 else r[0], r[1]) if r else (None, None))
+    return saida
 
 
 # ---------------------------------------------------------------- regras
@@ -279,12 +379,12 @@ def processar(pasta, envios, vincular=False):
     outra loja (Matina), com os produtos com e sem estoque de lá.
 
     Devolve: resultado (para a tela), arquivos (para o GitHub) e, para o armazenamento privado,
-    custos, custos_sem_estoque, referencias, referencias_sem_estoque e vinculos."""
+    custos, custos_sem_estoque, referencias, referencias_sem_estoque, vinculos e duvidas."""
     correcoes = ler_json(pasta, "ferramentas/correcoes.json")
     lojas = ler_json(pasta, "dados/lojas.json", {"lojas": []})
     por_id = {l["id"]: l for l in lojas["lojas"]}
     r = {"resultado": [], "arquivos": {}, "custos": {}, "custos_sem_estoque": {}, "referencias": {},
-         "referencias_sem_estoque": {}, "vinculos": {}}
+         "referencias_sem_estoque": {}, "vinculos": {}, "duvidas": {}}
     saidas, enviados_sem_estoque = {}, {}
     for loja_id, tipo, conteudo in envios:
         loja = por_id.get(loja_id)
@@ -397,19 +497,35 @@ def processar(pasta, envios, vincular=False):
                 "meses": ae.MESES_SEM_ESTOQUE,
             })
 
-    enviadas = set(saidas) | set(enviados_sem_estoque)
-    pares = []  # público: o mesmo produto nas duas lojas (nome, fornecedor e fotos de Matina valem para Igaporã)
-    for loja_id, outra in ae.CUSTO_PELA_LOJA.items() if vincular else ():
-        if not ({loja_id, outra} & enviadas) or loja_id not in por_id or outra not in por_id:
+    if vincular:
+        vincular_lojas(pasta, por_id, r, saidas, enviadas=set(saidas) | set(enviados_sem_estoque))
+    return r
+
+
+def vincular_lojas(pasta, por_id, r, saidas=None, enviadas=None):
+    """Acha, para a loja que tira o custo de outra (Igaporã), o mesmo produto na outra (Matina), com os
+    produtos com e sem estoque de lá: a regra, o juiz (Jev) e as respostas do administrador.
+
+    Preenche r["vinculos"] (privado: códigos, para o custo), r["duvidas"] (privado: a lista "é o mesmo
+    produto?") e r["arquivos"]["dados/vinculos.json"] (público: nome, fornecedor e fotos de Matina valem
+    para Igaporã; sem custo). enviadas: só quando uma das duas lojas mandou relatório (None: sempre)."""
+    saidas = saidas or {}
+    pares = []
+    for loja_id, outra in ae.CUSTO_PELA_LOJA.items():
+        if (enviadas is not None and not ({loja_id, outra} & enviadas)) or loja_id not in por_id or outra not in por_id:
             continue
         produtos = (saidas.get(loja_id) or ler_json(pasta, por_id[loja_id]["arquivo"], {"produtos": []}))["produtos"]
+        em_estoque = {p["codigo"] for p in (saidas.get(outra) or ler_json(pasta, por_id[outra]["arquivo"], {"produtos": []}))["produtos"]}
         # a outra loja com os produtos com e sem estoque (o que acabou lá pode estar aqui); um por código
         com = (r["referencias"].get(outra) or ler_privado(f"referencia/{outra}.json")[0]
                or ler_json(pasta, por_id[outra]["arquivo"], {"produtos": []})["produtos"])
         sem = r["referencias_sem_estoque"].get(outra) or ler_privado(f"referencia-sem-estoque/{outra}.json")[0] or []
         da_outra = {**{x["codigo"]: x for x in sem}, **{x["codigo"]: x for x in com}}
         lancado = r["custos"][loja_id] if loja_id in r["custos"] else ler_privado(f"custos/{loja_id}.json", {})[0]
-        codigos = ae.vincular_produtos(produtos, list(da_outra.values()), lancado)
+        confirmados = ler_privado(f"cruzamento/confirmados-{loja_id}.json", {})[0] or {}
+        cruzado = ae.cruzar_produtos(produtos, list(da_outra.values()), lancado,
+                                     julgar=julgar_com_jev if OPENROUTER_API_KEY else None, confirmados=confirmados)
+        codigos = cruzado["codigos"]
         r["vinculos"][loja_id] = {"loja": outra, "codigos": codigos}
         deste = {p["codigo"]: p for p in produtos}
         for codigo, codigo_outra in sorted(codigos.items()):
@@ -417,12 +533,26 @@ def processar(pasta, envios, vincular=False):
             pares.append({"de": loja_id, "codigo": codigo, "sistema": deste[codigo].get("nome_sistema", ""),
                           "para": outra, "codigo_para": codigo_outra, "nome": q["nome"], "sistema_para": q.get("nome_sistema", ""),
                           "fornecedor": q.get("fornecedor", ""), **({"busca_foto": q["busca_foto"]} if q.get("busca_foto") else {})})
+        resumo = lambda p: {"nome": p["nome"], "sistema": p.get("nome_sistema", ""), "preco": p.get("preco") or 0}
+        r["duvidas"][loja_id] = sorted((
+            {"codigo": d["codigo"], "codigo_para": d["codigo_para"], "prob": d["prob"], "de": resumo(deste[d["codigo"]]),
+             "para": {**resumo(da_outra[d["codigo_para"]]), "sem_estoque": d["codigo_para"] not in em_estoque}}
+            for d in cruzado["duvidas"]), key=lambda d: (ae.sem_acento(d["de"]["nome"]).lower(), d["codigo"]))
     if r["vinculos"]:
         texto = ae.texto_json({"pares": pares})
         caminho = Path(pasta) / "dados/vinculos.json"
         if not caminho.exists() or caminho.read_text(encoding="utf-8") != texto:
             r["arquivos"]["dados/vinculos.json"] = texto
     return r
+
+
+def guardar_vinculos(r):
+    """Grava no armazenamento privado o cruzamento feito por vincular_lojas (a lista "é o mesmo produto?"
+    recomeça: as respostas dadas já estão nele)."""
+    for loja_id, vinculo in r["vinculos"].items():
+        gravar_privado(f"vinculos/{loja_id}.json", vinculo)
+    for loja_id, duvidas in r["duvidas"].items():
+        gravar_privado(f"cruzamento/duvidas-{loja_id}.json", {"duvidas": duvidas, "respondidas": 0})
 
 
 # ---------------------------------------------------------------- rotas
@@ -508,11 +638,11 @@ def atualizar():
             gravar_privado(f"referencia/{loja_id}.json", lista)
         for loja_id, lista in r["referencias_sem_estoque"].items():
             gravar_privado(f"referencia-sem-estoque/{loja_id}.json", lista)
-        for loja_id, vinculo in r["vinculos"].items():
-            gravar_privado(f"vinculos/{loja_id}.json", vinculo)
+        guardar_vinculos(r)
         if arquivos:
             autor = " ".join((request.form.get("autor") or "").split())[:60]
-            nomes = " e ".join(l["loja"] for l in lojas if l["arquivo_muda"]) or "produtos sem estoque"
+            nomes = " e ".join(l["loja"] for l in lojas if l["arquivo_muda"]) or (
+                "produtos iguais entre as lojas" if "dados/vinculos.json" in arquivos else "produtos sem estoque")
             mensagem = f"Atualiza estoque: {nomes}" + (f" (enviado por {autor})" if autor else "")
             resposta["commit"] = publicar(arquivos, mensagem)
             resposta["publicado"] = resposta["commit"] is not None
@@ -526,6 +656,85 @@ def preco_de_compra():
     exigir_chave()
     custos, origem = custos_para_a_pagina()
     return jsonify(ok=True, custos=custos, origem=origem)
+
+
+# ---------------------------------------------------------------- mesmo produto nas duas lojas: respostas do administrador
+
+@app.route("/api/vinculos/duvidas", methods=["POST", "OPTIONS"])
+def duvidas_dos_vinculos():
+    """A lista "é o mesmo produto?": o juiz achou provável, mas não certo (ou discordou da regra)."""
+    if request.method == "OPTIONS":
+        return "", 204
+    exigir_chave()
+    duvidas, respondidas = [], 0
+    for loja_id, outra in ae.CUSTO_PELA_LOJA.items():
+        registro = ler_privado(f"cruzamento/duvidas-{loja_id}.json")[0] or {}
+        duvidas += [{**d, "loja": loja_id, "outra": outra} for d in registro.get("duvidas", [])]
+        respondidas += registro.get("respondidas", 0)
+    return jsonify(ok=True, duvidas=duvidas, respondidas=respondidas)
+
+
+@app.route("/api/vinculos/responder", methods=["POST", "OPTIONS"])
+def responder_vinculo():
+    """Sim ou não do administrador: vale para sempre, acima da regra e do juiz. Entra no site ao
+    publicar as respostas (ou com o próximo relatório)."""
+    if request.method == "OPTIONS":
+        return "", 204
+    exigir_chave()
+    dados = request.get_json(silent=True) or {}
+    loja_id, codigo, para, resposta = (_texto(dados.get(k), 40) for k in ("loja", "codigo", "codigo_para", "resposta"))
+    if loja_id not in ae.CUSTO_PELA_LOJA or not codigo or not para or resposta not in ("sim", "nao"):
+        raise Recusado("Resposta inválida.")
+
+    def confirmar(confirmados):
+        confirmados = confirmados or {}
+        item = confirmados.get(codigo) or {}
+        nao = [c for c in item.get("nao", []) if c != para]
+        if resposta == "sim":
+            item["sim"] = para
+        else:
+            nao.append(para)
+            if item.get("sim") == para:
+                del item["sim"]
+        if nao:
+            item["nao"] = nao
+        else:
+            item.pop("nao", None)
+        confirmados[codigo] = item
+        return confirmados
+
+    def tirar_da_lista(registro):
+        registro = registro or {"duvidas": [], "respondidas": 0}
+        registro["duvidas"] = [d for d in registro.get("duvidas", []) if d["codigo"] != codigo]
+        registro["respondidas"] = registro.get("respondidas", 0) + 1
+        return registro
+    alterar_privado(f"cruzamento/confirmados-{loja_id}.json", confirmar)
+    registro = alterar_privado(f"cruzamento/duvidas-{loja_id}.json", tirar_da_lista)
+    return jsonify(ok=True, respondidas=registro["respondidas"])
+
+
+@app.route("/api/vinculos/publicar", methods=["POST", "OPTIONS"])
+def publicar_vinculos():
+    """Refaz o cruzamento com as respostas do administrador e publica, sem precisar de relatório novo."""
+    if request.method == "OPTIONS":
+        return "", 204
+    exigir_chave()
+    r = {"arquivos": {}, "custos": {}, "referencias": {}, "referencias_sem_estoque": {}, "vinculos": {}, "duvidas": {}}
+    pasta = clonar()
+    try:
+        por_id = {l["id"]: l for l in ler_json(pasta, "dados/lojas.json", {"lojas": []})["lojas"]}
+        vincular_lojas(pasta, por_id, r)
+    finally:
+        shutil.rmtree(pasta, ignore_errors=True)
+    guardar_vinculos(r)
+    commit = None
+    texto = r["arquivos"].get("dados/vinculos.json")
+    if texto:
+        autor = " ".join(str((request.get_json(silent=True) or {}).get("autor") or "").split())[:60]
+        commit = publicar(r["arquivos"], "Atualiza produtos iguais entre as lojas" + (f" (enviado por {autor})" if autor else ""))
+    return jsonify(ok=True, publicado=commit is not None, commit=commit,
+                   ligados=sum(len(v["codigos"]) for v in r["vinculos"].values()),
+                   arquivo="dados/vinculos.json", hash=hashlib.sha256(texto.encode("utf-8")).hexdigest() if texto else None)
 
 
 # ---------------------------------------------------------------- clientes das vendas (compartilhados)

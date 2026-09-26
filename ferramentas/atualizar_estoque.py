@@ -286,8 +286,10 @@ def formatar_quantidade(valor):
 def montar_loja(loja_id, conteudo, correcoes, lojas, nome=None, uf=None, anterior=None):
     """Lê o relatório (texto) e monta os dados da loja, sem gravar nada.
 
-    anterior: os dados publicados antes (dados/<loja>.json). Produto que não estava lá ganha
-    "novo_desde" (data do relatório), que a página mostra como etiqueta "Novo" por alguns dias.
+    anterior: os dados publicados antes (dados/<loja>.json). Produto que não estava lá e foi comprado
+    há pouco (última compra até NOVO_POR_DIAS antes do relatório) ganha "novo_desde" (data do
+    relatório), que a página mostra como etiqueta "Novo" por alguns dias. Produto antigo que só não
+    vinha no relatório anterior não é novo.
 
     Devolve um dicionário com: saida (conteúdo de dados/<loja>.json), registro (entrada de
     dados/lojas.json), cidade e gerado_em do relatório, revisar (nomes com correção automática),
@@ -344,8 +346,10 @@ def montar_loja(loja_id, conteudo, correcoes, lojas, nome=None, uf=None, anterio
             produto["busca_foto"] = termo_foto
         if anteriores is not None:
             velho = anteriores.get(linha["codigo"])
+            comprado = produto["ultima_compra"]
             if velho is None:
-                produto["novo_desde"] = referencia.isoformat()
+                if comprado and (referencia - date.fromisoformat(comprado)).days <= NOVO_POR_DIAS:
+                    produto["novo_desde"] = referencia.isoformat()
             elif velho.get("novo_desde") and (referencia - date.fromisoformat(velho["novo_desde"])).days <= NOVO_POR_DIAS:
                 produto["novo_desde"] = velho["novo_desde"]
         produtos.append(produto)

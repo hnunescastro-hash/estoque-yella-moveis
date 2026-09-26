@@ -132,7 +132,7 @@
     comprovanteImagemBaixar: $('comprovante-imagem-baixar'), comprovantePdf: $('comprovante-pdf'),
     comprovanteEditar: $('comprovante-editar'), comprovanteFechar: $('comprovante-fechar'),
     barraResultados: $('barra-resultados'), selecionar: $('selecionar'), barraSelecao: $('barra-selecao'),
-    selecionarAnuncios: $('selecionar-anuncios'),
+    selecionarAnuncios: $('selecionar-anuncios'), barraAnuncios: $('barra-anuncios'),
     selecaoCancelar: $('selecao-cancelar'), selecaoTexto: $('selecao-texto'), selecaoEnviar: $('selecao-enviar'),
     adminEntrar: $('admin-entrar'), chaveAdmin: $('chave-admin'), adminBotaoEntrar: $('admin-botao-entrar'),
     adminPainel: $('admin-painel'), adminArquivos: $('admin-arquivos'), adminConferir: $('admin-conferir'),
@@ -1874,6 +1874,7 @@
   // Seleção de vários anunciados: tocar no status de um dos marcados muda todos.
   function atualizarSelecaoAnuncios() {
     el.selecionarAnuncios.hidden = estado.selecionandoAnuncios || el.listaAnunciados.children.length < 2;
+    el.barraAnuncios.hidden = el.selecionarAnuncios.hidden; // mesmo lugar do Estoque: logo acima da lista
     atualizarBarraSelecao();
   }
 

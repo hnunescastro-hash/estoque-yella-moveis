@@ -121,10 +121,6 @@
     <div class="painel painel-anunciados">
       <div class="anunciados-topo">
         <h2>Anunciados</h2>
-        <button type="button" class="selecionar" id="selecionar-anuncios" hidden>
-          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><path d="m8 12.3 2.8 2.8L16.5 9"/></svg>
-          Selecionar
-        </button>
       </div>
       <nav class="atalhos filtros-status" id="filtros-status" aria-label="Filtrar por status do pedido"></nav>
     </div>
@@ -138,6 +134,12 @@
         </div>
         <button type="button" class="mes-seta" id="mes-proximo" aria-label="Próximo mês"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
       </section>
+      <div class="barra-resultados" id="barra-anuncios" hidden>
+        <button type="button" class="selecionar" id="selecionar-anuncios" hidden>
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><path d="m8 12.3 2.8 2.8L16.5 9"/></svg>
+          Selecionar
+        </button>
+      </div>
       <ul class="lista" id="lista-anunciados"></ul>
       <section class="vazio" id="vazio-anunciados" hidden>
         <p class="vazio-titulo">Nenhum produto anunciado</p>

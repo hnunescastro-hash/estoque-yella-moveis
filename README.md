@@ -191,9 +191,17 @@ No modo administrador, o botão **Relatório de vendas** abre uma página só pa
   fechou, até o mesmo dia), lucro bruto (faturamento − custo, com a margem e, se houver, o imposto de saída),
   número de vendas (notas), itens, ticket médio e quanto foi à vista e a prazo.
 - **Gráfico:** faturamento por ano, mês ou dia; tocando numa barra, abre aquele período. "Ver em tabela" mostra os valores.
+- **Época do ano** (em "Tudo"): a média de faturamento de cada mês do calendário, só com os meses completos,
+  e quais são os meses mais fortes e os mais fracos (para planejar compras e promoções).
+- **Dia da semana:** quanto cada dia vendeu no período e qual vende mais.
+- **Categorias:** faturamento por tipo de produto (guarda-roupas, colchões, geladeiras…), pela primeira palavra do
+  nome. Tocando numa categoria, a lista de mais vendidos mostra só ela.
 - **Mais vendidos** do período, por quantidade ou por faturamento, com o estoque atual de cada um
   (e o aviso de quantos dos primeiros estão sem estoque, para repor).
 - **Dia escolhido:** as notas do dia com os itens.
+
+No próprio painel do administrador, o alerta **Vendem bem e acabaram** lista os produtos que estão entre os 100 que
+mais saíram nos últimos 12 meses e estão sem estoque, com quantos venderam, a última venda e o fornecedor.
 
 Para atualizar: no CompuFour, gere o **relatório de vendas** de cada tipo (**à vista** e **a prazo**) e salve em HTML;
 na página, em **Atualizar as vendas**, escolha a loja e os arquivos e toque em **Enviar**. Pode ser o período inteiro

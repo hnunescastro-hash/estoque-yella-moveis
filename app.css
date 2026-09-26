@@ -1059,3 +1059,47 @@ body.visor-aberto { overflow: hidden; }
 @media (min-width: 640px) {
   .rv-envio-linha { grid-template-columns: minmax(0, 200px) minmax(0, 1fr); align-items: center; }
 }
+
+/* relatório de vendas: época do ano, dia da semana, categorias e o alerta de reposição do painel */
+.rv-frase { margin: 8px 0 0; font-size: 14px; line-height: 1.4; }
+.rv-grafico .rv-frase { margin-top: 6px; }
+span.rv-barra { cursor: default; }
+.rv-bloco h3 { scroll-margin-top: 72px; }
+.rv-deitadas { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.rv-deitada {
+  display: grid; gap: 5px; width: 100%; padding: 0; border: 0; border-radius: 8px;
+  background: none; color: inherit; font: inherit; text-align: left;
+}
+button.rv-deitada { cursor: pointer; padding: 5px 6px; margin: -5px -6px; width: calc(100% + 12px); }
+button.rv-deitada[aria-pressed="true"] { background: var(--ambar-fundo); box-shadow: inset 0 0 0 1.5px var(--ambar-linha); }
+button.rv-deitada:focus-visible { outline: 2px solid var(--foco); outline-offset: 1px; }
+.rv-deitada-textos { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 14px; }
+.rv-deitada-textos span:first-child { font-weight: 700; min-width: 0; }
+.rv-deitada-textos span:last-child { flex: none; color: var(--suave); font-variant-numeric: tabular-nums; }
+.rv-deitada-trilho {
+  display: block; height: 8px; border-radius: 999px; overflow: hidden;
+  background: color-mix(in srgb, var(--grafico) 18%, var(--superficie));
+}
+.rv-deitada-trilho span { display: block; height: 100%; border-radius: 999px; background: var(--grafico); }
+.rv-filtro-categoria {
+  justify-self: start; display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 8px 0 12px;
+  border: 1.5px solid var(--ambar-linha); border-radius: 999px; background: var(--ambar-fundo); color: var(--texto);
+  font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
+}
+.rv-filtro-categoria .ic { width: 16px; height: 16px; color: var(--suave); }
+
+.admin-reposicao {
+  margin-top: 12px; padding: 12px; border-radius: 12px;
+  border: 1px solid var(--ambar-linha); background: var(--ambar-fundo);
+}
+.admin-reposicao h4 { margin: 0; display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 800; }
+.admin-reposicao h4 .ic { width: 18px; height: 18px; color: var(--fogo); }
+.reposicao-qtd {
+  margin-left: auto; min-width: 24px; padding: 1px 7px; border-radius: 999px; text-align: center;
+  background: var(--fogo); color: var(--superficie); font-size: 12.5px; font-weight: 800;
+}
+.admin-reposicao p { margin: 4px 0 8px; font-size: 13px; color: var(--suave); }
+.admin-reposicao ol { margin: 0; padding-left: 22px; display: grid; gap: 7px; font-size: 14px; }
+.admin-reposicao li strong { display: block; line-height: 1.3; }
+.admin-reposicao li span { display: block; font-size: 12.5px; color: var(--suave); }
+.admin-reposicao .link { display: block; margin: 8px auto 0; }

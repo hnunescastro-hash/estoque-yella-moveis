@@ -144,7 +144,7 @@
     iguaisLista: $('iguais-lista'), iguaisErro: $('iguais-erro'), iguaisPublicar: $('iguais-publicar'), iguaisFechar: $('iguais-fechar'),
     adminVendas: $('admin-vendas'), rv: $('rv'), rvVoltar: $('rv-voltar'), rvTitulo: $('rv-titulo'), rvCorpo: $('rv-corpo'),
     rvLojaEnvio: $('rv-loja-envio'), rvArquivos: $('rv-arquivos'), rvArquivosNome: $('rv-arquivos-nome'),
-    rvEnviar: $('rv-enviar'), rvErro: $('rv-erro'), rvEnvioResultado: $('rv-envio-resultado'),
+    rvEnviar: $('rv-enviar'), rvErro: $('rv-erro'), rvEnvioResultado: $('rv-envio-resultado'), adminReposicao: $('admin-reposicao'),
     modalNome: $('modal-nome'), formNome: $('form-nome'), nomeInicial: $('nome-inicial'), nomeErro: $('nome-erro'),
     telaEstoque: $('tela-estoque'), telaAnunciados: $('tela-anunciados'),
     filtrosStatus: $('filtros-status'), listaAnunciados: $('lista-anunciados'),
@@ -2204,6 +2204,7 @@
     esconderToast();
     travarFundo(true);
     el.gaveta.focus();
+    if (chaveAdmin && !rv.lojas && !rv.carregando) carregarVendas(); // alerta "vendem bem e acabaram"
   }
 
   function fecharGaveta() {
@@ -2523,6 +2524,7 @@
       el.chaveAdmin.value = '';
       montarAdmin();
       carregarCustos();
+      carregarVendas(); // alerta "vendem bem e acabaram"
     } catch (erro) {
       erroAdmin(erro.message);
     } finally {
@@ -2537,6 +2539,7 @@
     fecharIguais();
     rv.lojas = null; // faturamento não fica na memória depois de sair
     fecharRelatorioVendas();
+    montarReposicao();
     estado.custos = null;
     estado.origemCustos = null;
     atualizarDetalhes();
@@ -2831,15 +2834,16 @@
   const MESES_LONGOS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro',
     'Outubro', 'Novembro', 'Dezembro'];
   const TOP_INICIAL = 10;
-  const rv = { lojas: null, loja: null, periodo: null, ordemTop: 'quantidade', verTop: TOP_INICIAL, carregando: false, erro: '' };
+  const rv = { lojas: null, loja: null, periodo: null, ordemTop: 'quantidade', verTop: TOP_INICIAL, categoria: null, carregando: false, erro: '' };
 
   // Linha do servidor: [data, nota, código, quantidade, valor, custo, tipo] (valor e custo em centavos,
   // total da linha; tipo "v" à vista, "p" a prazo).
   function prepararVendas(resposta) {
     rv.lojas = {};
+    categoriasVendidas.clear();
     for (const [lojaId, dados] of Object.entries(resposta.lojas || {})) {
       const linhas = (dados.linhas || []).map(([data, nota, codigo, quantidade, valor, custo, tipo]) => (
-        { loja: lojaId, data, nota, codigo, quantidade, valor, custo, tipo }));
+        { loja: lojaId, data, nota, codigo, quantidade, valor, custo, tipo, dia: new Date(`${data}T12:00:00`).getDay() }));
       if (!linhas.length) continue;
       const ultima = linhas.reduce((maior, l) => (l.data > maior ? l.data : maior), '');
       rv.lojas[lojaId] = { linhas, nomes: dados.nomes || {}, envios: dados.envios || [], ultima };
@@ -2941,51 +2945,219 @@
   // No mês, rótulo só em alguns dias (1, 5, 10...) para não encavalar.
   const rotuloVisivel = (barra, total) => total <= 12 || ['1', '5', '10', '15', '20', '25', '30'].includes(barra.rotulo);
 
-  function graficoVendasHTML(barras, periodo) {
-    if (!barras.length) return '';
-    const { topo, marcas } = escalaDasVendas(Math.max(...barras.map((b) => b.valor)));
-    const maior = barras.reduce((a, b) => (b.valor > a.valor ? b : a), barras[0]);
-    const por = periodo ? (periodo.length === 4 ? 'mês' : 'dia') : 'ano';
-    const proximo = periodo ? (periodo.length === 4 ? 'o mês' : 'o dia') : 'o ano';
+  // Colunas (faturamento por ano, mês ou dia, e a época do ano). Cada barra leva a própria dica
+  // (mouse ou teclado); "Ver em tabela" mostra os mesmos valores sem precisar dela.
+  function colunasHTML(itens, { titulo, subtitulo, frase = '', clicavel, cabecalho }) {
+    const { topo, marcas } = escalaDasVendas(Math.max(...itens.map((b) => b.valor)));
+    const maior = itens.reduce((a, b) => (b.valor > a.valor ? b : a), itens[0]);
     const grade = marcas.map((v) => `<span class="rv-grade" style="bottom:${(v / topo) * 100}%"><em>${v ? reaisCompacto(v) : ''}</em></span>`).join('');
-    const colunas = barras.map((b) => {
+    const colunas = itens.map((b) => {
       const altura = b.valor ? Math.max((b.valor / topo) * 100, 1.5) : 0;
       const valor = b === maior && b.valor ? `<span class="rv-barra-valor">${reaisCompacto(b.valor)}</span>` : '';
-      return `<button type="button" class="rv-barra" data-periodo="${b.chave}" style="--altura:${altura}%" `
-        + `aria-label="${escapar(b.titulo)}: ${reais(b.valor)}${b.valor ? `, ${numero.format(b.vendas)} ${b.vendas === 1 ? 'venda' : 'vendas'}` : ''}">`
-        + `<span class="rv-barra-cor">${valor}</span></button>`;
+      const [tag, atributos] = clicavel ? ['button', `type="button" data-periodo="${b.chave}"`] : ['span', 'tabindex="0"'];
+      return `<${tag} class="rv-barra" ${atributos} style="--altura:${altura}%" aria-label="${escapar(b.dica.join(', '))}" `
+        + `data-dica="${escapar(b.dica.join('\n'))}"><span class="rv-barra-cor">${valor}</span></${tag}>`;
     }).join('');
-    const eixo = barras.map((b) => `<span>${rotuloVisivel(b, barras.length) ? escapar(b.rotulo) : ''}</span>`).join('');
-    const tabela = barras.map((b) => `<tr><th scope="row">${escapar(b.titulo)}</th><td>${reais(b.valor)}</td>`
-      + `<td>${numero.format(b.vendas)}</td></tr>`).join('');
+    const eixo = itens.map((b) => `<span>${rotuloVisivel(b, itens.length) ? escapar(b.rotulo) : ''}</span>`).join('');
+    const tabela = itens.map((b) => `<tr><th scope="row">${escapar(b.titulo)}</th>${b.tabela.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('');
     return `<figure class="rv-grafico">
-      <figcaption><strong>Faturamento por ${por}</strong><span>Toque numa barra para ver ${proximo}</span></figcaption>
-      <div class="rv-plot">${grade}<div class="rv-barras" style="--n:${barras.length}" role="group" aria-label="Faturamento por ${por}">${colunas}</div>
+      <figcaption><strong>${titulo}</strong><span>${subtitulo}</span></figcaption>${frase}
+      <div class="rv-plot">${grade}<div class="rv-barras" style="--n:${itens.length}" role="group" aria-label="${escapar(titulo)}">${colunas}</div>
         <div class="rv-dica" hidden></div></div>
-      <div class="rv-eixo" style="--n:${barras.length}" aria-hidden="true">${eixo}</div>
+      <div class="rv-eixo" style="--n:${itens.length}" aria-hidden="true">${eixo}</div>
       <details class="rv-tabela"><summary>Ver em tabela</summary><table>
-        <thead><tr><th scope="col">${por[0].toUpperCase() + por.slice(1)}</th><th scope="col">Faturamento</th><th scope="col">Vendas</th></tr></thead>
+        <thead><tr>${cabecalho.map((c) => `<th scope="col">${c}</th>`).join('')}</tr></thead>
         <tbody>${tabela}</tbody></table></details>
     </figure>`;
   }
 
+  function graficoVendasHTML(barras, periodo) {
+    if (!barras.length) return '';
+    const por = periodo ? (periodo.length === 4 ? 'mês' : 'dia') : 'ano';
+    const proximo = periodo ? (periodo.length === 4 ? 'o mês' : 'o dia') : 'o ano';
+    const itens = barras.map((b) => ({
+      ...b,
+      dica: [reais(b.valor), b.titulo, ...(b.valor ? [`À vista ${reaisCompacto(b.vista)} · A prazo ${reaisCompacto(b.prazo)}`,
+        `${numero.format(b.vendas)} ${b.vendas === 1 ? 'venda' : 'vendas'}`] : [])],
+      tabela: [reais(b.valor), numero.format(b.vendas)],
+    }));
+    return colunasHTML(itens, {
+      titulo: `Faturamento por ${por}`, subtitulo: `Toque numa barra para ver ${proximo}`, clicavel: true,
+      cabecalho: [por[0].toUpperCase() + por.slice(1), 'Faturamento', 'Vendas'],
+    });
+  }
+
+  const juntarNomes = (nomes) => nomes.join(', ').replace(/, ([^,]*)$/, ' e $1');
+
+  // Época do ano (em "Tudo"): a média de cada mês do calendário, só com os meses completos.
+  function epocaDoAnoHTML(todas, ultima) {
+    const porMes = new Map();
+    let primeira = ultima;
+    for (const l of todas) {
+      porMes.set(l.data.slice(0, 7), (porMes.get(l.data.slice(0, 7)) || 0) + l.valor);
+      if (l.data < primeira) primeira = l.data;
+    }
+    const [anoFim, mesFim] = ultima.split('-').map(Number);
+    const ultimoCompleto = anoFim * 12 + mesFim - (Number(ultima.slice(8)) === diasNoMes(anoFim, mesFim) ? 0 : 1);
+    const soma = Array(12).fill(0);
+    const anos = Array(12).fill(0);
+    let [ano, mes] = primeira.split('-').map(Number);
+    if (Number(primeira.slice(8)) > 5) { // começou no meio do mês: esse mês não está completo
+      mes += 1;
+      if (mes > 12) {
+        mes = 1;
+        ano += 1;
+      }
+    }
+    const de = `${ano}-${doisDigitos(mes)}`;
+    let ate = '';
+    while (ano * 12 + mes <= ultimoCompleto) {
+      ate = `${ano}-${doisDigitos(mes)}`;
+      soma[mes - 1] += porMes.get(ate) || 0;
+      anos[mes - 1] += 1;
+      mes += 1;
+      if (mes > 12) {
+        mes = 1;
+        ano += 1;
+      }
+    }
+    if (anos.some((n) => !n)) return ''; // menos de um ano completo: ainda não dá para comparar os meses
+    const medias = soma.map((s, i) => Math.round(s / anos[i]));
+    const ordem = medias.map((_, i) => i).sort((a, b) => medias[b] - medias[a]);
+    const mesesDe = (lista) => juntarNomes(lista.map((i) => MESES_LONGOS[i].toLowerCase()));
+    const frase = `<p class="rv-frase">Os meses que mais vendem são <b>${mesesDe(ordem.slice(0, 3))}</b>;`
+      + ` os mais fracos, <b>${mesesDe(ordem.slice(-2).reverse())}</b>.</p>`;
+    const itens = medias.map((v, i) => ({
+      chave: `mes-${i + 1}`, rotulo: MESES_CURTOS[i], titulo: MESES_LONGOS[i], valor: v,
+      dica: [reais(v), `${MESES_LONGOS[i]}: média de ${anos[i]} ${anos[i] === 1 ? 'ano' : 'anos'}`], tabela: [reais(v)],
+    }));
+    return colunasHTML(itens, {
+      titulo: 'Época do ano', subtitulo: `Média de cada mês, de ${nomeDoPeriodo(de, true)} a ${nomeDoPeriodo(ate, true)}`,
+      frase, clicavel: false, cabecalho: ['Mês', 'Média'],
+    });
+  }
+
+  // Barras deitadas (dia da semana e categorias): nome e valor numa linha, a barra embaixo.
+  function barrasDeitadasHTML(itens, clicavel) {
+    const maximo = Math.max(...itens.map((i) => i.valor), 1);
+    return `<ul class="rv-deitadas">${itens.map((i) => {
+      const conteudo = `<span class="rv-deitada-textos"><span>${escapar(i.rotulo)}</span><span>${i.texto}</span></span>`
+        + `<span class="rv-deitada-trilho"><span style="width:${(i.valor / maximo) * 100}%"></span></span>`;
+      return `<li>${clicavel
+        ? `<button type="button" class="rv-deitada" data-categoria="${escapar(i.rotulo)}" aria-pressed="${rv.categoria === i.rotulo}">${conteudo}</button>`
+        : `<div class="rv-deitada">${conteudo}</div>`}</li>`;
+    }).join('')}</ul>`;
+  }
+
+  const partePercentual = (valor, total) => `${numero.format(Math.round((valor / total) * 1000) / 10)}%`;
+
+  const DIAS_SEMANA = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+
+  function diasDaSemanaHTML(linhas, total) {
+    if (!total) return '';
+    const valores = Array(7).fill(0);
+    for (const l of linhas) valores[l.dia] += l.valor;
+    const ordem = [1, 2, 3, 4, 5, 6, 0]; // de segunda a domingo
+    // dias praticamente empatados com o melhor (até 2% abaixo) entram juntos na frase
+    const maximo = Math.max(...valores);
+    const melhores = ordem.filter((d) => valores[d] >= maximo * 0.98).sort((a, b) => valores[b] - valores[a]);
+    const nomes = juntarNomes(melhores.map((d, i) => (i ? DIAS_SEMANA[d].toLowerCase() : DIAS_SEMANA[d])));
+    const frase = melhores.length === 1
+      ? `<b>${nomes}</b> é o dia que mais vende: ${partePercentual(maximo, total)} do faturamento.`
+      : `<b>${nomes}</b> são os dias que mais vendem: cerca de ${partePercentual(maximo, total)} do faturamento cada.`;
+    return `<section class="rv-bloco" aria-labelledby="rv-semana-titulo">
+      <div class="rv-bloco-topo"><h3 id="rv-semana-titulo">Dia da semana</h3></div>
+      <p class="rv-frase">${frase}</p>
+      ${barrasDeitadasHTML(ordem.map((d) => ({
+        rotulo: DIAS_SEMANA[d], valor: valores[d], texto: `${reaisCompacto(valores[d])} · ${partePercentual(valores[d], total)}`,
+      })), false)}
+    </section>`;
+  }
+
+  // Categoria pelo tipo do produto: a primeira palavra do nome, sem "Kit", "Conjunto", números...
+  const CATEGORIAS_VENDA = [
+    ['Guarda-roupas', 'roupeiro roupeiros guarda guardaroupa roup'],
+    ['Colchões', 'colchao colchoes colc colchonete base box mola somie sommier travesseiro protetor'],
+    ['Camas', 'cama camas bicama beliche berco cabeceira'],
+    ['Geladeiras e freezers', 'refrigerador geladeira freezer frezer frigobar expositor'],
+    ['Fogões', 'fogao cooktop forno depurador coifa'],
+    ['Lavadoras', 'lavadora tanquinho centrifuga secadora lava'],
+    ['TVs e eletrônicos', 'tv televisao televisor receptor antena caixa celular cel sams smartphone fone som suporte notebook '
+      + 'tablet conversor radio dvd peneira nlbf lnbf microfone impressora multiponto amplificador'],
+    ['Cozinhas', 'cozinha cznh balcao armario gabinete paneleiro panl fruteira multiuso pia cuba aereo'],
+    ['Estantes e racks', 'home rack painel estante bancada aparador buffet cristaleira cantoneira prateleira nicho'],
+    ['Sofás e poltronas', 'sofa sofas estofado estofados poltrona puff chaise recamier canto'],
+    ['Mesas e cadeiras', 'mesa mesas cadeira cadeiras cad banqueta banco sala escrivaninha tampo pedra'],
+    ['Cômodas e penteadeiras', 'comoda penteadeira camarim criado sapateira cabideiro'],
+    ['Ventiladores e climatizadores', 'ventilador climatizador circulador ar'],
+    ['Eletroportáteis', 'fritadeira fritad liquidificador batedeira sanduicheira ferro micro microondas panela panelas bebedouro '
+      + 'cafeteira processador espremedor chaleira aspirador prancha secador grill mixer torradeira purificador balanca multiprocessador'],
+    ['Bicicletas', 'bicicleta bike triciclo patinete velotrol'],
+  ];
+  const TIPO_DA_CATEGORIA = new Map(CATEGORIAS_VENDA.flatMap(([categoria, tipos]) => tipos.split(' ').map((t) => [t, categoria])));
+  const GENERICAS_VENDA = new Set(['kit', 'conjunto', 'con', 'jogo', 'mini', 'smart', 'novo', 'nova', 'super', 'par', 'de', 'do', 'da']);
+
+  function categoriaDoProduto(nome) {
+    const palavras = normalizar(nome).split(' ').filter((p) => p && !/^\d+$/.test(p));
+    const tipo = palavras.find((p) => !GENERICAS_VENDA.has(p)) || '';
+    if (tipo === 'base' && palavras.includes('mesa')) return 'Mesas e cadeiras';
+    if (tipo.startsWith('smartph')) return 'TVs e eletrônicos';
+    if (palavras[0] === 'kit' && !TIPO_DA_CATEGORIA.has(tipo)) return 'Cozinhas'; // "Kit Siena", "Kit 8 Portas Golden"
+    return TIPO_DA_CATEGORIA.get(tipo) || 'Outros';
+  }
+
+  const categoriasVendidas = new Map(); // "loja:código" -> categoria (refeito a cada carga das vendas)
+  function categoriaVendida(lojaId, codigo) {
+    const chave = `${lojaId}:${codigo}`;
+    if (!categoriasVendidas.has(chave)) categoriasVendidas.set(chave, categoriaDoProduto(nomeVendido(lojaId, codigo)));
+    return categoriasVendidas.get(chave);
+  }
+
+  function categoriasHTML(linhas, total) {
+    if (!total) return '';
+    const valores = new Map();
+    for (const l of linhas) {
+      const categoria = categoriaVendida(l.loja, l.codigo);
+      valores.set(categoria, (valores.get(categoria) || 0) + l.valor);
+    }
+    const lista = [...valores].sort((a, b) => (a[0] === 'Outros') - (b[0] === 'Outros') || b[1] - a[1]); // "Outros" no fim
+    return `<section class="rv-bloco" aria-labelledby="rv-categorias-titulo">
+      <div class="rv-bloco-topo"><h3 id="rv-categorias-titulo">Categorias</h3><span class="rv-nota">Toque para ver os mais vendidos dela</span></div>
+      ${barrasDeitadasHTML(lista.map(([categoria, valor]) => ({
+        rotulo: categoria, valor, texto: `${reaisCompacto(valor)} · ${partePercentual(valor, total)}`,
+      })), true)}
+    </section>`;
+  }
+
   // Nome e estoque atual de um produto vendido: os do site (estoque e sem estoque) valem mais que o do relatório.
+  const indicesDoSite = new WeakMap(); // dados de uma loja -> código -> produto
+  function indiceDoSite(dados) {
+    if (!dados) return new Map();
+    if (!indicesDoSite.has(dados)) indicesDoSite.set(dados, new Map((dados.produtos || []).map((p) => [p.codigo, p])));
+    return indicesDoSite.get(dados);
+  }
+
   function produtoDoSite(lojaId, codigo) {
-    const dados = estado.dadosLojas.get(lojaId);
-    const comEstoque = dados && (dados.produtos || []).find((p) => p.codigo === codigo);
+    const comEstoque = indiceDoSite(estado.dadosLojas.get(lojaId)).get(codigo);
     if (comEstoque) return comEstoque;
-    const semEstoque = ((estado.semEstoqueLojas.get(lojaId) || {}).produtos || []).find((p) => p.codigo === codigo);
+    const semEstoque = indiceDoSite(estado.semEstoqueLojas.get(lojaId)).get(codigo);
     return semEstoque ? { ...semEstoque, quantidade: 0 } : null;
+  }
+
+  function nomeVendido(lojaId, codigo) {
+    const site = produtoDoSite(lojaId, codigo);
+    return (site && site.nome) || (rv.lojas[lojaId] && rv.lojas[lojaId].nomes[codigo]) || codigo;
   }
 
   function maisVendidosDoPeriodo(linhas) {
     const grupos = new Map();
     for (const l of linhas) {
       const chave = `${l.loja}:${l.codigo}`;
-      if (!grupos.has(chave)) grupos.set(chave, { loja: l.loja, codigo: l.codigo, quantidade: 0, valor: 0 });
+      if (!grupos.has(chave)) grupos.set(chave, { loja: l.loja, codigo: l.codigo, quantidade: 0, valor: 0, ultima: '' });
       const g = grupos.get(chave);
       g.quantidade += l.quantidade;
       g.valor += l.valor;
+      if (l.data > g.ultima) g.ultima = l.data;
     }
     const porValor = rv.ordemTop === 'valor';
     return [...grupos.values()].sort((a, b) => (porValor
@@ -2995,7 +3167,6 @@
 
   function produtoVendidoHTML(g, posicao, total) {
     const site = produtoDoSite(g.loja, g.codigo);
-    const nome = (site && site.nome) || rv.lojas[g.loja].nomes[g.codigo] || g.codigo;
     const emEstoque = site ? site.quantidade : 0;
     const estoque = emEstoque > 0
       ? `<span class="rv-estoque tem">${emEstoque === 1 ? '1 em estoque' : `${numero.format(emEstoque)} em estoque`}</span>`
@@ -3004,14 +3175,14 @@
     const fatia = total ? Math.round((g.valor / total) * 1000) / 10 : 0;
     const parte = fatia >= 0.1 ? ` · ${numero.format(fatia)}%` : '';
     return `<li class="rv-produto"><span class="rv-posicao">${posicao}</span>`
-      + `<div class="rv-produto-textos"><strong>${escapar(nome)}</strong>`
+      + `<div class="rv-produto-textos"><strong>${escapar(nomeVendido(g.loja, g.codigo))}</strong>`
       + `<span>${escapar(g.codigo)}${loja} · ${estoque}</span></div>`
       + `<div class="rv-produto-numeros"><strong>${numero.format(g.quantidade)} un</strong><span>${reais(g.valor)}${parte}</span></div></li>`;
   }
 
   function maisVendidosHTML(linhas, total) {
-    const lista = maisVendidosDoPeriodo(linhas);
-    if (!lista.length) return '';
+    const lista = maisVendidosDoPeriodo(linhas).filter((g) => !rv.categoria || categoriaVendida(g.loja, g.codigo) === rv.categoria);
+    if (!lista.length && !rv.categoria) return '';
     const mostrados = lista.slice(0, rv.verTop);
     const semEstoque = mostrados.filter((g) => !(produtoDoSite(g.loja, g.codigo) || {}).quantidade).length;
     const aviso = semEstoque
@@ -3020,13 +3191,18 @@
       : '';
     const botoes = [['quantidade', 'Quantidade'], ['valor', 'Faturamento']].map(([id, texto]) => (
       `<button type="button" class="rv-opcao" data-ordem-top="${id}" aria-pressed="${rv.ordemTop === id}">${texto}</button>`)).join('');
+    const filtro = rv.categoria
+      ? `<button type="button" class="rv-filtro-categoria" data-acao="tirar-categoria" aria-label="Tirar o filtro ${escapar(rv.categoria)}">`
+        + `${escapar(rv.categoria)}${icone('cancelar')}</button>`
+      : '';
     const mais = lista.length > rv.verTop
       ? `<button type="button" class="botao-secundario rv-ver-mais" data-acao="ver-mais-top">Mostrar mais (${numero.format(lista.length - rv.verTop)})</button>`
       : '';
     return `<section class="rv-bloco" aria-labelledby="rv-top-titulo">
       <div class="rv-bloco-topo"><h3 id="rv-top-titulo">Mais vendidos</h3><div class="rv-opcoes" role="group" aria-label="Ordenar por">${botoes}</div></div>
-      ${aviso}
-      <ol class="rv-produtos">${mostrados.map((g, i) => produtoVendidoHTML(g, i + 1, total)).join('')}</ol>
+      ${filtro}${aviso}
+      ${lista.length ? `<ol class="rv-produtos">${mostrados.map((g, i) => produtoVendidoHTML(g, i + 1, total)).join('')}</ol>`
+        : '<p class="rv-nota">Nenhum produto dessa categoria no período.</p>'}
       ${mais}
     </section>`;
   }
@@ -3047,9 +3223,7 @@
       <ul class="rv-notas">${lista.map((n) => `<li class="rv-nota-venda">
         <div class="rv-nota-topo"><span>Nota ${escapar(n.nota)} · ${n.tipo === 'v' ? 'à vista' : 'a prazo'}${rv.loja === TODAS ? ` · ${escapar(rotuloLoja(lojaPorId(n.loja)))}` : ''}</span><strong>${reais(n.valor)}</strong></div>
         <ul>${n.itens.map((l) => {
-          const site = produtoDoSite(l.loja, l.codigo);
-          const nome = (site && site.nome) || rv.lojas[l.loja].nomes[l.codigo] || l.codigo;
-          return `<li><span>${numero.format(l.quantidade)} × ${escapar(nome)}</span><span>${reais(l.valor)}</span></li>`;
+          return `<li><span>${numero.format(l.quantidade)} × ${escapar(nomeVendido(l.loja, l.codigo))}</span><span>${reais(l.valor)}</span></li>`;
         }).join('')}</ul></li>`).join('')}</ul>
     </section>`;
   }
@@ -3140,7 +3314,8 @@
       ? `<p class="rv-estado">Nenhuma venda em ${escapar(nomeDoPeriodo(rv.periodo))}.</p>`
       : numerosVendasHTML(t, rv.periodo, comparacaoVendas(todas, rv.periodo, ultima))
         + (rv.periodo.length === 10 ? vendasDoDiaHTML(linhas) : graficoVendasHTML(barrasDasVendas(linhas, rv.periodo, ultima), rv.periodo)
-          + maisVendidosHTML(linhas, t.valor));
+          + (rv.periodo ? '' : epocaDoAnoHTML(todas, ultima)) + diasDaSemanaHTML(linhas, t.valor)
+          + categoriasHTML(linhas, t.valor) + maisVendidosHTML(linhas, t.valor));
     el.rvCorpo.classList.toggle('atualizando', rv.carregando);
     el.rvCorpo.innerHTML = filtrosVendasHTML(todas, ultima) + conteudo;
     if (foco && document.getElementById(foco)) document.getElementById(foco).focus({ preventScroll: true });
@@ -3177,6 +3352,7 @@
     }
     rv.carregando = false;
     renderizarVendas();
+    montarReposicao();
   }
 
   function montarEnvioVendas() {
@@ -3253,26 +3429,70 @@
 
   // Dica da barra do gráfico (mouse ou teclado); tocar na barra abre o período.
   function mostrarDicaVendas(barra) {
-    const dica = el.rvCorpo.querySelector('.rv-dica');
+    const plot = barra.closest('.rv-plot');
+    const dica = plot && plot.querySelector('.rv-dica');
     if (!dica) return;
-    const b = barrasDasVendas(doPeriodo(linhasDaEscolha(), rv.periodo), rv.periodo, ultimaDaEscolha()).find((x) => x.chave === barra.dataset.periodo);
-    if (!b || !b.valor) {
-      dica.hidden = true;
-      return;
-    }
     dica.innerHTML = '';
-    const linhas = [['strong', reais(b.valor)], ['span', b.titulo],
-      ['span', `À vista ${reaisCompacto(b.vista)} · A prazo ${reaisCompacto(b.prazo)}`], ['span', `${numero.format(b.vendas)} ${b.vendas === 1 ? 'venda' : 'vendas'}`]];
-    for (const [tag, texto] of linhas) {
-      const parte = document.createElement(tag);
+    (barra.dataset.dica || '').split('\n').forEach((texto, i) => {
+      const parte = document.createElement(i ? 'span' : 'strong');
       parte.textContent = texto;
       dica.append(parte);
-    }
+    });
     dica.hidden = false;
-    const plot = dica.parentElement.getBoundingClientRect();
+    const caixa = plot.getBoundingClientRect();
     const alvo = barra.getBoundingClientRect();
-    const meio = alvo.left + alvo.width / 2 - plot.left;
-    dica.style.left = `${Math.min(Math.max(meio, dica.offsetWidth / 2), plot.width - dica.offsetWidth / 2)}px`;
+    const meio = alvo.left + alvo.width / 2 - caixa.left;
+    dica.style.left = `${Math.min(Math.max(meio, dica.offsetWidth / 2), caixa.width - dica.offsetWidth / 2)}px`;
+  }
+
+  // Alerta do painel: o que vendeu bem nos últimos 12 meses (entre os 100 que mais saíram de cada
+  // loja, a mesma conta da pílula "Mais vendidos") e está sem estoque, para repor.
+  let reposicaoCompleta = false;
+
+  function vendidosSemEstoque() {
+    const lista = [];
+    for (const loja of lojasComVendas()) {
+      const { linhas, ultima } = rv.lojas[loja.id];
+      const inicio = new Date(`${ultima}T12:00:00`);
+      inicio.setDate(inicio.getDate() - 364);
+      const desde = `${inicio.getFullYear()}-${doisDigitos(inicio.getMonth() + 1)}-${doisDigitos(inicio.getDate())}`;
+      const grupos = new Map();
+      for (const l of linhas) {
+        if (l.data < desde) continue;
+        if (!grupos.has(l.codigo)) grupos.set(l.codigo, { loja: loja.id, codigo: l.codigo, quantidade: 0, valor: 0, ultima: '' });
+        const g = grupos.get(l.codigo);
+        g.quantidade += l.quantidade;
+        g.valor += l.valor;
+        if (l.data > g.ultima) g.ultima = l.data;
+      }
+      const primeiros = [...grupos.values()].sort((a, b) => b.quantidade - a.quantidade || b.valor - a.valor).slice(0, 100);
+      lista.push(...primeiros.filter((g) => !((produtoDoSite(g.loja, g.codigo) || {}).quantidade > 0)));
+    }
+    return lista.sort((a, b) => b.quantidade - a.quantidade || b.valor - a.valor);
+  }
+
+  function montarReposicao() {
+    const lista = chaveAdmin && rv.lojas ? vendidosSemEstoque() : [];
+    el.adminReposicao.hidden = !lista.length;
+    if (!lista.length) {
+      el.adminReposicao.innerHTML = '';
+      return;
+    }
+    const variasLojas = lojasComVendas().length > 1;
+    const mostrados = reposicaoCompleta ? lista : lista.slice(0, 5);
+    el.adminReposicao.innerHTML = `<h4 id="reposicao-titulo">${icone('fogo')}Vendem bem e acabaram<span class="reposicao-qtd">${lista.length}</span></h4>`
+      + `<p>Entre os 100 que mais saíram nos últimos 12 meses${variasLojas ? ' de cada loja' : ''}, `
+      + `${lista.length === 1 ? 'este está' : `estes ${lista.length} estão`} sem estoque:</p>`
+      + `<ol>${mostrados.map((g) => {
+        const site = produtoDoSite(g.loja, g.codigo);
+        const detalhes = [`${numero.format(g.quantidade)} ${g.quantidade === 1 ? 'vendido' : 'vendidos'} em 12 meses`, `última venda ${dataBR(g.ultima)}`];
+        if (site && site.fornecedor) detalhes.push(site.fornecedor);
+        if (variasLojas) detalhes.push(rotuloLoja(lojaPorId(g.loja)));
+        return `<li><strong>${escapar(nomeVendido(g.loja, g.codigo))}</strong><span>${escapar(detalhes.join(' · '))}</span></li>`;
+      }).join('')}</ol>`
+      + (lista.length > 5
+        ? `<button type="button" class="link" data-acao="reposicao-todos">${reposicaoCompleta ? 'Mostrar só os 5 primeiros' : `Ver todos (${lista.length})`}</button>`
+        : '');
   }
 
   // ---------------------------------------------------------------- eventos
@@ -3674,6 +3894,11 @@
   el.adminPublicar.addEventListener('click', () => enviarRelatorios(true));
   el.adminIguais.addEventListener('click', abrirIguais);
   el.adminVendas.addEventListener('click', abrirRelatorioVendas);
+  el.adminReposicao.addEventListener('click', (evento) => {
+    if (!evento.target.closest('[data-acao="reposicao-todos"]')) return;
+    reposicaoCompleta = !reposicaoCompleta;
+    montarReposicao();
+  });
   el.rvVoltar.addEventListener('click', fecharRelatorioVendas);
   el.rvArquivos.addEventListener('change', mostrarArquivosVendas);
   el.rvEnviar.addEventListener('click', enviarVendas);
@@ -3699,6 +3924,16 @@
       rv.ordemTop = botao.dataset.ordemTop;
       rv.verTop = TOP_INICIAL;
       renderizarVendas();
+    } else if (botao.dataset.categoria) {
+      rv.categoria = rv.categoria === botao.dataset.categoria ? null : botao.dataset.categoria;
+      rv.verTop = TOP_INICIAL;
+      renderizarVendas();
+      const lista = document.getElementById('rv-top-titulo');
+      if (rv.categoria && lista) lista.scrollIntoView({ block: 'start', behavior: 'smooth' }); // leva aos mais vendidos dela
+    } else if (botao.dataset.acao === 'tirar-categoria') {
+      rv.categoria = null;
+      rv.verTop = TOP_INICIAL;
+      renderizarVendas();
     } else if (botao.dataset.acao === 'ver-mais-top') {
       rv.verTop += 20;
       renderizarVendas();
@@ -3707,8 +3942,7 @@
     }
   });
   const esconderDicaVendas = () => {
-    const dica = el.rvCorpo.querySelector('.rv-dica');
-    if (dica) dica.hidden = true;
+    for (const dica of el.rvCorpo.querySelectorAll('.rv-dica')) dica.hidden = true;
   };
   el.rvCorpo.addEventListener('pointerover', (evento) => {
     const barra = evento.target.closest('.rv-barra');

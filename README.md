@@ -26,7 +26,10 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
   aquele código vem primeiro. Produto com preço provisório de R$ 1,00 no sistema aparece como
   "Preço a confirmar" e vai para o fim da lista.
 - **Categorias** (colchão, guarda-roupa, cozinha…) com ícone e quantidade, abaixo dos classificadores.
-- **Parados:** primeira pílula das categorias, com a quantidade de produtos sem venda nem compra há mais de 90 dias
+- **Mais vendidos:** primeira pílula das categorias, com os produtos em estoque que mais saíram nos últimos 12 meses
+  (quantidade vendida), do que mais saiu para o que menos. A ordem vem de `dados/mais-vendidos.json`, que o servidor
+  monta a cada relatório de vendas enviado pelo administrador: só os códigos, sem quantidades nem valores.
+- **Parados:** pílula das categorias com a quantidade de produtos sem venda nem compra há mais de 90 dias
   (conta a mais recente das duas: produto que acabou de chegar não é parado). Mostra o mais parado primeiro, com o
   tempo parado ao lado do nome. Só nas lojas cujo relatório traz a última venda (hoje, Matina).
 - **Novo:** etiqueta ao lado do nome do produto que entrou no estoque nos últimos 15 dias (a data de entrada é
@@ -179,6 +182,25 @@ ar e, ao publicar, grava `dados/<loja>.json` no GitHub com uma chave de publica�
   no Secret Manager, e rode `sh servidor/implantar.sh` (o servidor passa a aceitar só a nova).
 - Publicar uma mudança no servidor: `sh servidor/implantar.sh`.
 
+### Relatório de vendas (administrador)
+
+No modo administrador, o botão **Relatório de vendas** abre uma página só para isso:
+
+- **Período:** ano, mês e dia (ou os atalhos: tudo, o ano, o mês e o último dia com vendas). Abre no ano mais recente.
+- **Resumo do período:** faturamento, comparação com o mesmo período do ano anterior (no ano ou mês que ainda não
+  fechou, até o mesmo dia), lucro bruto (faturamento − custo, com a margem e, se houver, o imposto de saída),
+  número de vendas (notas), itens, ticket médio e quanto foi à vista e a prazo.
+- **Gráfico:** faturamento por ano, mês ou dia; tocando numa barra, abre aquele período. "Ver em tabela" mostra os valores.
+- **Mais vendidos** do período, por quantidade ou por faturamento, com o estoque atual de cada um
+  (e o aviso de quantos dos primeiros estão sem estoque, para repor).
+- **Dia escolhido:** as notas do dia com os itens.
+
+Para atualizar: no CompuFour, gere o **relatório de vendas** de cada tipo (**à vista** e **a prazo**) e salve em HTML;
+na página, em **Atualizar as vendas**, escolha a loja e os arquivos e toque em **Enviar**. Pode ser o período inteiro
+ou só os últimos meses: o período de cada arquivo substitui o que já estava (reenviar não duplica, e venda cancelada
+no sistema some). O servidor confere a soma com o total do fim do relatório e recusa arquivo incompleto. Para conferir
+um arquivo antes, sem enviar: `python3 ferramentas/vendas.py "relatório à vista.html" "relatório a prazo.html"`.
+
 ### Pelo terminal
 
 1. No CompuFour, gere o relatório **Controle de estoque** e salve em HTML (mesmo formato do arquivo original).
@@ -219,7 +241,9 @@ em buscadores). Ao publicar pelo site, o servidor guarda os custos num armazenam
 (`estoque-yella-privado`, sem acesso público) e só os entrega a quem tem a chave de administrador. Os **clientes**
 das vendas (nome, CPF, telefone, endereço) ficam no mesmo armazenamento privado e só saem para quem tem o código da
 equipe ou a chave de administrador. A lista **Produtos iguais** e as respostas do administrador também ficam lá
-(`cruzamento/`), assim como as respostas guardadas do juiz (`jev/cache.json`).
+(`cruzamento/`), assim como as respostas guardadas do juiz (`jev/cache.json`). O **relatório de vendas**
+(faturamento e custo de cada venda) fica lá também (`vendas/`) e só sai para quem tem a chave de administrador; para o
+site vai só a ordem dos mais vendidos (`dados/mais-vendidos.json`).
 
 ## Arquivos
 
@@ -230,6 +254,8 @@ equipe ou a chave de administrador. A lista **Produtos iguais** e as respostas d
 | `dados/lojas.json` | lista de lojas |
 | `dados/matina.json`, `dados/igapora.json` | estoque de cada loja (gerados pelo script) |
 | `ferramentas/atualizar_estoque.py` | lê o relatório do CompuFour e gera os dados |
+| `ferramentas/vendas.py` | lê o relatório de vendas (à vista e a prazo), junta com o guardado e monta a ordem dos mais vendidos |
+| `dados/mais-vendidos.json` | ordem dos produtos que mais saíram em 12 meses, por loja (gerado pelo servidor) |
 | `ferramentas/correcoes.json` | nomes revisados de produtos e fornecedores, fornecedor cruzado de Igaporã, fornecedores usados na busca de foto |
 | `servidor/` | servidor de atualização pelo site (Cloud Run): `app.py`, `Dockerfile`, `implantar.sh` |
 

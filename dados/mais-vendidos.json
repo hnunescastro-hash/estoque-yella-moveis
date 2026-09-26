@@ -1,0 +1,4 @@
+{
+ "_leia-me": "Produtos que mais saíram nos últimos 12 meses em cada loja (quantidade vendida), do que mais saiu para o que menos: só a ordem dos códigos, sem quantidades nem valores. Montado pelo servidor a cada relatório de vendas enviado pelo administrador.",
+ "lojas": {}
+}

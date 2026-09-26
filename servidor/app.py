@@ -8,6 +8,9 @@ A página chama este servidor quando um administrador envia os relatórios do Co
                         publicar=1                 -> e publica no GitHub (o site atualiza para todos)
                         confirmar_queda=1          -> publica mesmo com muitos produtos saindo de uma vez
   POST /api/custos      chave                      -> preço de compra de cada produto (só administrador)
+  POST /api/vendas      chave                      -> vendas do relatório do sistema, por loja (só administrador)
+  POST /api/vendas/enviar  chave, loja, arquivos   -> guarda o relatório de vendas (à vista e/ou a prazo) e
+                                                      publica a ordem dos mais vendidos (dados/mais-vendidos.json)
   POST /api/vinculos/duvidas    chave              -> lista "é o mesmo produto?" (Igaporã x Matina)
   POST /api/vinculos/responder  chave, loja, codigo, codigo_para, resposta ("sim"/"nao") -> vale para sempre
   POST /api/vinculos/publicar   chave              -> refaz o cruzamento com as respostas e publica
@@ -17,6 +20,8 @@ A página chama este servidor quando um administrador envia os relatórios do Co
 
 O preço de compra (coluna "Custo de Compra" do relatório) NUNCA vai para o GitHub nem para o site:
 fica num armazenamento privado do Google Cloud Storage e só sai daqui para quem tem a chave.
+O relatório de vendas (faturamento e custo) também: para o site vai só a ordem dos produtos que
+mais saíram, sem quantidades nem valores.
 
 Os dados são montados pelo mesmo código do comando de terminal (ferramentas/atualizar_estoque.py),
 com as correções de nome e fornecedor mais recentes do repositório. O custo de compra nunca é gravado.
@@ -36,6 +41,7 @@ Variáveis de ambiente (as três primeiras vêm do Secret Manager, nunca do cód
   PASTA_PRIVADA pasta local no lugar do Cloud Storage (só para testes)
 """
 
+import gzip
 import hashlib
 import hmac
 import json
@@ -56,6 +62,7 @@ from flask import Flask, jsonify, request
 from werkzeug.exceptions import HTTPException
 
 import atualizar_estoque as ae
+import vendas as vd
 
 CHAVE_ADMIN = os.environ.get("CHAVE_ADMIN", "")
 CHAVE_EQUIPE = os.environ.get("CHAVE_EQUIPE", "")
@@ -67,6 +74,7 @@ BALDE_PRIVADO = os.environ.get("BALDE_PRIVADO", "")
 PASTA_PRIVADA = os.environ.get("PASTA_PRIVADA", "")
 
 TAMANHO_MAXIMO = 8 * 1024 * 1024   # por relatório (os atuais têm ~450 KB)
+TAMANHO_MAXIMO_VENDAS = 20 * 1024 * 1024  # relatório de vendas (o a prazo de Matina desde 2020 tem ~7 MB)
 QUEDA_MAXIMA = 0.10                # mais que 10% dos produtos saindo de uma vez pede confirmação
 
 # Chaves públicas do GitHub (https://api.github.com/meta): só conversa com o GitHub verdadeiro.
@@ -153,6 +161,7 @@ def publicar(arquivos, mensagem):
 # cruzamento/confirmados-<loja>.json respostas do administrador {código: {"sim": código, "nao": [códigos]}}
 # cruzamento/duvidas-<loja>.json     lista "é o mesmo produto?" {"duvidas": [...], "respondidas": n}
 # jev/cache.json         respostas do juiz do cruzamento (a mesma pergunta não é paga de novo)
+# vendas/<loja>.json     relatório de vendas do sistema: linhas (faturamento e custo), nomes e envios
 
 _trava_local = threading.Lock()
 
@@ -596,7 +605,7 @@ def recusado(erro):
 
 @app.errorhandler(413)
 def grande_demais(_erro):
-    return jsonify(ok=False, erro="Arquivo grande demais para um relatório de estoque."), 413
+    return jsonify(ok=False, erro="Arquivo grande demais para enviar."), 413
 
 
 @app.errorhandler(Exception)
@@ -675,6 +684,100 @@ def preco_de_compra():
     exigir_chave()
     custos, origem = custos_para_a_pagina()
     return jsonify(ok=True, custos=custos, origem=origem)
+
+
+# ---------------------------------------------------------------- relatório de vendas (só administrador)
+
+LEIA_ME_MAIS_VENDIDOS = ("Produtos que mais saíram nos últimos 12 meses em cada loja (quantidade vendida), do que "
+                         "mais saiu para o que menos: só a ordem dos códigos, sem quantidades nem valores. Montado "
+                         "pelo servidor a cada relatório de vendas enviado pelo administrador.")
+
+
+def _json_comprimido(dados):
+    """Resposta JSON, comprimida quando o navegador aceita (as vendas desde 2020 passam de 500 KB)."""
+    corpo = json.dumps(dados, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    resposta = app.response_class(corpo, mimetype="application/json")
+    if "gzip" in (request.headers.get("Accept-Encoding") or ""):
+        resposta.set_data(gzip.compress(corpo, 6))
+        resposta.headers["Content-Encoding"] = "gzip"
+    return resposta
+
+
+@app.route("/api/vendas", methods=["POST", "OPTIONS"])
+def vendas_das_lojas():
+    if request.method == "OPTIONS":
+        return "", 204
+    exigir_chave()
+    lojas = {loja_id: {"linhas": dados.get("linhas", []), "nomes": dados.get("nomes", {}),
+                       "envios": dados.get("envios", [])[-6:]}
+             for loja_id, dados in ler_todos("vendas/").items()}
+    return _json_comprimido({"ok": True, "lojas": lojas})
+
+
+@app.route("/api/vendas/enviar", methods=["POST", "OPTIONS"])
+def enviar_vendas():
+    """Guarda o relatório de vendas de uma loja (à vista e/ou a prazo; cada um vale para o período que
+    cobre) e publica a ordem dos mais vendidos."""
+    if request.method == "OPTIONS":
+        return "", 204
+    exigir_chave()
+    loja_id = request.form.get("loja") or ""
+    relatorios = []
+    for arquivo in request.files.getlist("arquivos"):
+        conteudo = arquivo.read(TAMANHO_MAXIMO_VENDAS + 1)
+        if len(conteudo) > TAMANHO_MAXIMO_VENDAS:
+            raise Recusado(f"{arquivo.filename}: arquivo grande demais para um relatório de vendas.")
+        if not conteudo:
+            continue
+        try:
+            relatorios.append(vd.ler_relatorio(conteudo))
+        except (ae.ErroRelatorio, ValueError) as erro:
+            raise Recusado(f"{arquivo.filename}: {erro}") from None
+    if not relatorios:
+        raise Recusado("Escolha o relatório de vendas (à vista, a prazo ou os dois).")
+    autor = " ".join((request.form.get("autor") or "").split())[:60]
+
+    pasta = clonar()
+    try:
+        loja = next((l for l in ler_json(pasta, "dados/lojas.json", {"lojas": []})["lojas"] if l["id"] == loja_id), None)
+        if not loja:
+            raise Recusado("Loja desconhecida.")
+        nomes_no_site = {}
+        for campo in ("sem_estoque", "arquivo"):  # o nome do produto com estoque vale mais
+            if loja.get(campo):
+                for p in ler_json(pasta, loja[campo], {"produtos": []}).get("produtos", []):
+                    nomes_no_site[p["codigo"]] = p["nome"]
+        correcoes = ler_json(pasta, "ferramentas/correcoes.json", {})
+        publicado = ler_json(pasta, "dados/mais-vendidos.json", {})
+    finally:
+        shutil.rmtree(pasta, ignore_errors=True)
+
+    agora = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+
+    def mudar(guardado):
+        dados = guardado or {}
+        for relatorio in relatorios:
+            dados = vd.juntar(dados, relatorio)
+        dados["nomes"] = vd.nomes_dos_produtos(dados["descricoes"], nomes_no_site, correcoes)
+        dados["envios"] = (dados.get("envios", []) + [{**vd.resumo(r), "em": agora, "autor": autor}
+                                                       for r in relatorios])[-30:]
+        return dados
+
+    dados = alterar_privado(f"vendas/{loja_id}.json", mudar)
+
+    # Para o site, só a ordem dos mais vendidos. As vendas já estão guardadas: se a publicação falhar,
+    # a ordem atualiza no próximo envio.
+    outras = publicado.get("lojas") if isinstance(publicado, dict) and isinstance(publicado.get("lojas"), dict) else {}
+    mais_vendidos = {"_leia-me": LEIA_ME_MAIS_VENDIDOS, "lojas": {**outras, loja_id: vd.mais_vendidos(dados["linhas"])}}
+    aviso = None
+    try:
+        commit = publicar({"dados/mais-vendidos.json": ae.texto_json(mais_vendidos)},
+                          f"Atualiza mais vendidos: {rotulo(loja)}" + (f" (enviado por {autor})" if autor else ""))
+    except RuntimeError:
+        app.logger.exception("mais vendidos não publicados")
+        commit = None
+        aviso = "As vendas foram guardadas, mas a lista de mais vendidos do site não atualizou agora."
+    return jsonify(ok=True, relatorios=[vd.resumo(r) for r in relatorios], publicado=commit is not None, aviso=aviso)
 
 
 # ---------------------------------------------------------------- mesmo produto nas duas lojas: respostas do administrador

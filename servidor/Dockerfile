@@ -9,8 +9,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# atualizar_estoque.py é copiado de ferramentas/ pelo implantar.sh: o mesmo código do comando de terminal
-COPY app.py atualizar_estoque.py ./
+# atualizar_estoque.py e vendas.py são copiados de ferramentas/ pelo implantar.sh: o mesmo código do comando de terminal
+COPY app.py atualizar_estoque.py vendas.py ./
 
 ENV PYTHONUNBUFFERED=1
 CMD exec gunicorn --bind :$PORT --workers 1 --threads 4 --timeout 180 app:app

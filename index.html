@@ -80,6 +80,14 @@
 
       <nav class="atalhos" id="atalhos" aria-label="Buscas rápidas"></nav>
 
+      <div class="filtro-ativo" id="filtro-vendidos" hidden>
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21c-3.9 0-6.5-2.6-6.5-6.2 0-3.3 2.3-5.4 3.7-7.8.6 1.6 1.5 2.6 2.6 3.1C12 7.2 13.4 4.6 15.8 3c-.3 2.8.6 4.7 1.7 6.4 1 1.5 1.9 3 1.9 5.2 0 3.7-2.9 6.4-7.4 6.4z"/></svg>
+        <span>Mais vendidos · últimos 12 meses</span>
+        <button type="button" id="filtro-vendidos-limpar" aria-label="Tirar o filtro de mais vendidos" title="Tirar o filtro de mais vendidos">
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+
       <div class="filtro-ativo" id="filtro-parados" hidden>
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10M7 21h10M8 3v3.5a4 4 0 0 0 1.6 3.2L12 11.5l2.4-1.8A4 4 0 0 0 16 6.5V3M8 21v-3.5a4 4 0 0 1 1.6-3.2L12 12.5l2.4 1.8a4 4 0 0 1 1.6 3.2V21"/></svg>
         <span>Parados</span>
@@ -277,6 +285,9 @@
         <div class="admin-relatorio" id="admin-relatorio" hidden></div>
         <button type="button" class="botao-principal" id="admin-publicar" hidden>Publicar</button>
         <button type="button" class="botao-secundario admin-iguais" id="admin-iguais" hidden>Produtos iguais</button>
+        <button type="button" class="botao-secundario admin-vendas" id="admin-vendas">
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>Relatório de vendas
+        </button>
         <button type="button" class="link admin-sair" id="admin-sair">Sair do modo administrador</button>
       </div>
       <p class="erro" id="admin-erro" role="alert" hidden></p>
@@ -340,6 +351,37 @@
       <button type="button" class="link" id="iguais-fechar">Fechar</button>
     </div>
   </div>
+
+  <!-- ============ RELATÓRIO DE VENDAS (administrador): quanto vendeu em cada período ============ -->
+  <section class="rv" id="rv" role="dialog" aria-modal="true" aria-labelledby="rv-titulo" hidden>
+    <header class="rv-topo">
+      <button type="button" class="rv-voltar" id="rv-voltar" aria-label="Voltar">
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+      </button>
+      <h2 id="rv-titulo" tabindex="-1">Relatório de vendas</h2>
+    </header>
+    <div class="rv-pagina">
+      <div class="rv-corpo" id="rv-corpo"></div>
+
+      <section class="rv-envio" aria-labelledby="rv-envio-titulo">
+        <h3 id="rv-envio-titulo">Atualizar as vendas</h3>
+        <p class="rv-nota">Envie os relatórios de vendas do sistema, à vista e a prazo. Pode ser o período inteiro ou só
+          os últimos meses: o período enviado substitui o que já estava, sem duplicar.</p>
+        <div class="rv-envio-linha">
+          <label class="sr-only" for="rv-loja-envio">Loja</label>
+          <select class="campo-texto" id="rv-loja-envio"></select>
+          <label class="arquivo rv-arquivo">
+            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a1.5 1.5 0 0 0-1.5 1.5v15A1.5 1.5 0 0 0 7 21h10a1.5 1.5 0 0 0 1.5-1.5V7.5z"/><path d="M14 3v4.5h4.5M9 13h6M9 16.5h4"/></svg>
+            <span class="arquivo-textos"><span class="arquivo-loja">Relatórios de vendas</span><span class="arquivo-nome" id="rv-arquivos-nome">Escolher arquivos</span></span>
+            <input class="sr-only" type="file" id="rv-arquivos" multiple accept=".html,.htm,text/html">
+          </label>
+        </div>
+        <button type="button" class="botao-principal" id="rv-enviar">Enviar</button>
+        <p class="erro" id="rv-erro" role="alert" hidden></p>
+        <div class="rv-envio-resultado" id="rv-envio-resultado" aria-live="polite"></div>
+      </section>
+    </div>
+  </section>
 
   <!-- ============ PRIMEIRO ACESSO: nome do vendedor ============ -->
   <div class="modal" id="modal-nome" role="dialog" aria-modal="true" aria-labelledby="modal-nome-titulo" hidden>

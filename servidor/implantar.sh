@@ -20,7 +20,7 @@ RAIZ="$(cd "$(dirname "$0")/.." && pwd)"
 PASTA="$(mktemp -d)"
 trap 'rm -rf "$PASTA"' EXIT
 cp "$RAIZ/servidor/app.py" "$RAIZ/servidor/Dockerfile" "$RAIZ/servidor/requirements.txt" "$PASTA/"
-cp "$RAIZ/ferramentas/atualizar_estoque.py" "$PASTA/"
+cp "$RAIZ/ferramentas/atualizar_estoque.py" "$RAIZ/ferramentas/vendas.py" "$PASTA/"
 
 gcloud run deploy "$SERVICO" --source "$PASTA" \
   --project "$PROJETO" --region "$REGIAO" \

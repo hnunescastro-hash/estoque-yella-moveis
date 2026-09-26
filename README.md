@@ -145,7 +145,7 @@ cheio (em verde, ou vermelho quando negativa). Sem preço de compra, a linha mos
      80% ou mais, ela também vai para a lista. Sem par, ele vê ainda candidatos com tipo ou cor diferente
      ("Air Fryer" × "Fritadeira Air Fryer"), que só vão para a lista, nunca direto. Se ainda assim não houver
      sugestão, o juiz recebe os de Matina com **alguma palavra igual e preço até 5% diferente** (mesma cor) e
-     escolhe o provável, também só para a lista. As travas de
+     escolhe o provável, também só para a lista; quem continuar sem nada tenta de novo com **até 15%**. As travas de
      número/medida, tamanho e quantidade nunca caem. Cada pergunta fica guardada (`jev/cache.json`,
      privado): só produto novo ou que mudou é perguntado de novo. A primeira rodada completa custou
      cerca de US$ 0,02. Sem a chave, ou com a OpenRouter fora do ar, fica só a regra.

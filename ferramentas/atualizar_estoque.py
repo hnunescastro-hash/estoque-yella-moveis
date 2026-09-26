@@ -646,6 +646,7 @@ CANDIDATOS = 8       # quantos produtos da outra loja o juiz compara
 PRECO_PROXIMO = 0.05  # ainda sem par nem sugestão: produto da outra loja com alguma palavra igual e preço até 5%
 # diferente (base: o preço da outra loja) vai ao juiz com uma pergunta mais branda ("rodada": "preco"); o que ele
 # escolher com JEV_DUVIDA ou mais vai para a lista (pedido do Hugo, 26/09/2026)
+PRECO_AFROUXADO = 0.15  # quem continuar sem nada: de novo, com preço entre 5% e 15% diferente ("rodada": "preco15")
 
 
 def cruzar_produtos(produtos, outra, lancado=None, julgar=None, confirmados=None):
@@ -684,6 +685,28 @@ def cruzar_produtos(produtos, outra, lancado=None, julgar=None, confirmados=None
     por_preco = sorted((d.p.get("preco") or 0, i) for i, d in enumerate(outros))  # para a busca pelo preço
     so_precos = [preco for preco, _ in por_preco]
     livres = [_palavras_livres(d) for d in outros]
+
+    def perto_no_preco(g, recusados, minimo, maximo):
+        """Os da outra loja com alguma palavra igual e preço com diferença acima de minimo (None: desde 0) e
+        até maximo; cor igual e as travas fortes valem. Os de mais palavras raras em comum primeiro."""
+        preco = g.p.get("preco") or 0
+        if preco <= 1:  # R$ 1 é preço de marcação
+            return []
+        palavras, perto = _palavras_livres(g), []
+        inicio = bisect.bisect_left(so_precos, preco / (1 + maximo))
+        fim = bisect.bisect_right(so_precos, preco / (1 - maximo))
+        for _, i in por_preco[inicio:fim]:
+            m, preco_m = outros[i], outros[i].p.get("preco") or 0
+            if not preco_m:
+                continue
+            variacao = abs(preco - preco_m) / preco_m
+            if (variacao > maximo or (minimo is not None and variacao <= minimo) or m.p["codigo"] in recusados
+                    or _vetado_forte(g, m) or _cores_diferentes(g, m)):
+                continue
+            comuns = {a for a in palavras if any(_iguais(a, b) for b in livres[i])}
+            if comuns:
+                perto.append((sum(idf.get(a, 0) for a in comuns), -variacao, i))
+        return [outros[i] for _, _, i in sorted(perto, reverse=True)[:CANDIDATOS]]
 
     regra, candidatos, soltos, pelo_preco = {}, {}, {}, {}
     for g in lado:
@@ -727,26 +750,14 @@ def cruzar_produtos(produtos, outra, lancado=None, julgar=None, confirmados=None
                 solta = [outros[i] for _, i in sorted(parecidos + travados, reverse=True)[:CANDIDATOS]]
                 if solta and solta != lista:
                     soltos[g.p["codigo"]] = solta
-                preco = g.p.get("preco") or 0  # e pelo preço quase igual, com alguma palavra igual
-                if preco > 1:  # R$ 1 é preço de marcação
-                    palavras, perto = _palavras_livres(g), []
-                    inicio = bisect.bisect_left(so_precos, preco / (1 + PRECO_PROXIMO))
-                    fim = bisect.bisect_right(so_precos, preco / (1 - PRECO_PROXIMO))
-                    for _, i in por_preco[inicio:fim]:
-                        m, preco_m = outros[i], outros[i].p.get("preco") or 0
-                        if (not preco_m or abs(preco - preco_m) / preco_m > PRECO_PROXIMO or m.p["codigo"] in recusados
-                                or _vetado_forte(g, m) or _cores_diferentes(g, m)):
-                            continue
-                        comuns = {a for a in palavras if any(_iguais(a, b) for b in livres[i])}
-                        if comuns:
-                            perto.append((sum(idf.get(a, 0) for a in comuns), -abs(preco - preco_m) / preco_m, i))
-                    if perto:
-                        pelo_preco[g.p["codigo"]] = [outros[i] for _, _, i in sorted(perto, reverse=True)[:CANDIDATOS]]
+                perto = perto_no_preco(g, recusados, None, PRECO_PROXIMO)  # e pelo preço quase igual
+                if perto:
+                    pelo_preco[g.p["codigo"]] = perto
 
     respostas, respostas_soltas, respostas_preco = {}, {}, {}
     rodadas = {"": (candidatos, respostas), "solto": (soltos, respostas_soltas), "preco": (pelo_preco, respostas_preco)}
+    texto = {d.p["codigo"]: d.texto for d in lado}
     if julgar and (candidatos or soltos or pelo_preco):
-        texto = {d.p["codigo"]: d.texto for d in lado}
         perguntas = [(c, rodada) for rodada, (listas, _) in rodadas.items() for c in listas]
         pedidos = [{"produto": texto[c], "candidatos": [m.texto for m in rodadas[rodada][0][c]],
                     **({"rodada": "preco"} if rodada == "preco" else {})} for c, rodada in perguntas]
@@ -787,6 +798,29 @@ def cruzar_produtos(produtos, outra, lancado=None, julgar=None, confirmados=None
                     resultado["duvidas"].append({"codigo": codigo, "codigo_para": listas[codigo][indice_r].p["codigo"],
                                                  "prob": round(prob_r, 2)})
                     break
+
+    if julgar:  # quem continua sem nada: pelo preço de novo, com a faixa afrouxada (só para a lista)
+        ja = set(resultado["codigos"]) | {d["codigo"] for d in resultado["duvidas"]}
+        afrouxados = {}
+        for g in lado:
+            codigo = g.p["codigo"]
+            if codigo in ja:
+                continue
+            perto = perto_no_preco(g, set((confirmados.get(codigo) or {}).get("nao") or ()), PRECO_PROXIMO, PRECO_AFROUXADO)
+            if perto:
+                afrouxados[codigo] = perto
+        if afrouxados:
+            codigos = list(afrouxados)
+            try:
+                respostas_afrouxadas = dict(zip(codigos, julgar([
+                    {"produto": texto[c], "candidatos": [m.texto for m in afrouxados[c]], "rodada": "preco15"} for c in codigos])))
+            except Exception:  # juiz fora do ar: fica o que já havia
+                respostas_afrouxadas = {}
+            for codigo in codigos:
+                indice_r, prob_r = respostas_afrouxadas.get(codigo) or (None, None)
+                if indice_r is not None and prob_r is not None and prob_r >= JEV_DUVIDA:
+                    resultado["duvidas"].append({"codigo": codigo, "codigo_para": afrouxados[codigo][indice_r].p["codigo"],
+                                                 "prob": round(prob_r, 2)})
     return resultado
 
 

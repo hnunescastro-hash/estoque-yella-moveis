@@ -284,6 +284,15 @@ JEV_PERGUNTA_PRECO = ("Qual candidato de Matina provavelmente é o mesmo produto
                       "preço quase igual ajuda a confirmar.")
 JEV_NENHUM_PRECO = ("Nenhum candidato é do mesmo tipo de produto (ex.: adaptador × carregador, caixa de som × colchão, "
                     "mesa × ventilador).")
+# rodada "preco15": quem continuou sem nada, com preço entre 5% e 15% diferente
+JEV_OBSERVACAO_PRECO15 = (JEV_OBSERVACAO + " Uma das lojas costuma descrever o produto de forma mais curta ou genérica. "
+                          "Todos os candidatos têm preço parecido com o do produto de Igaporã (entre 5% e 15% de diferença).")
+JEV_PERGUNTA_PRECO15 = ("Qual candidato de Matina provavelmente é o mesmo produto de Igaporã? Precisa ser o mesmo tipo de "
+                        "produto; descrição mais curta, genérica ou sem a marca/modelo numa das lojas não impede, pois o "
+                        "preço parecido ajuda a confirmar.")
+JEV_TEXTOS = {"": (JEV_OBSERVACAO, JEV_PERGUNTA, JEV_NENHUM),
+              "preco": (JEV_OBSERVACAO_PRECO, JEV_PERGUNTA_PRECO, JEV_NENHUM_PRECO),
+              "preco15": (JEV_OBSERVACAO_PRECO15, JEV_PERGUNTA_PRECO15, JEV_NENHUM_PRECO)}
 
 
 JEV_PRAZO = 70   # segundos para todas as perguntas de uma publicação; o que faltar fica para a próxima
@@ -292,13 +301,11 @@ JEV_FALHAS = 12  # a OpenRouter falhou tantas vezes: para de perguntar (fica só
 
 def _jev(pedido):
     """[índice escolhido ou -1 para "nenhum", probabilidade], custo em dólares."""
-    preco = pedido.get("rodada") == "preco"
+    observacao, pergunta, nenhum = JEV_TEXTOS.get(pedido.get("rodada") or "", JEV_TEXTOS[""])
     criterios = {f"c{i + 1}": texto for i, texto in enumerate(pedido["candidatos"])}
-    criterios["nenhum"] = JEV_NENHUM_PRECO if preco else JEV_NENHUM
-    corpo = {"model": JEV_MODELO,
-             "state": {"produto_igapora": pedido["produto"], "observacao": JEV_OBSERVACAO_PRECO if preco else JEV_OBSERVACAO},
-             "questions": {"mesmo": {"type": "choice", "instructions": JEV_PERGUNTA_PRECO if preco else JEV_PERGUNTA,
-                                     "criteria": criterios}}}
+    criterios["nenhum"] = nenhum
+    corpo = {"model": JEV_MODELO, "state": {"produto_igapora": pedido["produto"], "observacao": observacao},
+             "questions": {"mesmo": {"type": "choice", "instructions": pergunta, "criteria": criterios}}}
     req = urllib.request.Request(JEV_URL, data=json.dumps(corpo).encode(), method="POST", headers={
         "Authorization": f"Bearer {OPENROUTER_API_KEY}", "Content-Type": "application/json"})
     with urllib.request.urlopen(req, timeout=25) as r:
@@ -310,13 +317,18 @@ def _jev(pedido):
     return [-1 if escolha == "nenhum" else int(escolha[1:]) - 1, round(prob, 4)], custo
 
 
-def julgar_com_jev(pedidos):
-    """[{"produto", "candidatos"}] -> [(índice ou None para "nenhum", probabilidade)]; (None, None) se não deu."""
+def julgar_com_jev(pedidos, prazo=None, usadas=None):
+    """[{"produto", "candidatos"}] -> [(índice ou None para "nenhum", probabilidade)]; (None, None) se não deu.
+
+    Numa publicação com várias chamadas: prazo (o mesmo para todas) e usadas (junta as chaves perguntadas;
+    quem chamou poda o cache no fim com podar_cache_jev). Sem usadas, o cache fica só com as desta chamada."""
     cache = ler_privado("jev/cache.json", {})[0] or {}
     chaves = [hashlib.sha256(((p["rodada"] + "\n" if p.get("rodada") else "") + p["produto"] + "\n"
                               + "\n".join(p["candidatos"])).encode()).hexdigest() for p in pedidos]
+    if usadas is not None:
+        usadas.update(chaves)
     faltando = [(c, p) for c, p in zip(chaves, pedidos) if c not in cache]
-    prazo, falhas, custo = time.time() + JEV_PRAZO, [0], [0.0]
+    prazo, falhas, custo = prazo or time.time() + JEV_PRAZO, [0], [0.0]
 
     def perguntar(item):
         chave, pedido = item
@@ -338,15 +350,27 @@ def julgar_com_jev(pedidos):
                     cache[chave] = resposta
                     respondidas += 1
         app.logger.warning("jev: %d perguntas novas, %d respondidas, US$ %.4f", len(faltando), respondidas, custo[0])
-    try:  # guarda só as perguntas de agora (as de produtos que mudaram não voltam)
-        gravar_privado("jev/cache.json", {c: cache[c] for c in chaves if c in cache})
-    except Exception:  # cache é só economia: se não gravar, pergunta de novo na próxima
-        app.logger.warning("jev: cache não gravado")
+    if faltando or usadas is None:
+        try:  # sem usadas: guarda só as perguntas de agora (as de produtos que mudaram não voltam)
+            gravar_privado("jev/cache.json", cache if usadas is not None else {c: cache[c] for c in chaves if c in cache})
+        except Exception:  # cache é só economia: se não gravar, pergunta de novo na próxima
+            app.logger.warning("jev: cache não gravado")
     saida = []
     for chave in chaves:
         r = cache.get(chave)
         saida.append((None if r[0] < 0 else r[0], r[1]) if r else (None, None))
     return saida
+
+
+def podar_cache_jev(usadas):
+    """Deixa no cache só as perguntas desta publicação (as de produtos que mudaram não voltam)."""
+    try:
+        cache = ler_privado("jev/cache.json", {})[0] or {}
+        podado = {c: cache[c] for c in usadas if c in cache}
+        if len(podado) != len(cache):
+            gravar_privado("jev/cache.json", podado)
+    except Exception:
+        app.logger.warning("jev: cache não podado")
 
 
 # ---------------------------------------------------------------- regras
@@ -545,8 +569,11 @@ def vincular_lojas(pasta, por_id, r, saidas=None, enviadas=None):
         da_outra = {**{x["codigo"]: x for x in sem}, **{x["codigo"]: x for x in com}}
         lancado = r["custos"][loja_id] if loja_id in r["custos"] else ler_privado(f"custos/{loja_id}.json", {})[0]
         confirmados = ler_privado(f"cruzamento/confirmados-{loja_id}.json", {})[0] or {}
-        cruzado = ae.cruzar_produtos(produtos, list(da_outra.values()), lancado,
-                                     julgar=julgar_com_jev if OPENROUTER_API_KEY else None, confirmados=confirmados)
+        prazo, usadas = time.time() + JEV_PRAZO, set()  # um prazo para todas as perguntas desta loja
+        julgar = (lambda pedidos: julgar_com_jev(pedidos, prazo, usadas)) if OPENROUTER_API_KEY else None
+        cruzado = ae.cruzar_produtos(produtos, list(da_outra.values()), lancado, julgar=julgar, confirmados=confirmados)
+        if usadas:
+            podar_cache_jev(usadas)
         codigos = cruzado["codigos"]
         r["vinculos"][loja_id] = {"loja": outra, "codigos": codigos}
         deste = {p["codigo"]: p for p in produtos}

@@ -433,14 +433,16 @@ body.selecionando .toast { bottom: calc(var(--altura-abas) + 76px + env(safe-are
 
 .nota { margin: 5px 0 0; font-size: 13px; color: var(--suave); }
 
+/* "ver mais": tudo na mesma fonte do nome do sistema (largura fixa) e em maiúsculas; negrito e cores
+   de cada linha continuam */
 dl.detalhes {
   display: grid; grid-template-columns: auto 1fr; gap: 4px 12px;
   margin: 8px 0 2px; padding: 10px 12px; border-radius: 10px; background: var(--superficie-2);
-  font-size: 14px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; text-transform: uppercase;
 }
 .detalhes dt { color: var(--suave); }
 .detalhes dd { margin: 0; overflow-wrap: anywhere; font-weight: 600; }
-.detalhes .sistema { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; font-weight: 500; }
+.detalhes .sistema { font-weight: 500; }
 /* contas (preço mínimo, "você ganha", custo, imposto e sobra): cor de destaque, sem negrito extra;
    o olhinho da gaveta esconde todas */
 .detalhes dd.conta { font-variant-numeric: tabular-nums; }

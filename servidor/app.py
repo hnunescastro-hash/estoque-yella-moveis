@@ -6,6 +6,10 @@ A página chama este servidor quando um administrador envia os relatórios do Co
   POST /api/atualizar   chave, arquivo_<loja>...   -> lê os relatórios e mostra o que mudou
                         publicar=1                 -> e publica no GitHub (o site atualiza para todos)
                         confirmar_queda=1          -> publica mesmo com muitos produtos saindo de uma vez
+  POST /api/custos      chave                      -> preço de compra de cada produto (só administrador)
+
+O preço de compra (coluna "Custo de Compra" do relatório) NUNCA vai para o GitHub nem para o site:
+fica num armazenamento privado do Google Cloud Storage e só sai daqui para quem tem a chave.
 
 Os dados são montados pelo mesmo código do comando de terminal (ferramentas/atualizar_estoque.py),
 com as correções de nome e fornecedor mais recentes do repositório. O custo de compra nunca é gravado.
@@ -16,6 +20,8 @@ Variáveis de ambiente (as duas primeiras vêm do Secret Manager, nunca do códi
   REPO          repositório (padrão: git@github.com:hnunescastro-hash/estoque-yella-moveis.git)
   RAMO          ramo publicado (padrão: main)
   ORIGENS       endereços que podem chamar o servidor (padrão: o site no GitHub Pages)
+  BALDE_PRIVADO armazenamento privado do preço de compra (Cloud Storage)
+  PASTA_CUSTOS  pasta local no lugar do Cloud Storage (só para testes)
 """
 
 import hashlib
@@ -38,6 +44,8 @@ CHAVE_ADMIN = os.environ.get("CHAVE_ADMIN", "")
 REPO = os.environ.get("REPO", "git@github.com:hnunescastro-hash/estoque-yella-moveis.git")
 RAMO = os.environ.get("RAMO", "main")
 ORIGENS = {o.strip() for o in os.environ.get("ORIGENS", "https://hnunescastro-hash.github.io").split(",") if o.strip()}
+BALDE_PRIVADO = os.environ.get("BALDE_PRIVADO", "")
+PASTA_CUSTOS = os.environ.get("PASTA_CUSTOS", "")
 
 TAMANHO_MAXIMO = 8 * 1024 * 1024   # por relatório (os atuais têm ~450 KB)
 QUEDA_MAXIMA = 0.10                # mais que 10% dos produtos saindo de uma vez pede confirmação
@@ -117,6 +125,34 @@ def publicar(arquivos, mensagem):
     return None
 
 
+# ---------------------------------------------------------------- preço de compra (privado)
+
+def _balde():
+    from google.cloud import storage  # só carrega quando o armazenamento privado está configurado
+    return storage.Client().bucket(BALDE_PRIVADO)
+
+
+def salvar_custos(loja_id, custos):
+    texto = json.dumps(custos, ensure_ascii=False, separators=(",", ":"))
+    if BALDE_PRIVADO:
+        _balde().blob(f"custos/{loja_id}.json").upload_from_string(texto, content_type="application/json")
+    elif PASTA_CUSTOS:
+        Path(PASTA_CUSTOS).mkdir(parents=True, exist_ok=True)
+        (Path(PASTA_CUSTOS) / f"{loja_id}.json").write_text(texto, encoding="utf-8")
+
+
+def ler_todos_custos():
+    resultado = {}
+    if BALDE_PRIVADO:
+        for blob in _balde().list_blobs(prefix="custos/"):
+            if blob.name.endswith(".json"):
+                resultado[blob.name[len("custos/"):-len(".json")]] = json.loads(blob.download_as_text())
+    elif PASTA_CUSTOS and Path(PASTA_CUSTOS).is_dir():
+        for arquivo in Path(PASTA_CUSTOS).glob("*.json"):
+            resultado[arquivo.stem] = json.loads(arquivo.read_text(encoding="utf-8"))
+    return resultado
+
+
 # ---------------------------------------------------------------- regras
 
 def normalizar_chave(texto):
@@ -152,18 +188,20 @@ def processar(pasta, envios):
     correcoes = ler_json(pasta, "ferramentas/correcoes.json")
     lojas = ler_json(pasta, "dados/lojas.json", {"lojas": []})
     por_id = {l["id"]: l for l in lojas["lojas"]}
-    resultado, arquivos = [], {}
+    resultado, arquivos, custos = [], {}, {}
     for loja_id, conteudo in envios:
         loja = por_id.get(loja_id)
         if not loja:
             raise Recusado(f"Loja desconhecida: {loja_id}.")
+        antes = ler_json(pasta, loja["arquivo"], {"produtos": []})
         try:
-            montado = ae.montar_loja(loja_id, ae.decodificar(conteudo), correcoes, lojas)
+            montado = ae.montar_loja(loja_id, ae.decodificar(conteudo), correcoes, lojas, anterior=antes)
         except ae.ErroRelatorio as erro:
             raise Recusado(f"{rotulo(loja)}: {erro}") from None
         if montado["cidade"] and not mesma_cidade(montado["cidade"], loja["nome"]):
             raise Recusado(f"O arquivo enviado em {rotulo(loja)} é o relatório de {montado['cidade']}. Confira os arquivos.")
-        antes = ler_json(pasta, loja["arquivo"], {"produtos": []})
+        if montado["custos"]:
+            custos[loja_id] = montado["custos"]
         novo = montado["saida"]
         mudancas = ae.comparar(antes, novo)
         total_antes = len(antes.get("produtos", []))
@@ -185,8 +223,9 @@ def processar(pasta, envios):
             "queda_grande": queda_grande,
             "arquivo_muda": texto != atual,
             "hash": hashlib.sha256(texto.encode("utf-8")).hexdigest(),  # a página confere quando o site já mostra o novo
+            "tem_custo": bool(montado["custos"]),
         })
-    return resultado, arquivos
+    return resultado, arquivos, custos
 
 
 # ---------------------------------------------------------------- rotas
@@ -255,19 +294,30 @@ def atualizar():
 
     pasta = clonar()
     try:
-        lojas, arquivos = processar(pasta, envios)
+        lojas, arquivos, custos = processar(pasta, envios)
     finally:
         shutil.rmtree(pasta, ignore_errors=True)
 
     bloqueado = any(l["queda_grande"] for l in lojas) and request.form.get("confirmar_queda") != "1"
     resposta = {"ok": True, "lojas": lojas, "bloqueado": bloqueado, "publicado": False, "commit": None}
-    if request.form.get("publicar") == "1" and not bloqueado and arquivos:
-        autor = " ".join((request.form.get("autor") or "").split())[:60]
-        nomes = " e ".join(l["loja"] for l in lojas if l["arquivo_muda"])
-        mensagem = f"Atualiza estoque: {nomes}" + (f" (enviado por {autor})" if autor else "")
-        resposta["commit"] = publicar(arquivos, mensagem)
-        resposta["publicado"] = resposta["commit"] is not None
+    if request.form.get("publicar") == "1" and not bloqueado:
+        for loja_id, custos_loja in custos.items():  # preço de compra: só no armazenamento privado
+            salvar_custos(loja_id, custos_loja)
+        if arquivos:
+            autor = " ".join((request.form.get("autor") or "").split())[:60]
+            nomes = " e ".join(l["loja"] for l in lojas if l["arquivo_muda"])
+            mensagem = f"Atualiza estoque: {nomes}" + (f" (enviado por {autor})" if autor else "")
+            resposta["commit"] = publicar(arquivos, mensagem)
+            resposta["publicado"] = resposta["commit"] is not None
     return jsonify(resposta)
+
+
+@app.route("/api/custos", methods=["POST", "OPTIONS"])
+def preco_de_compra():
+    if request.method == "OPTIONS":
+        return "", 204
+    exigir_chave()
+    return jsonify(ok=True, custos=ler_todos_custos())
 
 
 if __name__ == "__main__":  # teste local

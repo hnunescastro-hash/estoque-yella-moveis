@@ -80,7 +80,15 @@
 
       <nav class="atalhos" id="atalhos" aria-label="Buscas rápidas"></nav>
 
-      <div class="filtro-fornecedor" id="filtro-fornecedor" hidden>
+      <div class="filtro-ativo" id="filtro-parados" hidden>
+        <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h10M7 21h10M8 3v3.5a4 4 0 0 0 1.6 3.2L12 11.5l2.4-1.8A4 4 0 0 0 16 6.5V3M8 21v-3.5a4 4 0 0 1 1.6-3.2L12 12.5l2.4 1.8a4 4 0 0 1 1.6 3.2V21"/></svg>
+        <span>Parados</span>
+        <button type="button" id="filtro-parados-limpar" aria-label="Tirar o filtro de parados" title="Tirar o filtro de parados">
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+
+      <div class="filtro-ativo" id="filtro-fornecedor" hidden>
         <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20.5V11l5.5 3.2V11l5.5 3.2V11l4 2.3V4h3v16.5z"/><path d="M7 17.5h2M11.5 17.5h2M16 17.5h2"/></svg>
         <span>Fornecedor: <strong id="filtro-fornecedor-nome"></strong></span>
         <button type="button" id="filtro-fornecedor-limpar" aria-label="Tirar o filtro de fornecedor" title="Tirar o filtro de fornecedor">
@@ -88,7 +96,13 @@
         </button>
       </div>
 
-      <p class="contagem" id="contagem" aria-live="polite">Carregando produtos…</p>
+      <div class="barra-resultados" id="barra-resultados">
+        <p class="contagem" id="contagem" aria-live="polite">Carregando produtos…</p>
+        <button type="button" class="selecionar" id="selecionar" hidden>
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><path d="m8 12.3 2.8 2.8L16.5 9"/></svg>
+          Selecionar
+        </button>
+      </div>
       <p class="sugestao-fornecedor" id="sugestao-fornecedor" hidden></p>
 
       <ul class="lista" id="lista"></ul>
@@ -112,6 +126,14 @@
     </div>
 
     <main class="conteudo">
+      <section class="painel-vendas" id="painel-vendas" aria-label="Vendas do mês" hidden>
+        <button type="button" class="mes-seta" id="mes-anterior" aria-label="Mês anterior"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg></button>
+        <div class="vendas-resumo">
+          <strong id="vendas-mes"></strong>
+          <span id="vendas-numeros"></span>
+        </div>
+        <button type="button" class="mes-seta" id="mes-proximo" aria-label="Próximo mês"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+      </section>
       <ul class="lista" id="lista-anunciados"></ul>
       <section class="vazio" id="vazio-anunciados" hidden>
         <p class="vazio-titulo">Nenhum produto anunciado</p>
@@ -130,6 +152,17 @@
       <b class="contador" id="contador-anunciados" hidden>0</b>
     </a>
   </nav>
+
+  <div class="barra-selecao" id="barra-selecao" hidden>
+    <button type="button" class="barra-selecao-fechar" id="selecao-cancelar" aria-label="Cancelar seleção">
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <span class="barra-selecao-texto" id="selecao-texto" aria-live="polite">0 selecionados</span>
+    <a class="barra-selecao-enviar desativado" id="selecao-enviar" target="_blank" rel="noopener noreferrer">
+      <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2a8.8 8.8 0 0 0-7.6 13.2L3.2 20.8l4.5-1.2A8.8 8.8 0 1 0 12 3.2z"/><path d="M8.9 8.1c.3-.5.8-.6 1.1-.6h.4c.2 0 .4.1.5.4l.8 1.9c.1.3 0 .5-.1.7l-.6.7c.7 1.3 1.8 2.4 3.1 3.1l.7-.6c.2-.2.5-.2.7-.1l1.9.8c.3.1.4.3.4.5v.4c0 .3-.1.8-.6 1.1-.7.4-1.7.6-2.6.3-2.6-.9-4.6-2.9-5.5-5.5-.3-.9-.1-1.9.3-2.6z"/></svg>
+      Enviar
+    </a>
+  </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden>
     <span id="toast-texto"></span>
@@ -218,6 +251,13 @@
         <button type="submit" class="botao-secundario" id="admin-botao-entrar">Entrar</button>
       </form>
       <div class="admin-painel" id="admin-painel" hidden>
+        <div class="campo-linha admin-imposto">
+          <label class="campo-rotulo" for="imposto">Imposto de saída</label>
+          <span class="ajuste-campo">
+            <input id="imposto" type="text" inputmode="decimal" enterkeyhint="done" placeholder="0" maxlength="6" autocomplete="off">
+            <span aria-hidden="true">%</span>
+          </span>
+        </div>
         <div class="admin-arquivos" id="admin-arquivos"></div>
         <button type="button" class="botao-principal" id="admin-conferir">Conferir mudanças</button>
         <div class="admin-relatorio" id="admin-relatorio" hidden></div>
@@ -227,6 +267,47 @@
       <p class="erro" id="admin-erro" role="alert" hidden></p>
     </section>
   </aside>
+
+  <!-- ============ VENDA: dados do cliente e comprovante ============ -->
+  <div class="modal" id="modal-venda" role="dialog" aria-modal="true" aria-labelledby="venda-titulo" hidden>
+    <form class="modal-caixa venda" id="form-venda" novalidate>
+      <h2 id="venda-titulo">Comprovante de venda</h2>
+      <p class="venda-produto" id="venda-produto"></p>
+      <label class="venda-campo venda-largo">Nome do cliente<input class="campo-texto" id="venda-nome" autocomplete="off" autocapitalize="words" maxlength="60"></label>
+      <label class="venda-campo">CPF<input class="campo-texto" id="venda-cpf" inputmode="numeric" autocomplete="off" maxlength="14"></label>
+      <label class="venda-campo">Telefone<input class="campo-texto" id="venda-telefone" type="tel" inputmode="tel" autocomplete="off" maxlength="20"></label>
+      <label class="venda-campo venda-largo">Endereço<input class="campo-texto" id="venda-endereco" autocomplete="off" maxlength="80"></label>
+      <label class="venda-campo venda-largo">Bairro<input class="campo-texto" id="venda-bairro" autocomplete="off" maxlength="40"></label>
+      <label class="venda-campo">Pagamento<select class="campo-texto" id="venda-pagamento">
+        <option value="pix">Pix</option>
+        <option value="dinheiro">Dinheiro</option>
+        <option value="credito">Cartão de crédito</option>
+        <option value="debito">Cartão de débito</option>
+      </select></label>
+      <label class="venda-campo" id="venda-parcelas-campo" hidden>Parcelas<select class="campo-texto" id="venda-parcelas"></select></label>
+      <label class="venda-campo">Valor da venda<input class="campo-texto" id="venda-valor" inputmode="decimal" autocomplete="off" maxlength="12"></label>
+      <div class="assinatura venda-largo">
+        <div class="assinatura-topo"><span>Assinatura do cliente</span><button type="button" class="link" id="venda-limpar-assinatura">Limpar</button></div>
+        <canvas id="venda-assinatura" width="600" height="200" aria-label="Espaço para o cliente assinar com o dedo"></canvas>
+      </div>
+      <p class="erro venda-largo" id="venda-erro" role="alert" hidden></p>
+      <button type="submit" class="botao-principal venda-largo">Gerar comprovante</button>
+      <button type="button" class="link venda-largo venda-cancelar" id="venda-cancelar">Agora não</button>
+    </form>
+  </div>
+
+  <div class="modal" id="modal-comprovante" role="dialog" aria-modal="true" aria-label="Comprovante de venda" hidden>
+    <div class="modal-caixa comprovante">
+      <img id="comprovante-imagem" alt="Comprovante de venda">
+      <button type="button" class="botao-principal" id="comprovante-enviar"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5L6 21z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg>Enviar</button>
+      <div class="comprovante-acoes">
+        <button type="button" class="botao-secundario" id="comprovante-imagem-baixar">Imagem</button>
+        <button type="button" class="botao-secundario" id="comprovante-pdf">PDF</button>
+        <button type="button" class="botao-secundario" id="comprovante-editar">Editar</button>
+      </div>
+      <button type="button" class="link" id="comprovante-fechar">Fechar</button>
+    </div>
+  </div>
 
   <!-- ============ PRIMEIRO ACESSO: nome do vendedor ============ -->
   <div class="modal" id="modal-nome" role="dialog" aria-modal="true" aria-labelledby="modal-nome-titulo" hidden>

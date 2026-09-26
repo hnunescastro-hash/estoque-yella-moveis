@@ -25,6 +25,6 @@ gcloud run deploy "$SERVICO" --source "$PASTA" \
   --project "$PROJETO" --region "$REGIAO" \
   --memory 512Mi --cpu 1 --timeout 180 --concurrency 4 \
   --min-instances 0 --max-instances 2 \
-  --set-env-vars "RAMO=$RAMO" \
+  --set-env-vars "RAMO=$RAMO,BALDE_PRIVADO=estoque-yella-privado" \
   --set-secrets "CHAVE_ADMIN=estoque-yella-chave-admin:latest,DEPLOY_KEY=estoque-yella-deploy-key:latest" \
   --allow-unauthenticated --quiet

@@ -27,7 +27,7 @@ import json
 import re
 import sys
 import unicodedata
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
@@ -53,6 +53,9 @@ COLUNAS = {
     "ult.venda": "ultima_venda",
 }
 OBRIGATORIAS = {"codigo", "descricao", "preco", "quantidade"}
+# Colunas privadas: lidas só para o servidor de atualização (modo administrador), nunca gravadas em dados/.
+COLUNAS_PRIVADAS = {"custo de compra": "custo"}
+NOVO_POR_DIAS = 30  # "novo_desde" some dos dados depois disso
 
 
 class ErroRelatorio(SystemExit):
@@ -118,6 +121,8 @@ def extrair(conteudo):
     for i, titulo in enumerate(titulos):
         if titulo in COLUNAS:
             indices[COLUNAS[titulo]] = i
+        elif titulo in COLUNAS_PRIVADAS:
+            indices[COLUNAS_PRIVADAS[titulo]] = i
     faltando = OBRIGATORIAS - set(indices)
     if faltando:
         raise ErroRelatorio(f"Colunas obrigatórias ausentes no relatório: {', '.join(sorted(faltando))}. Colunas lidas: {titulos}")
@@ -278,15 +283,23 @@ def formatar_quantidade(valor):
     return int(valor) if valor is not None and float(valor).is_integer() else valor
 
 
-def montar_loja(loja_id, conteudo, correcoes, lojas, nome=None, uf=None):
+def montar_loja(loja_id, conteudo, correcoes, lojas, nome=None, uf=None, anterior=None):
     """Lê o relatório (texto) e monta os dados da loja, sem gravar nada.
+
+    anterior: os dados publicados antes (dados/<loja>.json). Produto que não estava lá ganha
+    "novo_desde" (data do relatório), que a página mostra como etiqueta "Novo" por alguns dias.
 
     Devolve um dicionário com: saida (conteúdo de dados/<loja>.json), registro (entrada de
     dados/lojas.json), cidade e gerado_em do relatório, revisar (nomes com correção automática),
-    fornecedores_novos e avisos (conferência com os totais do próprio relatório)."""
+    fornecedores_novos, avisos (conferência com os totais do próprio relatório) e custos
+    ({código: custo de compra}, quando o relatório traz a coluna — PRIVADO, fora de "saida")."""
     linhas, total_relatorio, gerado_em, cidade, registros, colunas = extrair(conteudo)
     if not linhas:
         raise ErroRelatorio("Nenhum produto encontrado no relatório.")
+    referencia = gerado_em.date() if gerado_em else None
+    anteriores = None
+    if anterior and anterior.get("produtos") and referencia:
+        anteriores = {p["codigo"]: p for p in anterior["produtos"]}
 
     por_produto = correcoes.get("fornecedor_do_produto", {})
     internos = correcoes.get("fornecedores_internos", {})
@@ -329,6 +342,12 @@ def montar_loja(loja_id, conteudo, correcoes, lojas, nome=None, uf=None):
         termo_foto = correcoes.get("fornecedor_na_busca_de_foto", {}).get(chave_fornecedor)
         if termo_foto and not contem(nome_produto, termo_foto):
             produto["busca_foto"] = termo_foto
+        if anteriores is not None:
+            velho = anteriores.get(linha["codigo"])
+            if velho is None:
+                produto["novo_desde"] = referencia.isoformat()
+            elif velho.get("novo_desde") and (referencia - date.fromisoformat(velho["novo_desde"])).days <= NOVO_POR_DIAS:
+                produto["novo_desde"] = velho["novo_desde"]
         produtos.append(produto)
 
     produtos.sort(key=lambda p: (sem_acento(p["nome"]).lower(), p["codigo"]))
@@ -356,6 +375,7 @@ def montar_loja(loja_id, conteudo, correcoes, lojas, nome=None, uf=None):
         "total_unidades": formatar_quantidade(total_unidades),
         "produtos": produtos,
     }
+    custos = {l["codigo"]: numero_br(l["custo"]) for l in linhas if (l.get("custo") or "").strip()}
     return {
         "saida": saida,
         "registro": {"id": loja_id, "nome": nome_loja, "uf": uf, "arquivo": f"dados/{loja_id}.json"},
@@ -364,6 +384,7 @@ def montar_loja(loja_id, conteudo, correcoes, lojas, nome=None, uf=None):
         "revisar": revisar,
         "fornecedores_novos": fornecedores_novos,
         "avisos": avisos,
+        "custos": custos,
     }
 
 
@@ -419,12 +440,13 @@ def main():
     lojas = {"lojas": []}
     if ARQ_LOJAS.exists():
         lojas = json.loads(ARQ_LOJAS.read_text(encoding="utf-8"))
-    r = montar_loja(args.loja, ler_relatorio(args.relatorio), correcoes, lojas, args.nome, args.uf)
+    destino = PASTA_DADOS / f"{args.loja}.json"
+    anterior = json.loads(destino.read_text(encoding="utf-8")) if destino.exists() else None
+    r = montar_loja(args.loja, ler_relatorio(args.relatorio), correcoes, lojas, args.nome, args.uf, anterior)
     saida, gerado_em = r["saida"], r["gerado_em"]
     produtos = saida["produtos"]
 
     PASTA_DADOS.mkdir(exist_ok=True)
-    destino = PASTA_DADOS / f"{args.loja}.json"
     destino.write_text(texto_json(saida), encoding="utf-8")
     registrar_loja(lojas, r["registro"])
     ARQ_LOJAS.write_text(texto_json(lojas), encoding="utf-8")

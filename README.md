@@ -25,6 +25,13 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
   aquele código vem primeiro. Produto com preço provisório de R$ 1,00 no sistema aparece como
   "Preço a confirmar" e vai para o fim da lista.
 - **Categorias** (colchão, guarda-roupa, cozinha…) com ícone e quantidade, abaixo dos classificadores.
+- **Parados:** primeira pílula das categorias, com a quantidade de produtos sem venda nem compra há mais de 90 dias
+  (conta a mais recente das duas: produto que acabou de chegar não é parado). Mostra o mais parado primeiro, com o
+  tempo parado ao lado do nome. Só nas lojas cujo relatório traz a última venda (hoje, Matina).
+- **Novo:** etiqueta ao lado do nome do produto que entrou no estoque nos últimos 15 dias (a data de entrada é
+  marcada na publicação em que o produto aparece pela primeira vez).
+- **Enviar vários:** o botão **Selecionar** (ao lado da contagem) marca até 10 produtos e manda todos numa mensagem só
+  do WhatsApp ("Separei estas opções para você:"), cada um com o preço no Pix e no cartão.
 - Cartão compacto: o **nome** numa linha só (cortado com "…" quando não cabe) e, abaixo, o **preço** e,
   à direita, a **quantidade em estoque** (caixinha verde, âmbar na última unidade, cinza fora do estoque)
   seguida dos botões **anunciar, WhatsApp, ver foto e detalhes**, tudo na mesma linha.
@@ -62,7 +69,15 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
   Anunciado, Negociando, Reservado, Vendido, Entregue ou Cancelado (com filtro por status e histórico).
   Cada anunciado também tem o botão de **detalhes** do produto; se o produto saiu do estoque, mostra o que foi
   guardado ao anunciar (código, loja e preço da época).
-- Nome, percentuais, loja escolhida e anunciados ficam salvos **no próprio celular** de cada vendedor.
+- **Painel de vendas** no alto dos Anunciados: vendas do mês, valor total e comissão (setas para ver outros meses;
+  o olhinho esconde a comissão). Conta o que foi marcado como Vendido ou Entregue.
+- **Comprovante de venda:** ao marcar **Vendido**, abre o formulário com nome, CPF (conferido), telefone, endereço,
+  bairro, forma de pagamento (Pix/dinheiro já com o desconto máximo, cartão com as parcelas), valor e a
+  **assinatura do cliente** com o dedo. Gera um comprovante no estilo cupom de impressora térmica, com os dados da
+  Yêlla Móveis (Av. Guanambi, 41, Centro, Matina - BA, CNPJ 31.598.445/0001-49), numerado por vendedor
+  (ex.: HC-000001), para **enviar ao cliente** (imagem pelo WhatsApp) ou **baixar em imagem ou PDF**.
+  Traz "Não é documento fiscal". O botão de recibo no anunciado reabre o comprovante e permite editar.
+- Nome, percentuais, loja escolhida, anunciados, vendas e comprovantes ficam salvos **no próprio celular** de cada vendedor.
 - Depois do primeiro acesso, continua funcionando com internet fraca ou sem internet (mostra o último estoque salvo),
   e pode ser adicionada à tela inicial do celular como um aplicativo.
 
@@ -82,6 +97,11 @@ O nome original do sistema continua visível em **Detalhes**, para conferir no C
    ▲▼ quantidade, + produto novo, − produto que saiu, R$ preço, e os **nomes automáticos** de produtos novos para conferir.
 4. Toque em **Publicar**. O site atualiza para todos em cerca de 1 minuto (a própria tela avisa quando terminar).
    Quem estiver com o site aberto recebe o estoque novo ao voltar para a página.
+
+No modo administrador, os **detalhes** de cada produto mostram também o **preço de compra** (do relatório que traz a
+coluna Custo de Compra), o **imposto de saída** (percentual no campo "Imposto de saída" da gaveta, sobre o valor
+de venda) e a **sobra**: valor pago − preço de compra − imposto − comissão, do preço com desconto máximo ao preço
+cheio (em vermelho quando negativa).
 
 Proteções:
 - O arquivo tem que ser da loja certa (o relatório diz a cidade): trocado, é recusado.
@@ -138,8 +158,10 @@ Produto sem correspondência segura fica como "Não identificado", em vez de chu
 
 ### O que nunca é publicado
 
-O relatório de Igaporã traz a coluna **Custo de Compra**. O script ignora essa coluna: ela não vai para os
-dados nem para o GitHub, porque a página é pública (apenas não aparece em buscadores).
+O relatório de Igaporã traz a coluna **Custo de Compra**. Ela não vai para os dados nem para o GitHub, porque a
+página é pública (apenas não aparece em buscadores). Ao publicar pelo site, o servidor guarda os custos num
+armazenamento privado do Google Cloud (`estoque-yella-privado`, sem acesso público) e só os entrega a quem tem a
+chave de administrador.
 
 ## Arquivos
 

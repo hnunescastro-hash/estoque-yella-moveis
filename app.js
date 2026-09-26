@@ -7,6 +7,9 @@
   const CHAVE_ANUNCIADOS = 'estoque-yella:anunciados';
   const POR_PAGINA = 40;
   const TODAS = 'todas'; // opção "Todas as lojas": junta o estoque de todas
+  const DIAS_NOVO = 15;   // etiqueta "Novo" nos produtos que entraram numa atualização
+  const DIAS_PARADO = 90; // "Parados": sem venda nem compra há mais que isso (lojas cujo relatório traz a última venda)
+  const MAX_SELECAO = 10; // produtos numa mesma mensagem de WhatsApp
 
   // ---------------------------------------------------------------- ícones
   // Desenhados para 24x24, só com traço: a cor vem do texto em volta.
@@ -45,6 +48,9 @@
     fabrica: '<path d="M3 20.5V11l5.5 3.2V11l5.5 3.2V11l4 2.3V4h3v16.5z"/><path d="M7 17.5h2M11.5 17.5h2M16 17.5h2"/>',
     setaDireita: '<path d="m9 6 6 6-6 6"/>',
     arquivo: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
+    ampulheta: '<path d="M7 3h10M7 21h10M8 3v3.5a4 4 0 0 0 1.6 3.2L12 11.5l2.4-1.8A4 4 0 0 0 16 6.5V3M8 21v-3.5a4 4 0 0 1 1.6-3.2L12 12.5l2.4 1.8a4 4 0 0 1 1.6 3.2V21"/>',
+    check: '<path d="m5.5 12.5 4.2 4.2L18.5 8"/>',
+    recibo: '<path d="M6 3h12v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5L6 21z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
     desconto: '<circle cx="12" cy="12" r="8.5"/><path d="m8.8 15.2 6.4-6.4"/><circle class="ponto" cx="9.2" cy="9.2" r="1.25"/><circle class="ponto" cx="14.8" cy="14.8" r="1.25"/>',
   };
 
@@ -113,6 +119,19 @@
     camadaGaveta: $('camada-gaveta'), gaveta: $('gaveta'), gavetaIniciais: $('gaveta-iniciais'),
     gavetaFechar: $('gaveta-fechar'), formGaveta: $('form-gaveta'), nome: $('nome'), telefone: $('telefone'), temas: $('temas'),
     mostrarContas: $('mostrar-contas'),
+    filtroParados: $('filtro-parados'), filtroParadosLimpar: $('filtro-parados-limpar'), imposto: $('imposto'),
+    painelVendas: $('painel-vendas'), vendasMes: $('vendas-mes'), vendasNumeros: $('vendas-numeros'),
+    mesAnterior: $('mes-anterior'), mesProximo: $('mes-proximo'),
+    modalVenda: $('modal-venda'), formVenda: $('form-venda'), vendaProduto: $('venda-produto'), vendaNome: $('venda-nome'),
+    vendaCpf: $('venda-cpf'), vendaTelefone: $('venda-telefone'), vendaEndereco: $('venda-endereco'), vendaBairro: $('venda-bairro'),
+    vendaPagamento: $('venda-pagamento'), vendaParcelasCampo: $('venda-parcelas-campo'), vendaParcelas: $('venda-parcelas'),
+    vendaValor: $('venda-valor'), vendaAssinatura: $('venda-assinatura'), vendaLimparAssinatura: $('venda-limpar-assinatura'),
+    vendaErro: $('venda-erro'), vendaCancelar: $('venda-cancelar'),
+    modalComprovante: $('modal-comprovante'), comprovanteImagem: $('comprovante-imagem'), comprovanteEnviar: $('comprovante-enviar'),
+    comprovanteImagemBaixar: $('comprovante-imagem-baixar'), comprovantePdf: $('comprovante-pdf'),
+    comprovanteEditar: $('comprovante-editar'), comprovanteFechar: $('comprovante-fechar'),
+    barraResultados: $('barra-resultados'), selecionar: $('selecionar'), barraSelecao: $('barra-selecao'),
+    selecaoCancelar: $('selecao-cancelar'), selecaoTexto: $('selecao-texto'), selecaoEnviar: $('selecao-enviar'),
     adminEntrar: $('admin-entrar'), chaveAdmin: $('chave-admin'), adminBotaoEntrar: $('admin-botao-entrar'),
     adminPainel: $('admin-painel'), adminArquivos: $('admin-arquivos'), adminConferir: $('admin-conferir'),
     adminRelatorio: $('admin-relatorio'), adminPublicar: $('admin-publicar'), adminSair: $('admin-sair'), adminErro: $('admin-erro'),
@@ -145,6 +164,8 @@
     produtos: [], porChave: new Map(), resultado: [], exibidos: 0,
     consulta: '', ordem: 'az', comissao: 0, desconto: 0,
     nome: '', fornecedor: null, verTodosFornecedores: false, consultaMostrada: '',
+    filtroParados: false, ordemAntesParados: 'az', selecionando: false, selecionados: new Map(),
+    custos: null, imposto: 0, mesVendas: null,
     anunciados: [], filtroStatus: 'todos', anunciosAbertos: new Set(), tema: 'auto', mostrarContas: true, telefone: '',
     tela: 'estoque', rolagem: { estoque: 0, anunciados: 0 },
   };
@@ -226,7 +247,11 @@
   function prepararProdutos(partes) {
     const juntos = [];
     partes.forEach(({ loja, dados }, posicaoLoja) => {
-      for (const p of dados.produtos || []) juntos.push({ p, loja: loja.id, posicaoLoja, chave: semAcento(p.nome) });
+      const referencia = dados.gerado_em ? Date.parse(dados.gerado_em) : Date.now();
+      const temVenda = (dados.produtos || []).some((p) => 'ultima_venda' in p);
+      for (const p of dados.produtos || []) {
+        juntos.push({ p, loja: loja.id, posicaoLoja, chave: semAcento(p.nome), referencia, temVenda });
+      }
     });
     // Cada arquivo já vem em ordem alfabética. Juntando lojas, reordena do mesmo jeito,
     // para o mesmo produto das duas lojas ficar lado a lado.
@@ -234,7 +259,7 @@
       const comparar = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
       juntos.sort((a, b) => comparar(a.chave, b.chave) || comparar(a.p.codigo, b.p.codigo) || a.posicaoLoja - b.posicaoLoja);
     }
-    estado.produtos = juntos.map(({ p, loja }, ordem) => {
+    estado.produtos = juntos.map(({ p, loja, referencia, temVenda }, ordem) => {
       const nome = normalizar(p.nome);
       const codigo = String(p.codigo).replace(/^0+/, '');
       let busca = normalizar([p.nome, p.nome_sistema, p.codigo, codigo, p.marca].join(' '));
@@ -245,9 +270,13 @@
       if (PRODUTO_DE_CAMA.test(nome)) {
         for (const [medida, tamanho] of TAMANHOS) if (medida.test(nome)) busca += ' ' + tamanho;
       }
+      // Dias parado até a data do relatório: desde a última venda ou a última compra, a mais
+      // recente (produto que acabou de chegar não conta como parado)
+      const desde = temVenda ? [p.ultima_venda, p.ultima_compra].filter(Boolean).sort().pop() : null;
+      const diasParado = desde ? Math.floor((referencia - Date.parse(`${desde}T12:00:00`)) / 86400000) : null;
       return Object.assign({}, p, {
         _loja: loja, _chave: `${loja}:${p.codigo}`,
-        _ordem: ordem, _nome: nome, _nomeEspaco: ' ' + nome, _busca: busca, _codigo: codigo,
+        _ordem: ordem, _nome: nome, _nomeEspaco: ' ' + nome, _busca: busca, _codigo: codigo, _diasParado: diasParado,
       });
     });
     estado.porChave = new Map(estado.produtos.map((p) => [p._chave, p]));
@@ -292,7 +321,10 @@
   }
 
   // Com um fornecedor escolhido, a busca fica só nos produtos dele.
-  const baseDaBusca = () => (estado.fornecedor ? estado.produtos.filter((p) => p.fornecedor === estado.fornecedor) : estado.produtos);
+  const parado = (p) => p._diasParado != null && p._diasParado >= DIAS_PARADO;
+  const baseDaBusca = () => ((estado.fornecedor || estado.filtroParados)
+    ? estado.produtos.filter((p) => (!estado.fornecedor || p.fornecedor === estado.fornecedor) && (!estado.filtroParados || parado(p)))
+    : estado.produtos);
 
   function buscar(consulta) {
     const base = baseDaBusca();
@@ -346,6 +378,7 @@
 
   // Produto sem preço (R$ 1,00) vai para o fim quando a lista é ordenada por preço.
   const ORDENACOES = {
+    parado: (a, b) => (b._diasParado ?? -1) - (a._diasParado ?? -1) || a._ordem - b._ordem, // mais parado primeiro
     'mais-estoque': (a, b) => b.quantidade - a.quantidade || a._ordem - b._ordem,
     'menos-estoque': (a, b) => a.quantidade - b.quantidade || a._ordem - b._ordem,
     az: (a, b) => a._ordem - b._ordem,
@@ -416,32 +449,55 @@
   // O desconto no Pix é o "Desconto máximo" da gaveta: o preço prometido é o mesmo "até R$" do cartão.
   const PARCELAS_SEM_JUROS = 10; // no máximo
   const PARCELA_MINIMA = 2500; // R$ 25,00 (em centavos)
-  function mensagemWhatsApp(p, idLoja) {
-    const loja = lojaPorId(idLoja);
-    const linhas = [`*${p.nome}*`, ''];
-    if (semPreco(p)) {
-      linhas.push('💰 Preço a confirmar');
-    } else {
-      const conta = calcular(p.preco, 0, estado.desconto);
-      linhas.push(estado.desconto > 0
+  function linhasPreco(p) {
+    if (semPreco(p)) return ['💰 Preço a confirmar'];
+    const conta = calcular(p.preco, 0, estado.desconto);
+    const parcelas = Math.min(PARCELAS_SEM_JUROS, Math.floor(conta.cheio / PARCELA_MINIMA));
+    return [
+      estado.desconto > 0
         ? `💰 *${reais(conta.minimo)}* com ${percentual(estado.desconto)} OFF no Pix`
-        : `💰 *${reais(conta.cheio)}* no Pix`);
-      const parcelas = Math.min(PARCELAS_SEM_JUROS, Math.floor(conta.cheio / PARCELA_MINIMA));
-      linhas.push(parcelas >= 2
+        : `💰 *${reais(conta.cheio)}* no Pix`,
+      parcelas >= 2
         ? `💳 ${reais(conta.cheio)} em ${parcelas}x de ${reais(Math.round(conta.cheio / parcelas))} sem juros`
-        : `💳 ${reais(conta.cheio)} no cartão`);
-    }
-    linhas.push('🚚 Entrega Grátis');
-    if (p.quantidade >= 1 && p.quantidade <= 3) linhas.push('🔥 Últimas unidades!'); // até 3 unidades
-    else if (p.quantidade > 3) linhas.push('✅ Pronta entrega');
-    linhas.push('', 'Quer garantir?', 'É só responder esta mensagem! 😊', '');
+        : `💳 ${reais(conta.cheio)} no cartão`,
+    ];
+  }
+
+  function linhaEstoqueMensagem(p) {
+    if (p.quantidade >= 1 && p.quantidade <= 3) return '🔥 Últimas unidades!'; // até 3 unidades
+    return p.quantidade > 3 ? '✅ Pronta entrega' : '';
+  }
+
+  function assinaturaMensagem(loja) {
+    const linhas = ['', 'Quer garantir?', 'É só responder esta mensagem! 😊', ''];
     linhas.push(loja ? `Yêlla Móveis · ${rotuloLoja(loja)}` : 'Yêlla Móveis');
     if (estado.nome) linhas.push(`Atendimento: ${estado.nome}`);
     if (estado.telefone) linhas.push(`Tel. ${estado.telefone}`);
+    return linhas;
+  }
+
+  function mensagemWhatsApp(p, idLoja) {
+    const linhas = [`*${p.nome}*`, '', ...linhasPreco(p), '🚚 Entrega Grátis'];
+    if (linhaEstoqueMensagem(p)) linhas.push(linhaEstoqueMensagem(p));
+    linhas.push(...assinaturaMensagem(lojaPorId(idLoja)));
     return linhas.join('\n').replace(/ /g, ' ');
   }
 
   const linkWhatsApp = (p, idLoja) => 'https://wa.me/?text=' + encodeURIComponent(mensagemWhatsApp(p, idLoja));
+
+  // Vários produtos numa mensagem só (ex.: o cliente perguntou "quais guarda-roupas vocês têm?").
+  function mensagemVarios(produtos) {
+    const lojas = [...new Set(produtos.map((p) => p._loja))];
+    const linhas = ['*Separei estas opções para você:*', ''];
+    produtos.forEach((p, i) => {
+      const onde = lojas.length > 1 ? ` (${rotuloLoja(lojaPorId(p._loja))})` : '';
+      linhas.push(`${i + 1}. *${p.nome}*${onde}`, ...linhasPreco(p));
+      if (linhaEstoqueMensagem(p)) linhas.push(linhaEstoqueMensagem(p));
+      linhas.push('');
+    });
+    linhas.push('🚚 Entrega Grátis', ...assinaturaMensagem(lojas.length === 1 ? lojaPorId(lojas[0]) : null));
+    return linhas.join('\n').replace(/\u00a0/g, ' ');
+  }
 
   function botaoWhatsAppHTML(p, idLoja) {
     return `<a class="icone-botao whatsapp" href="${escapar(linkWhatsApp(p, idLoja))}" target="_blank" rel="noopener noreferrer" title="Enviar pelo WhatsApp" aria-label="Enviar ${escapar(p.nome)} pelo WhatsApp">${icone('whatsapp')}</a>`;
@@ -470,6 +526,8 @@
     linhas.push(['Última compra', p.ultima_compra ? dataBR(p.ultima_compra) : 'Não informada']);
     if ('ultima_venda' in p) linhas.push(['Última venda', p.ultima_venda ? dataBR(p.ultima_venda) : 'Nenhuma venda registrada']);
     linhas.push(['Nome no sistema', `<span class="sistema">${escapar(p.nome_sistema)}</span>`]);
+    const custo = custoDe(p);
+    if (custo != null) linhas.push(...linhasSobra(p, custo));
     return listaDetalhesHTML(linhas, id, aberto).replace('</dl>', galeriaHTML(p) + '</dl>');
   }
 
@@ -552,10 +610,37 @@
     ], id, aberto);
   }
 
+  // "Novo": produto que entrou numa atualização recente do estoque.
+  function seloNovoHTML(p) {
+    if (!p.novo_desde) return '';
+    const dias = (Date.now() - Date.parse(`${p.novo_desde}T12:00:00`)) / 86400000;
+    return dias <= DIAS_NOVO ? '<span class="selo-novo">Novo</span>' : '';
+  }
+
+  function tempoParado(dias) {
+    if (dias >= 365) {
+      const anos = Math.floor(dias / 365);
+      return `${anos} ${anos === 1 ? 'ano' : 'anos'}`;
+    }
+    return dias >= 60 ? `${Math.floor(dias / 30)} meses` : `${dias} dias`;
+  }
+
+  // Tempo parado: aparece só com o filtro "Parados".
+  function seloParadoHTML(p) {
+    if (!estado.filtroParados || !parado(p)) return '';
+    const tempo = tempoParado(p._diasParado);
+    return `<span class="selo-parado" title="Parado há ${tempo}">${icone('ampulheta')}${tempo}</span>`;
+  }
+
+  function marcadorHTML(p, selecionado) {
+    return `<button type="button" class="marcador" data-acao="selecionar" aria-pressed="${selecionado}" aria-label="Selecionar ${escapar(p.nome)}">${icone('check')}</button>`;
+  }
+
   function cartaoHTML(p) {
     const id = `detalhes-${p._loja}-${p.codigo}`;
-    return `<li class="card" data-chave="${escapar(p._chave)}">
-  <div class="linha-nome"><h2 class="nome" title="${escapar(p.nome)}">${escapar(p.nome)}</h2>${seloLojaHTML(p._loja)}</div>
+    const selecionado = estado.selecionados.has(p._chave);
+    return `<li class="card${selecionado ? ' selecionado' : ''}" data-chave="${escapar(p._chave)}">
+  <div class="linha-nome">${marcadorHTML(p, selecionado)}<h2 class="nome" title="${escapar(p.nome)}">${escapar(p.nome)}</h2>${seloParadoHTML(p)}${seloNovoHTML(p)}${seloLojaHTML(p._loja)}</div>
   <div class="linha-principal">
     ${precoHTML(p)}
     <div class="botoes">${estoqueHTML(p)}${botaoAnunciarHTML(p)}${botaoWhatsAppHTML(p, p._loja)}${botaoFotoHTML(p)}${botaoDetalhesHTML(p.nome, id, false)}</div>
@@ -609,6 +694,7 @@
     mostrarMais();
     atualizarContagem();
     el.filtroFornecedor.hidden = !estado.fornecedor;
+    el.filtroParados.hidden = !estado.filtroParados;
     el.filtroFornecedorNome.textContent = estado.fornecedor || '';
     let fornecedoresHTML = '';
     let titulo = ''; // busca sem resultado já avisa na contagem
@@ -617,6 +703,9 @@
     } else if (estado.fornecedor) {
       if (!consulta) titulo = 'Nenhum produto deste fornecedor aqui';
       fornecedoresHTML = `<button type="button" class="botao-secundario" data-acao="tirar-fornecedor">${icone('cancelar')}Tirar o filtro de fornecedor</button>`;
+    } else if (estado.filtroParados) {
+      if (!consulta) titulo = 'Nenhum produto parado aqui';
+      fornecedoresHTML = `<button type="button" class="botao-secundario" data-acao="tirar-parados">${icone('cancelar')}Tirar o filtro de parados</button>`;
     } else if (!resultado.length && consulta) {
       fornecedoresHTML = buscaPorFornecedorHTML(consulta);
     }
@@ -638,6 +727,7 @@
     el.sugestaoFornecedor.hidden = !sugestao;
     el.vazio.hidden = resultado.length > 0;
     el.atalhos.hidden = semDados || consulta !== '' || !el.atalhos.children.length;
+    atualizarBotaoSelecionar();
     carregarSePerto();
   }
 
@@ -708,7 +798,7 @@
 
   // Leva o começo da lista para logo abaixo do painel fixo, se a pessoa tiver rolado para baixo.
   function voltarAoTopoDaLista() {
-    const ancora = [el.filtroFornecedor, el.contagem].find((e) => !e.hidden) || el.lista;
+    const ancora = [el.filtroParados, el.filtroFornecedor, el.barraResultados].find((e) => !e.hidden) || el.lista;
     const alvo = ancora.getBoundingClientRect().top + window.scrollY - el.painel.offsetHeight - 8;
     if (window.scrollY > alvo) window.scrollTo(0, Math.max(0, alvo));
   }
@@ -744,7 +834,12 @@
   }
 
   function montarAtalhos() {
-    el.atalhos.innerHTML = ATALHOS.map(([termo, nomeIcone]) => {
+    const parados = estado.filtroParados ? 0
+      : estado.produtos.filter((p) => (!estado.fornecedor || p.fornecedor === estado.fornecedor) && parado(p)).length;
+    const chipParados = parados
+      ? `<button type="button" class="atalho atalho-parados" data-acao="parados">${icone('ampulheta')}<span>Parados</span><span class="atalho-qtd">${parados}</span></button>`
+      : '';
+    el.atalhos.innerHTML = chipParados + ATALHOS.map(([termo, nomeIcone]) => {
       const total = buscar(termo).length;
       return total
         ? `<button type="button" class="atalho" data-busca="${escapar(termo)}">${icone(nomeIcone)}<span>${escapar(termo)}</span><span class="atalho-qtd">${total}</span></button>`
@@ -828,6 +923,7 @@
     if (item.historico.length > 30) item.historico.splice(0, item.historico.length - 30);
     salvarAnunciados();
     renderizarAnunciados();
+    if (status === 'vendido' && !item.venda) abrirVenda(item);
   }
 
   function removerAnuncio(item) {
@@ -862,7 +958,7 @@
     const id = `anuncio-detalhes-${item.loja}-${item.codigo}`;
     const aberto = estado.anunciosAbertos.has(chave); // continua aberto quando a lista é redesenhada
     return `<li class="card anuncio status-${s.id}${aberto ? ' aberto' : ''}" data-id="${escapar(chave)}">
-  <div class="linha-nome"><h2 class="nome" title="${escapar(p.nome)}">${escapar(p.nome)}</h2>${seloLojaHTML(item.loja)}</div>
+  <div class="linha-nome"><h2 class="nome" title="${escapar(p.nome)}">${escapar(p.nome)}</h2>${atual ? seloNovoHTML(atual) : ''}${seloLojaHTML(item.loja)}</div>
   <div class="linha-principal">
     ${precoHTML(p)}
     <div class="botoes">${estoqueHTML(atual)}${botaoWhatsAppHTML(p, item.loja)}${botaoFotoHTML(p)}<button type="button" class="icone-botao remover" data-acao="remover" title="Remover dos anunciados" aria-label="Remover ${escapar(p.nome)} dos anunciados">${icone('lixeira')}</button>${botaoDetalhesHTML(p.nome, id, aberto)}</div>
@@ -873,6 +969,7 @@
   <div class="status-grade" role="group" aria-label="Como está o pedido">
     ${STATUS.map((st) => `<button type="button" class="status-opcao status-${st.id}" data-status="${st.id}" aria-pressed="${st.id === s.id}">${icone(st.icone)}<span>${st.nome}</span></button>`).join('')}
   </div>
+  ${s.id === 'vendido' || s.id === 'entregue' ? `<button type="button" class="botao-comprovante" data-acao="comprovante">${icone('recibo')}${item.venda ? 'Comprovante de venda' : 'Gerar comprovante'}</button>` : ''}
   <p class="historico">${historicoTexto(item)}</p>
 </li>`;
   }
@@ -899,6 +996,7 @@
       .filter((a) => estado.filtroStatus === 'todos' || a.status === estado.filtroStatus)
       .sort((a, b) => String(b.criadoEm).localeCompare(String(a.criadoEm)));
     el.listaAnunciados.innerHTML = visiveis.map(anuncioHTML).join('');
+    renderizarPainelVendas(daLoja);
     el.vazioAnunciados.hidden = daLoja.length > 0;
   }
 
@@ -909,12 +1007,606 @@
     el.abaAnunciados.setAttribute('aria-label', total ? `Anunciados: ${total}` : 'Anunciados');
   }
 
+  // ---------------------------------------------------------------- administrador: preço de compra e sobra
+
+  function custoDe(p) {
+    if (!chaveAdmin || !estado.custos || !p._loja) return undefined;
+    const custos = estado.custos[p._loja];
+    return custos ? custos[p.codigo] : undefined;
+  }
+
+  const faixa = (menor, maior) => (menor === maior ? reais(menor) : `${reais(menor)} a ${reais(maior)}`);
+
+  // O que sobra para a loja em cada venda: valor pago − preço de compra − imposto de saída − comissão
+  // (do preço com o desconto máximo até o preço cheio).
+  function linhasSobra(p, custo) {
+    const linhas = [['Preço de compra', reais(Math.round(custo * 100))]];
+    if (semPreco(p)) return linhas;
+    const conta = calcular(p.preco, estado.comissao, estado.desconto);
+    const custoCentavos = Math.round(custo * 100);
+    const imposto = (valor) => Math.round(valor * estado.imposto / 100);
+    const sobraCheio = conta.cheio - custoCentavos - imposto(conta.cheio) - conta.ganhoCheio;
+    const sobraMinimo = conta.minimo - custoCentavos - imposto(conta.minimo) - conta.ganhoMinimo;
+    if (estado.imposto > 0) linhas.push([`Imposto (${percentual(estado.imposto)})`, faixa(imposto(conta.minimo), imposto(conta.cheio))]);
+    const classe = Math.min(sobraMinimo, sobraCheio) < 0 ? ' class="negativo"' : '';
+    linhas.push(['Sobra', `<strong${classe}>${faixa(sobraMinimo, sobraCheio)}</strong>`]);
+    return linhas;
+  }
+
+  // Redesenha os detalhes já na tela (abertos continuam abertos).
+  function atualizarDetalhes() {
+    for (const cartao of el.lista.children) {
+      const p = estado.porChave.get(cartao.dataset.chave);
+      const lista = cartao.querySelector('dl.detalhes');
+      if (p && lista) lista.outerHTML = detalhesHTML(p, lista.id, !lista.hidden);
+    }
+    if (estado.tela === 'anunciados') renderizarAnunciados();
+  }
+
+  async function carregarCustos() {
+    if (!chaveAdmin) return;
+    try {
+      const resposta = await chamarServidor('/api/custos', { chave: chaveAdmin });
+      estado.custos = resposta.custos || {};
+      atualizarDetalhes();
+    } catch (erro) {
+      if (erro.status === 401) sairAdmin();
+    }
+  }
+
+  // ---------------------------------------------------------------- venda: dados do cliente e comprovante
+
+  const EMISSOR = ['AV. GUANAMBI, 41 - CENTRO', 'MATINA - BA · CEP 46480-000', 'CNPJ 31.598.445/0001-49'];
+  const PAGAMENTOS = { pix: 'PIX', dinheiro: 'DINHEIRO', credito: 'CARTÃO DE CRÉDITO', debito: 'CARTÃO DE DÉBITO' };
+  const CHAVE_NUMERO = 'estoque-yella:comprovante';
+  const FONTE_CUPOM = 'Share Tech Mono';
+  const decimal = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  let vendaAtual = null;
+  let valorEditado = false;
+  let comprovanteAtual = null;
+  const assinatura = { desenhando: false, vazia: true, ultimo: null };
+
+  const produtoDoAnuncio = (item) => estado.porChave.get(chaveAnuncio(item))
+    || { nome: item.nome, preco: item.preco, codigo: item.codigo, _loja: item.loja };
+
+  function formatarCpf(texto) {
+    const d = String(texto || '').replace(/\D/g, '').slice(0, 11);
+    return d.replace(/^(\d{3})(\d)/, '$1.$2').replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3').replace(/\.(\d{3})(\d{1,2})$/, '.$1-$2');
+  }
+
+  function cpfValido(cpf) {
+    const d = String(cpf).replace(/\D/g, '');
+    if (d.length !== 11 || /^(\d)\1{10}$/.test(d)) return false;
+    const digito = (n) => {
+      let soma = 0;
+      for (let i = 0; i < n; i += 1) soma += Number(d[i]) * (n + 1 - i);
+      const resto = (soma * 10) % 11;
+      return resto === 10 ? 0 : resto;
+    };
+    return digito(9) === Number(d[9]) && digito(10) === Number(d[10]);
+  }
+
+  // "1.038,50", "1038,5", "1038.50", "R$ 1.038" -> centavos
+  function lerValor(texto) {
+    const limpo = String(texto || '').replace(/[^\d,.]/g, '').replace(/\.(?=\d{3}(\D|$))/g, '').replace(',', '.');
+    const valor = Number(limpo);
+    return limpo && Number.isFinite(valor) ? Math.round(valor * 100) : NaN;
+  }
+
+  // Pix leva o desconto máximo (o mesmo da mensagem do WhatsApp); os outros, o preço cheio.
+  function valorPadrao(p, pagamento) {
+    if (semPreco(p)) return 0;
+    const conta = calcular(p.preco, 0, estado.desconto);
+    return pagamento === 'pix' ? conta.minimo : conta.cheio;
+  }
+
+  function montarParcelas(escolhida) {
+    const valor = lerValor(el.vendaValor.value) || 0;
+    const maximo = Math.max(1, Math.min(PARCELAS_SEM_JUROS, Math.floor(valor / PARCELA_MINIMA)));
+    const atual = Math.min(escolhida || Number(el.vendaParcelas.value) || maximo, maximo);
+    el.vendaParcelas.innerHTML = Array.from({ length: maximo }, (_, i) => i + 1)
+      .map((n) => `<option value="${n}"${n === atual ? ' selected' : ''}>${n}x de ${reais(Math.round(valor / n))}</option>`).join('');
+    el.vendaParcelasCampo.hidden = el.vendaPagamento.value !== 'credito';
+  }
+
+  function erroVenda(texto, campo) {
+    el.vendaErro.textContent = texto;
+    el.vendaErro.hidden = false;
+    if (campo) campo.focus();
+  }
+
+  function limparAssinatura() {
+    el.vendaAssinatura.getContext('2d').clearRect(0, 0, el.vendaAssinatura.width, el.vendaAssinatura.height);
+    assinatura.vazia = true;
+  }
+
+  function prepararAssinatura() {
+    const tela = el.vendaAssinatura;
+    const ctx = tela.getContext('2d');
+    const ponto = (e) => {
+      const r = tela.getBoundingClientRect();
+      return { x: (e.clientX - r.left) * tela.width / r.width, y: (e.clientY - r.top) * tela.height / r.height };
+    };
+    const tracar = (de, ate) => {
+      ctx.strokeStyle = '#1d1b16';
+      ctx.lineWidth = 3.4;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ctx.moveTo(de.x, de.y);
+      ctx.lineTo(ate.x, ate.y);
+      ctx.stroke();
+    };
+    tela.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      tela.setPointerCapture(e.pointerId);
+      assinatura.desenhando = true;
+      assinatura.ultimo = ponto(e);
+      tracar(assinatura.ultimo, { x: assinatura.ultimo.x + 0.1, y: assinatura.ultimo.y });
+      assinatura.vazia = false;
+    });
+    tela.addEventListener('pointermove', (e) => {
+      if (!assinatura.desenhando) return;
+      const atual = ponto(e);
+      tracar(assinatura.ultimo, atual);
+      assinatura.ultimo = atual;
+    });
+    const fim = () => { assinatura.desenhando = false; };
+    tela.addEventListener('pointerup', fim);
+    tela.addEventListener('pointercancel', fim);
+  }
+
+  function abrirVenda(item) {
+    vendaAtual = item;
+    const p = produtoDoAnuncio(item);
+    const v = item.venda || {};
+    const c = v.cliente || {};
+    el.vendaProduto.textContent = p.nome;
+    el.vendaNome.value = c.nome || '';
+    el.vendaCpf.value = c.cpf || '';
+    el.vendaTelefone.value = c.telefone || '';
+    el.vendaEndereco.value = c.endereco || '';
+    el.vendaBairro.value = c.bairro || '';
+    el.vendaPagamento.value = v.pagamento || 'pix';
+    // valor igual ao padrão da forma de pagamento salva: trocar a forma ainda atualiza o valor
+    valorEditado = v.valor != null && Math.round(v.valor * 100) !== valorPadrao(p, v.pagamento);
+    el.vendaValor.value = decimal.format((v.valor != null ? Math.round(v.valor * 100) : valorPadrao(p, el.vendaPagamento.value)) / 100);
+    montarParcelas(v.parcelas);
+    limparAssinatura();
+    if (v.assinatura) {
+      const imagem = new Image();
+      imagem.onload = () => el.vendaAssinatura.getContext('2d').drawImage(imagem, 0, 0);
+      imagem.src = v.assinatura;
+      assinatura.vazia = false;
+    }
+    el.vendaErro.hidden = true;
+    esconderToast();
+    el.modalVenda.hidden = false;
+    el.modalVenda.scrollTop = 0;
+    travarFundo(true);
+    el.vendaNome.focus();
+  }
+
+  function fecharVenda() {
+    el.modalVenda.hidden = true;
+    vendaAtual = null;
+    travarFundo(false);
+  }
+
+  function proximoNumero() {
+    let numero = 0;
+    try { numero = Number(localStorage.getItem(CHAVE_NUMERO)) || 0; } catch (e) { /* sem armazenamento */ }
+    numero += 1;
+    try { localStorage.setItem(CHAVE_NUMERO, String(numero)); } catch (e) { /* sem armazenamento */ }
+    return `${iniciaisDe(estado.nome) || 'YM'}-${String(numero).padStart(6, '0')}`;
+  }
+
+  function concluirVenda(evento) {
+    evento.preventDefault();
+    const nome = limparNome(el.vendaNome.value);
+    const cpf = el.vendaCpf.value.trim();
+    const valor = lerValor(el.vendaValor.value);
+    if (!nome) return erroVenda('Digite o nome do cliente.', el.vendaNome);
+    if (cpf && !cpfValido(cpf)) return erroVenda('CPF inválido. Confira os números.', el.vendaCpf);
+    if (!(valor > 0)) return erroVenda('Informe o valor da venda.', el.vendaValor);
+    const item = vendaAtual;
+    const anterior = item.venda || {};
+    item.venda = {
+      numero: anterior.numero || proximoNumero(),
+      data: anterior.data || new Date().toISOString(),
+      vendedor: anterior.vendedor || estado.nome,
+      telefoneVendedor: anterior.telefoneVendedor != null ? anterior.telefoneVendedor : estado.telefone,
+      cliente: {
+        nome,
+        cpf: formatarCpf(cpf),
+        telefone: el.vendaTelefone.value.trim() ? formatarTelefone(el.vendaTelefone.value) : '',
+        endereco: limparNome(el.vendaEndereco.value),
+        bairro: limparNome(el.vendaBairro.value),
+      },
+      pagamento: el.vendaPagamento.value,
+      parcelas: el.vendaPagamento.value === 'credito' ? Number(el.vendaParcelas.value) || 1 : 1,
+      valor: valor / 100,
+      comissao: anterior.comissao != null ? anterior.comissao : estado.comissao,
+      assinatura: assinatura.vazia ? '' : el.vendaAssinatura.toDataURL('image/png'),
+    };
+    item.atualizadoEm = new Date().toISOString();
+    salvarAnunciados();
+    fecharVenda();
+    renderizarAnunciados();
+    mostrarComprovante(item);
+    return undefined;
+  }
+
+  // ---- imagem no estilo de cupom (impressora térmica)
+
+  let fonteCupom = null;
+  function carregarFonteCupom() {
+    if (!fonteCupom) {
+      fonteCupom = new Promise((pronto) => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = `https://fonts.googleapis.com/css2?family=${FONTE_CUPOM.replace(/ /g, '+')}&display=block`;
+        link.onload = () => document.fonts.load(`24px "${FONTE_CUPOM}"`).then(pronto, pronto);
+        link.onerror = pronto;
+        document.head.appendChild(link);
+        setTimeout(pronto, 4000); // sem internet: usa a fonte do aparelho
+      });
+    }
+    return fonteCupom;
+  }
+
+  const carregarImagem = (fonte) => new Promise((pronto) => {
+    const imagem = new Image();
+    imagem.onload = () => pronto(imagem);
+    imagem.onerror = () => pronto(null);
+    imagem.src = fonte;
+  });
+
+  function dataHoraCompleta(iso) {
+    const d = new Date(iso);
+    return `${doisDigitos(d.getDate())}/${doisDigitos(d.getMonth() + 1)}/${d.getFullYear()} ${doisDigitos(d.getHours())}:${doisDigitos(d.getMinutes())}`;
+  }
+
+  async function desenharComprovante(item) {
+    await carregarFonteCupom();
+    const v = item.venda;
+    const p = produtoDoAnuncio(item);
+    const loja = lojaPorId(item.loja);
+    const ESCALA = 2;
+    const PAPEL = 560;
+    const MARGEM = 26;
+    const RECUO = 30;
+    const TAM = 21;
+    const ALTURA = 29;
+    const familia = `"${FONTE_CUPOM}", "Courier New", monospace`;
+    const medidor = document.createElement('canvas').getContext('2d');
+    medidor.font = `${TAM}px ${familia}`;
+    const colunas = Math.floor((PAPEL - RECUO * 2) / medidor.measureText('M').width);
+    const maiusculo = (t) => String(t || '').toLocaleUpperCase('pt-BR');
+
+    const quebrar = (texto, largura) => {
+      const linhas = [];
+      let atual = '';
+      for (const palavra of maiusculo(texto).split(/[ \t\n]+/).filter(Boolean)) { // espaço rígido (R$ 10,00) não quebra
+        if (!atual) atual = palavra;
+        else if ((atual + ' ' + palavra).length <= largura) atual += ' ' + palavra;
+        else { linhas.push(atual); atual = palavra; }
+        while (atual.length > largura) { linhas.push(atual.slice(0, largura)); atual = atual.slice(largura); }
+      }
+      if (atual) linhas.push(atual);
+      return linhas.length ? linhas : [''];
+    };
+
+    const blocos = [];
+    const texto = (t, op = {}) => blocos.push({ tipo: 'texto', t: maiusculo(t), ...op });
+    const duas = (esq, dir, op = {}) => blocos.push({ tipo: 'duas', esq: maiusculo(esq), dir: maiusculo(dir), ...op });
+    const traco = () => blocos.push({ tipo: 'texto', t: '-'.repeat(colunas) });
+    const espaco = (altura) => blocos.push({ tipo: 'espaco', altura });
+
+    texto('Yêlla Móveis', { tam: 36, negrito: true, centro: true, altura: 46 });
+    for (const linha of EMISSOR) texto(linha, { centro: true });
+    traco();
+    texto('Comprovante de venda', { negrito: true, centro: true, tam: 24, altura: 32 });
+    traco();
+    duas(`Nº ${v.numero}`, dataHoraCompleta(v.data));
+    if (v.vendedor) texto(`Vendedor: ${v.vendedor}`);
+    if (v.telefoneVendedor) texto(`Tel.: ${v.telefoneVendedor}`);
+    traco();
+    texto('Cliente', { negrito: true });
+    for (const [rotulo, valor] of [['Nome', v.cliente.nome], ['CPF', v.cliente.cpf], ['Tel.', v.cliente.telefone], ['End.', v.cliente.endereco], ['Bairro', v.cliente.bairro]]) {
+      if (!valor) continue;
+      quebrar(`${rotulo}: ${valor}`, colunas).forEach((linha) => texto(linha));
+    }
+    traco();
+    duas('Cód.   Descrição', '');
+    quebrar(p.nome, colunas - 7).forEach((linha, i) => texto(`${i ? '       ' : String(p.codigo).padEnd(7)}${linha}`));
+    const cheio = semPreco(p) ? Math.round(v.valor * 100) : Math.round(p.preco * 100);
+    const total = Math.round(v.valor * 100);
+    duas(`       1 x ${reais(cheio)}`, reais(cheio));
+    traco();
+    duas('Subtotal', reais(cheio));
+    if (total < cheio) duas('Desconto', `-${reais(cheio - total)}`);
+    if (total > cheio) duas('Acréscimo', `+${reais(total - cheio)}`);
+    duas('Total', reais(total), { negrito: true, tam: 26, altura: 36 });
+    traco();
+    const pagamento = v.pagamento === 'credito'
+      ? `${PAGAMENTOS.credito} ${v.parcelas > 1 ? `${v.parcelas}x\u00a0de\u00a0${reais(Math.round(total / v.parcelas))}` : 'à\u00a0vista'}`
+      : PAGAMENTOS[v.pagamento];
+    quebrar(`Pagamento: ${pagamento}`, colunas).forEach((linha) => texto(linha));
+    texto('Entrega: grátis');
+    if (loja) texto(`Estoque: loja de ${rotuloLoja(loja)}`);
+    traco();
+    quebrar('Confirmo que os dados acima estão corretos.', colunas).forEach((linha) => texto(linha));
+    const imagemAssinatura = v.assinatura ? await carregarImagem(v.assinatura) : null;
+    if (imagemAssinatura) blocos.push({ tipo: 'assinatura', imagem: imagemAssinatura, altura: 120 });
+    else espaco(70);
+    texto('_'.repeat(colunas - 4), { centro: true });
+    texto('Assinatura do cliente', { centro: true });
+    traco();
+    texto('Não é documento fiscal', { negrito: true, centro: true });
+    texto('Obrigado pela preferência!', { centro: true });
+
+    const alturaTexto = blocos.reduce((soma, b) => soma + (b.altura || ALTURA), 0);
+    const largura = PAPEL + MARGEM * 2;
+    const altura = alturaTexto + MARGEM * 2 + 70;
+    const tela = document.createElement('canvas');
+    tela.width = largura * ESCALA;
+    tela.height = altura * ESCALA;
+    const ctx = tela.getContext('2d');
+    ctx.scale(ESCALA, ESCALA);
+    ctx.fillStyle = '#e8e6e0';
+    ctx.fillRect(0, 0, largura, altura);
+
+    // papel com as bordas picotadas
+    const esquerda = MARGEM;
+    const direita = MARGEM + PAPEL;
+    const topo = MARGEM;
+    const base = altura - MARGEM;
+    const dente = 9;
+    ctx.beginPath();
+    ctx.moveTo(esquerda, topo + dente);
+    for (let x = esquerda; x < direita; x += dente * 2) {
+      ctx.lineTo(Math.min(x + dente, direita), topo);
+      ctx.lineTo(Math.min(x + dente * 2, direita), topo + dente);
+    }
+    ctx.lineTo(direita, base - dente);
+    for (let x = direita; x > esquerda; x -= dente * 2) {
+      ctx.lineTo(Math.max(x - dente, esquerda), base);
+      ctx.lineTo(Math.max(x - dente * 2, esquerda), base - dente);
+    }
+    ctx.closePath();
+    ctx.save();
+    ctx.shadowColor = 'rgba(0, 0, 0, .18)';
+    ctx.shadowBlur = 18;
+    ctx.shadowOffsetY = 4;
+    ctx.fillStyle = '#fffdf6';
+    ctx.fill();
+    ctx.restore();
+
+    ctx.fillStyle = '#26231e';
+    ctx.textBaseline = 'middle';
+    const escrever = (t, x, y, negrito) => {
+      ctx.fillText(t, x, y);
+      if (negrito) ctx.fillText(t, x + 0.7, y);
+    };
+    let y = topo + 36;
+    for (const b of blocos) {
+      const h = b.altura || ALTURA;
+      ctx.font = `${b.tam || TAM}px ${familia}`;
+      if (b.tipo === 'texto') {
+        const x = b.centro ? (largura - ctx.measureText(b.t).width) / 2 : esquerda + RECUO;
+        escrever(b.t, x, y + h / 2, b.negrito);
+      } else if (b.tipo === 'duas') {
+        escrever(b.esq, esquerda + RECUO, y + h / 2, b.negrito);
+        escrever(b.dir, direita - RECUO - ctx.measureText(b.dir).width, y + h / 2, b.negrito);
+      } else if (b.tipo === 'assinatura') {
+        const larguraImagem = Math.min(PAPEL - RECUO * 2, b.imagem.width * (h / b.imagem.height));
+        ctx.drawImage(b.imagem, (largura - larguraImagem) / 2, y, larguraImagem, h);
+      }
+      y += h;
+    }
+    return tela;
+  }
+
+  // PDF de uma página com a imagem do comprovante (largura de bobina de 80 mm)
+  function pdfDoComprovante(tela) {
+    const jpeg = atob(tela.toDataURL('image/jpeg', 0.92).split(',')[1]);
+    const larguraPt = 226.77;
+    const alturaPt = +(larguraPt * tela.height / tela.width).toFixed(2);
+    const partes = [];
+    const posicoes = [];
+    let tamanho = 0;
+    const juntar = (t) => { partes.push(t); tamanho += t.length; };
+    const objeto = (n, corpo) => { posicoes[n] = tamanho; juntar(`${n} 0 obj\n${corpo}\nendobj\n`); };
+    juntar('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+    objeto(1, '<< /Type /Catalog /Pages 2 0 R >>');
+    objeto(2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+    objeto(3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${larguraPt} ${alturaPt}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`);
+    posicoes[4] = tamanho;
+    juntar(`4 0 obj\n<< /Type /XObject /Subtype /Image /Width ${tela.width} /Height ${tela.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`);
+    juntar(jpeg);
+    juntar('\nendstream\nendobj\n');
+    const conteudo = `q ${larguraPt} 0 0 ${alturaPt} 0 0 cm /Im0 Do Q`;
+    objeto(5, `<< /Length ${conteudo.length} >>\nstream\n${conteudo}\nendstream`);
+    const inicioXref = tamanho;
+    juntar(`xref\n0 6\n0000000000 65535 f \n${[1, 2, 3, 4, 5].map((n) => `${String(posicoes[n]).padStart(10, '0')} 00000 n \n`).join('')}`);
+    juntar(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${inicioXref}\n%%EOF\n`);
+    const binario = partes.join('');
+    const bytes = new Uint8Array(binario.length);
+    for (let i = 0; i < binario.length; i += 1) bytes[i] = binario.charCodeAt(i) & 0xff;
+    return new Blob([bytes], { type: 'application/pdf' });
+  }
+
+  function baixarArquivo(blob, nome) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = nome;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }
+
+  const imagemDoComprovante = () => new Promise((pronto) => { comprovanteAtual.tela.toBlob(pronto, 'image/png'); });
+
+  async function mostrarComprovante(item) {
+    const tela = await desenharComprovante(item);
+    comprovanteAtual = { item, tela, nome: `comprovante-${item.venda.numero}` };
+    el.comprovanteImagem.src = tela.toDataURL('image/png');
+    el.modalComprovante.hidden = false;
+    el.modalComprovante.scrollTop = 0;
+    travarFundo(true);
+    el.comprovanteEnviar.focus();
+  }
+
+  function fecharComprovante() {
+    el.modalComprovante.hidden = true;
+    comprovanteAtual = null;
+    travarFundo(false);
+  }
+
+  // No celular abre o compartilhamento (WhatsApp); no computador, baixa a imagem.
+  async function enviarComprovante() {
+    if (!comprovanteAtual) return;
+    const blob = await imagemDoComprovante();
+    const arquivo = new File([blob], `${comprovanteAtual.nome}.png`, { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+      try {
+        await navigator.share({ files: [arquivo], title: 'Comprovante de venda' });
+        return;
+      } catch (erro) {
+        if (erro.name === 'AbortError') return;
+      }
+    }
+    baixarArquivo(blob, arquivo.name);
+  }
+
+  // ---- vendas do mês (aba Anunciados)
+
+  function dataDaVenda(item) {
+    if (item.venda && item.venda.data) return item.venda.data;
+    const registro = [...item.historico].reverse().find((h) => h.status === 'vendido');
+    return registro ? registro.em : item.atualizadoEm;
+  }
+
+  function renderizarPainelVendas(lista) {
+    const vendidos = lista.filter((a) => a.status === 'vendido' || a.status === 'entregue');
+    el.painelVendas.hidden = !vendidos.length;
+    if (!vendidos.length) return;
+    const hoje = new Date();
+    if (!estado.mesVendas) estado.mesVendas = { ano: hoje.getFullYear(), mes: hoje.getMonth() };
+    const { ano, mes } = estado.mesVendas;
+    const doMes = vendidos.filter((a) => {
+      const d = new Date(dataDaVenda(a));
+      return d.getFullYear() === ano && d.getMonth() === mes;
+    });
+    let total = 0;
+    let comissao = 0;
+    for (const a of doMes) {
+      const valor = Math.round((a.venda ? a.venda.valor : a.preco) * 100);
+      const percentualVenda = a.venda && a.venda.comissao != null ? a.venda.comissao : estado.comissao;
+      total += valor;
+      comissao += Math.round(valor * percentualVenda / 100);
+    }
+    const nomeMes = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(new Date(ano, mes, 1));
+    el.vendasMes.textContent = nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1);
+    el.vendasNumeros.innerHTML = `${doMes.length} ${doMes.length === 1 ? 'venda' : 'vendas'} · ${reais(total)}`
+      + `<span class="vendas-comissao"> · comissão ${reais(comissao)}</span>`;
+    el.mesProximo.disabled = ano === hoje.getFullYear() && mes === hoje.getMonth();
+  }
+
+  function mudarMesVendas(passo) {
+    const { ano, mes } = estado.mesVendas;
+    const data = new Date(ano, mes + passo, 1);
+    estado.mesVendas = { ano: data.getFullYear(), mes: data.getMonth() };
+    renderizarPainelVendas(anunciadosDaLoja());
+  }
+
+  // ---------------------------------------------------------------- "Parados" e seleção de vários produtos
+
+  function ativarParados() {
+    estado.filtroParados = true;
+    if (estado.ordem !== 'parado') estado.ordemAntesParados = estado.ordem;
+    estado.ordem = 'parado'; // mais parado primeiro; tocar num classificador troca a ordem
+    clearTimeout(esperaBusca);
+    el.busca.value = '';
+    el.limpar.hidden = true;
+    estado.consulta = '';
+    atualizarOrdens();
+    montarAtalhos();
+    atualizarLista();
+    voltarAoTopoDaLista();
+  }
+
+  function desativarParados() {
+    estado.filtroParados = false;
+    if (estado.ordem === 'parado') estado.ordem = estado.ordemAntesParados || 'az';
+    atualizarOrdens();
+    montarAtalhos();
+    atualizarLista();
+    voltarAoTopoDaLista();
+  }
+
+  function atualizarBotaoSelecionar() {
+    el.selecionar.hidden = estado.selecionando || estado.resultado.length < 2;
+    el.barraResultados.hidden = el.contagem.hidden && el.selecionar.hidden;
+  }
+
+  function atualizarBarraSelecao() {
+    const total = estado.selecionados.size;
+    el.barraSelecao.hidden = !estado.selecionando;
+    el.selecaoTexto.textContent = `${total} ${total === 1 ? 'selecionado' : 'selecionados'}`;
+    el.selecaoEnviar.classList.toggle('desativado', !total);
+    if (total) el.selecaoEnviar.href = 'https://wa.me/?text=' + encodeURIComponent(mensagemVarios([...estado.selecionados.values()]));
+    else el.selecaoEnviar.removeAttribute('href');
+  }
+
+  function marcarCartao(cartao) {
+    const selecionado = estado.selecionados.has(cartao.dataset.chave);
+    cartao.classList.toggle('selecionado', selecionado);
+    const marcador = cartao.querySelector('.marcador');
+    if (marcador) marcador.setAttribute('aria-pressed', String(selecionado));
+  }
+
+  function entrarSelecao() {
+    estado.selecionando = true;
+    document.body.classList.add('selecionando');
+    atualizarBotaoSelecionar();
+    atualizarBarraSelecao();
+  }
+
+  function sairSelecao() {
+    estado.selecionando = false;
+    estado.selecionados.clear();
+    document.body.classList.remove('selecionando');
+    for (const cartao of el.lista.children) marcarCartao(cartao);
+    atualizarBotaoSelecionar();
+    atualizarBarraSelecao();
+  }
+
+  function alternarSelecao(cartao) {
+    const p = estado.porChave.get(cartao.dataset.chave);
+    if (!p) return;
+    if (estado.selecionados.has(p._chave)) {
+      estado.selecionados.delete(p._chave);
+    } else if (estado.selecionados.size >= MAX_SELECAO) {
+      mostrarToast(`Até ${MAX_SELECAO} produtos por mensagem.`);
+      return;
+    } else {
+      estado.selecionados.set(p._chave, p);
+    }
+    marcarCartao(cartao);
+    atualizarBarraSelecao();
+  }
+
   // ---------------------------------------------------------------- abas
 
   const telaDoEndereco = () => (location.hash === '#anunciados' ? 'anunciados' : 'estoque');
 
   function mostrarTela(tela) {
     if (tela === estado.tela) return;
+    if (tela !== 'estoque' && estado.selecionando) sairSelecao();
     estado.rolagem[estado.tela] = window.scrollY;
     estado.tela = tela;
     el.telaEstoque.hidden = tela !== 'estoque';
@@ -1016,6 +1708,7 @@
       if (p && link) link.href = linkWhatsApp(p, p._loja);
     }
     if (estado.tela === 'anunciados') renderizarAnunciados();
+    atualizarBarraSelecao();
   }
 
   // Enquanto a gaveta ou a janela do nome estão abertas, o resto da página não recebe toque nem foco.
@@ -1114,9 +1807,10 @@
         comissao: el.comissao.value.trim(),
         desconto: el.desconto.value.trim(),
         loja: estado.lojaId,
-        ordem: estado.ordem,
+        ordem: estado.ordem === 'parado' ? estado.ordemAntesParados : estado.ordem,
         tema: estado.tema,
         contas: estado.mostrarContas ? 'mostrar' : 'ocultar',
+        imposto: el.imposto.value.trim(),
       }));
     } catch (e) { /* navegador sem armazenamento: segue funcionando sem salvar */ }
   }
@@ -1135,6 +1829,7 @@
     if (mudou) {
       atualizarPrecos();
       atualizarLinksWhatsApp(); // a mensagem leva o preço com desconto; também redesenha os anunciados
+      atualizarDetalhes(); // a sobra (modo administrador) depende da comissão e do desconto
     }
     salvarAjustes();
   }
@@ -1214,6 +1909,9 @@
     formatarCampo(el.desconto);
     estado.comissao = lerPercentual(el.comissao.value);
     estado.desconto = lerPercentual(el.desconto.value);
+    el.imposto.value = salvos.imposto || '';
+    formatarCampo(el.imposto);
+    estado.imposto = lerPercentual(el.imposto.value);
     estado.ordem = ORDENS.includes(salvos.ordem) ? salvos.ordem : 'az';
     atualizarOrdens();
     estado.anunciados = lerAnunciados();
@@ -1233,6 +1931,7 @@
     await carregarLoja(salvaValida ? salvos.loja : TODAS);
     mostrarTela(telaDoEndereco());
     montarAdmin(); // os campos de arquivo dependem das lojas
+    carregarCustos();
   }
 
   // ---------------------------------------------------------------- administrador: atualização do estoque
@@ -1330,6 +2029,7 @@
       salvarChaveAdmin(chave);
       el.chaveAdmin.value = '';
       montarAdmin();
+      carregarCustos();
     } catch (erro) {
       erroAdmin(erro.message);
     } finally {
@@ -1339,6 +2039,8 @@
 
   function sairAdmin() {
     salvarChaveAdmin('');
+    estado.custos = null;
+    atualizarDetalhes();
     limparRelatorio();
     erroAdmin('');
     el.adminArquivos.innerHTML = '';
@@ -1410,6 +2112,7 @@
           : '<p class="relatorio-nada">Nada novo para publicar.</p>';
         el.adminRelatorio.insertAdjacentHTML('afterbegin', aviso);
         if (relatorio.publicado) acompanharPublicacao(relatorio.lojas.filter((l) => l.arquivo_muda));
+        carregarCustos(); // o preço de compra pode ter mudado com o relatório novo
       } else {
         mostrarRelatorio(relatorio);
       }
@@ -1548,7 +2251,10 @@
   el.gavetaFechar.addEventListener('click', fecharGaveta);
   el.camadaGaveta.addEventListener('click', fecharGaveta);
   document.addEventListener('keydown', (evento) => {
-    if (evento.key === 'Escape' && !el.gaveta.hidden) fecharGaveta();
+    if (evento.key !== 'Escape') return;
+    if (!el.modalComprovante.hidden) fecharComprovante();
+    else if (!el.modalVenda.hidden) fecharVenda();
+    else if (!el.gaveta.hidden) fecharGaveta();
   });
 
   el.formNome.addEventListener('submit', concluirModalNome);
@@ -1586,12 +2292,29 @@
       if (primeiro) primeiro.focus();
     } else if (botao.dataset.acao === 'tirar-fornecedor') {
       limparFornecedor();
+    } else if (botao.dataset.acao === 'tirar-parados') {
+      desativarParados();
     }
+  });
+
+  el.filtroParadosLimpar.addEventListener('click', desativarParados);
+  el.selecionar.addEventListener('click', entrarSelecao);
+  el.selecaoCancelar.addEventListener('click', sairSelecao);
+  el.selecaoEnviar.addEventListener('click', (evento) => {
+    if (!estado.selecionados.size) {
+      evento.preventDefault();
+      return;
+    }
+    setTimeout(sairSelecao, 400); // depois de abrir o WhatsApp, volta ao normal
   });
 
   el.atalhos.addEventListener('click', (evento) => {
     const botao = evento.target.closest('.atalho');
     if (!botao) return;
+    if (botao.dataset.acao === 'parados') {
+      ativarParados();
+      return;
+    }
     el.busca.value = botao.dataset.busca;
     el.limpar.hidden = false;
     estado.consulta = botao.dataset.busca;
@@ -1605,6 +2328,15 @@
   });
 
   el.lista.addEventListener('click', (evento) => {
+    // Selecionando: tocar no cartão (ou no marcador) marca e desmarca; os outros botões seguem normais.
+    if (estado.selecionando) {
+      const cartao = evento.target.closest('.card');
+      const acao = evento.target.closest('button, a');
+      if (cartao && (!acao || acao.classList.contains('marcador'))) {
+        alternarSelecao(cartao);
+        return;
+      }
+    }
     const botao = evento.target.closest('button');
     if (!botao) return;
     const card = botao.closest('.card');
@@ -1631,7 +2363,10 @@
     if (!item) return;
     if (botao.classList.contains('status-opcao')) mudarStatus(item, botao.dataset.status);
     else if (botao.dataset.acao === 'remover') removerAnuncio(item);
-    else if (botao.classList.contains('ver-detalhes')) {
+    else if (botao.dataset.acao === 'comprovante') {
+      if (item.venda) mostrarComprovante(item);
+      else abrirVenda(item);
+    } else if (botao.classList.contains('ver-detalhes')) {
       if (alternarDetalhes(botao)) estado.anunciosAbertos.add(card.dataset.id);
       else estado.anunciosAbertos.delete(card.dataset.id);
     }
@@ -1697,6 +2432,51 @@
     window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
   }
 
+  // Imposto de saída (modo administrador): muda a sobra nos detalhes
+  el.imposto.addEventListener('input', () => {
+    estado.imposto = lerPercentual(el.imposto.value);
+    salvarAjustes();
+    atualizarDetalhes();
+  });
+  el.imposto.addEventListener('blur', () => formatarCampo(el.imposto));
+  el.imposto.addEventListener('focus', () => setTimeout(() => el.imposto.setSelectionRange(0, el.imposto.value.length), 0));
+
+  // Venda e comprovante
+  prepararAssinatura();
+  el.formVenda.addEventListener('submit', concluirVenda);
+  el.vendaCancelar.addEventListener('click', fecharVenda);
+  el.vendaLimparAssinatura.addEventListener('click', limparAssinatura);
+  el.vendaCpf.addEventListener('input', () => { el.vendaCpf.value = formatarCpf(el.vendaCpf.value); });
+  el.vendaTelefone.addEventListener('blur', () => {
+    if (el.vendaTelefone.value.trim()) el.vendaTelefone.value = formatarTelefone(el.vendaTelefone.value);
+  });
+  el.vendaPagamento.addEventListener('change', () => {
+    if (!valorEditado && vendaAtual) {
+      el.vendaValor.value = decimal.format(valorPadrao(produtoDoAnuncio(vendaAtual), el.vendaPagamento.value) / 100);
+    }
+    montarParcelas();
+  });
+  el.vendaValor.addEventListener('input', () => { valorEditado = true; montarParcelas(); });
+  el.vendaValor.addEventListener('blur', () => {
+    const valor = lerValor(el.vendaValor.value);
+    if (valor > 0) el.vendaValor.value = decimal.format(valor / 100);
+  });
+  el.comprovanteEnviar.addEventListener('click', enviarComprovante);
+  el.comprovanteImagemBaixar.addEventListener('click', async () => {
+    if (comprovanteAtual) baixarArquivo(await imagemDoComprovante(), `${comprovanteAtual.nome}.png`);
+  });
+  el.comprovantePdf.addEventListener('click', () => {
+    if (comprovanteAtual) baixarArquivo(pdfDoComprovante(comprovanteAtual.tela), `${comprovanteAtual.nome}.pdf`);
+  });
+  el.comprovanteEditar.addEventListener('click', () => {
+    const item = comprovanteAtual && comprovanteAtual.item;
+    fecharComprovante();
+    if (item) abrirVenda(item);
+  });
+  el.comprovanteFechar.addEventListener('click', fecharComprovante);
+  el.mesAnterior.addEventListener('click', () => mudarMesVendas(-1));
+  el.mesProximo.addEventListener('click', () => mudarMesVendas(1));
+
   // Administrador
   el.adminEntrar.addEventListener('submit', entrarAdmin);
   el.adminSair.addEventListener('click', sairAdmin);
@@ -1719,5 +2499,5 @@
   iniciar();
 
   // Exposto só para conferência no console do navegador.
-  window.__estoque = { calcular, buscar, lerPercentual, normalizar, estado, ORDENACOES, linkWhatsApp, mensagemWhatsApp, formatarTelefone, iniciaisDe, fornecedoresDaBusca, fornecedoresComContagem };
+  window.__estoque = { calcular, buscar, cpfValido, formatarCpf, lerValor, desenharComprovante, pdfDoComprovante, mostrarComprovante, abrirVenda, lerPercentual, normalizar, estado, ORDENACOES, linkWhatsApp, mensagemWhatsApp, formatarTelefone, iniciaisDe, fornecedoresDaBusca, fornecedoresComContagem };
 })();

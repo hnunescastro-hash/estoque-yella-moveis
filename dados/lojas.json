@@ -4,7 +4,8 @@
    "id": "matina",
    "nome": "Matina",
    "uf": "BA",
-   "arquivo": "dados/matina.json"
+   "arquivo": "dados/matina.json",
+   "sem_estoque": "dados/matina-sem-estoque.json"
   },
   {
    "id": "igapora",

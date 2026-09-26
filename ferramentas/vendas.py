@@ -30,7 +30,7 @@ COLUNAS = ["Nota", "Data", "Código", "Descrição do item", "Quantidade", "Vend
 NATUREZAS = {"venda a prazo": "p", "venda a vista": "v", "venda a vista (cheque)": "v"}  # rodapé "Nat.Operação"
 TIPOS = {"v": "à vista", "p": "a prazo"}
 DIAS_MAIS_VENDIDOS = 365   # "Mais vendidos": quantidade vendida nesse prazo, até a última venda do relatório
-LIMITE_MAIS_VENDIDOS = 60  # quantos produtos entram na ordem publicada
+LIMITE_MAIS_VENDIDOS = 100  # quantos produtos entram na ordem publicada
 
 # Cada linha guardada: [data "AAAA-MM-DD", nota, código, quantidade, valor, custo, tipo "v"/"p"],
 # com valor e custo em centavos (total da linha).

@@ -470,7 +470,75 @@
     linhas.push(['Última compra', p.ultima_compra ? dataBR(p.ultima_compra) : 'Não informada']);
     if ('ultima_venda' in p) linhas.push(['Última venda', p.ultima_venda ? dataBR(p.ultima_venda) : 'Nenhuma venda registrada']);
     linhas.push(['Nome no sistema', `<span class="sistema">${escapar(p.nome_sistema)}</span>`]);
-    return listaDetalhesHTML(linhas, id, aberto);
+    return listaDetalhesHTML(linhas, id, aberto).replace('</dl>', galeriaHTML(p) + '</dl>');
+  }
+
+  // Mini galeria no fim dos detalhes (fotos em dados/fotos.json, pela descrição do sistema).
+  function fotosDe(p) {
+    const lista = estado.fotos && estado.fotos[p.nome_sistema];
+    return Array.isArray(lista) ? lista.slice(0, 6) : []; // no máximo 6 fotos
+  }
+
+  function galeriaHTML(p) {
+    const fotos = fotosDe(p);
+    if (!fotos.length) return '';
+    const miniaturas = fotos.map((src, i) => `<button type="button" class="miniatura" data-acao="abrir-foto" data-indice="${i}" aria-label="Abrir foto ${i + 1} de ${fotos.length}"><img src="${escapar(src)}" alt="" loading="lazy"></button>`).join('');
+    return `<div class="galeria"><dt>Fotos</dt><dd>${miniaturas}</dd></div>`;
+  }
+
+  // Tela cheia com as fotos: setas, deslizar o dedo, teclado e Esc para fechar.
+  const visor = { fotos: [], indice: 0, nome: '' };
+  function abrirVisor(fotos, indice, nome) {
+    let tela = document.getElementById('visor-fotos');
+    if (!tela) {
+      document.body.insertAdjacentHTML('beforeend', `<div id="visor-fotos" class="visor" role="dialog" aria-modal="true" hidden>
+  <button type="button" class="visor-fechar" data-visor="fechar" aria-label="Fechar">×</button>
+  <button type="button" class="visor-seta anterior" data-visor="-1" aria-label="Foto anterior">‹</button>
+  <img class="visor-img" alt="">
+  <button type="button" class="visor-seta proxima" data-visor="1" aria-label="Próxima foto">›</button>
+  <p class="visor-contador"></p>
+</div>`);
+      tela = document.getElementById('visor-fotos');
+      tela.addEventListener('click', (evento) => {
+        const acao = evento.target.closest('[data-visor]');
+        if (acao) { if (acao.dataset.visor === 'fechar') fecharVisor(); else passarFoto(Number(acao.dataset.visor)); }
+        else if (evento.target === tela) fecharVisor();
+      });
+      let inicioX = null;
+      tela.addEventListener('touchstart', (e) => { inicioX = e.touches[0].clientX; }, { passive: true });
+      tela.addEventListener('touchend', (e) => {
+        if (inicioX === null) return;
+        const dx = e.changedTouches[0].clientX - inicioX;
+        inicioX = null;
+        if (Math.abs(dx) > 40) passarFoto(dx < 0 ? 1 : -1);
+      });
+      document.addEventListener('keydown', (e) => {
+        if (tela.hidden) return;
+        if (e.key === 'Escape') fecharVisor();
+        else if (e.key === 'ArrowRight') passarFoto(1);
+        else if (e.key === 'ArrowLeft') passarFoto(-1);
+      });
+    }
+    Object.assign(visor, { fotos, indice, nome });
+    tela.hidden = false;
+    document.body.classList.add('visor-aberto');
+    mostrarFoto();
+  }
+  function passarFoto(passo) {
+    visor.indice = (visor.indice + passo + visor.fotos.length) % visor.fotos.length;
+    mostrarFoto();
+  }
+  function mostrarFoto() {
+    const tela = document.getElementById('visor-fotos');
+    const img = tela.querySelector('.visor-img');
+    img.src = visor.fotos[visor.indice];
+    img.alt = `${visor.nome}, foto ${visor.indice + 1}`;
+    tela.querySelector('.visor-contador').textContent = `${visor.indice + 1} / ${visor.fotos.length}`;
+    tela.querySelectorAll('.visor-seta').forEach((b) => { b.hidden = visor.fotos.length < 2; });
+  }
+  function fecharVisor() {
+    document.getElementById('visor-fotos').hidden = true;
+    document.body.classList.remove('visor-aberto');
   }
 
   // Anunciado que não está mais no estoque atual: mostra o que foi guardado ao anunciar.
@@ -1081,6 +1149,7 @@
 
   // Abre uma loja ou TODAS (junta o estoque de todas as lojas).
   async function carregarLoja(id) {
+    if (!estado.fotos) estado.fotos = await buscarJSON('dados/fotos.json').catch(() => ({}));
     const anterior = estado.lojaId;
     const pedido = id === TODAS && estado.lojas.length > 1 ? TODAS : (lojaPorId(id) || estado.lojas[0]).id;
     const escolhidas = pedido === TODAS ? estado.lojas : [lojaPorId(pedido)];
@@ -1542,6 +1611,8 @@
     const p = card && estado.porChave.get(card.dataset.chave);
     if (botao.classList.contains('ver-detalhes')) {
       alternarDetalhes(botao);
+    } else if (p && botao.dataset.acao === 'abrir-foto') {
+      abrirVisor(fotosDe(p), Number(botao.dataset.indice), p.nome);
     } else if (p && botao.dataset.acao === 'anunciar') {
       if (!anuncioDe(p._loja, p.codigo)) anunciar(p);
       atualizarBotaoAnunciar(card);

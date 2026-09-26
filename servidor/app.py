@@ -138,6 +138,7 @@ def publicar(arquivos, mensagem):
 # ---------------------------------------------------------------- armazenamento privado
 # custos/<loja>.json     preço de compra como veio no relatório {código: custo}
 # vinculos/<loja>.json   mesmo produto em outra loja, para o custo de uma filial {"loja", "codigos"}
+# referencia/<loja>.json todos os produtos do último relatório, com e sem estoque (para achar o mesmo produto)
 # clientes/clientes.json clientes das vendas, compartilhados entre os vendedores
 
 _trava_local = threading.Lock()
@@ -269,7 +270,7 @@ def processar(pasta, envios, vincular=False):
     correcoes = ler_json(pasta, "ferramentas/correcoes.json")
     lojas = ler_json(pasta, "dados/lojas.json", {"lojas": []})
     por_id = {l["id"]: l for l in lojas["lojas"]}
-    resultado, arquivos, custos, saidas = [], {}, {}, {}
+    resultado, arquivos, custos, saidas, referencias = [], {}, {}, {}, {}
     for loja_id, conteudo in envios:
         loja = por_id.get(loja_id)
         if not loja:
@@ -285,6 +286,7 @@ def processar(pasta, envios, vincular=False):
             custos[loja_id] = montado["custos"]
         novo = montado["saida"]
         saidas[loja_id] = novo
+        referencias[loja_id] = montado["referencia"]
         mudancas = ae.comparar(antes, novo)
         total_antes = len(antes.get("produtos", []))
         queda_grande = total_antes > 0 and len(mudancas["removidos"]) > QUEDA_MAXIMA * total_antes
@@ -313,10 +315,12 @@ def processar(pasta, envios, vincular=False):
         if (loja_id not in saidas and outra not in saidas) or loja_id not in por_id or outra not in por_id:
             continue
         produtos = (saidas.get(loja_id) or ler_json(pasta, por_id[loja_id]["arquivo"], {"produtos": []}))["produtos"]
-        da_outra = (saidas.get(outra) or ler_json(pasta, por_id[outra]["arquivo"], {"produtos": []}))["produtos"]
-        transferencia = custos[loja_id] if loja_id in custos else ler_privado(f"custos/{loja_id}.json", {})[0]
-        vinculos[loja_id] = {"loja": outra, "codigos": ae.vincular_produtos(produtos, da_outra, transferencia)}
-    return resultado, arquivos, custos, vinculos
+        # a outra loja com os produtos sem estoque também (o que acabou lá pode estar aqui)
+        da_outra = (referencias.get(outra) or ler_privado(f"referencia/{outra}.json")[0]
+                    or ler_json(pasta, por_id[outra]["arquivo"], {"produtos": []})["produtos"])
+        lancado = custos[loja_id] if loja_id in custos else ler_privado(f"custos/{loja_id}.json", {})[0]
+        vinculos[loja_id] = {"loja": outra, "codigos": ae.vincular_produtos(produtos, da_outra, lancado)}
+    return resultado, arquivos, custos, vinculos, referencias
 
 
 # ---------------------------------------------------------------- rotas
@@ -386,7 +390,7 @@ def atualizar():
     vai_publicar = request.form.get("publicar") == "1"
     pasta = clonar()
     try:
-        lojas, arquivos, custos, vinculos = processar(pasta, envios, vincular=vai_publicar)
+        lojas, arquivos, custos, vinculos, referencias = processar(pasta, envios, vincular=vai_publicar)
     finally:
         shutil.rmtree(pasta, ignore_errors=True)
 
@@ -395,6 +399,8 @@ def atualizar():
     if vai_publicar and not bloqueado:
         for loja_id, custos_loja in custos.items():  # preço de compra: só no armazenamento privado
             salvar_custos(loja_id, custos_loja)
+        for loja_id, lista in referencias.items():
+            gravar_privado(f"referencia/{loja_id}.json", lista)
         for loja_id, vinculo in vinculos.items():
             gravar_privado(f"vinculos/{loja_id}.json", vinculo)
         if arquivos:

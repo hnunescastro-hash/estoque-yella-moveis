@@ -121,12 +121,15 @@ cheio (em verde, ou vermelho quando negativa). Sem preço de compra, a linha mos
 
 - **Matina:** o custo vem do próprio relatório — exporte o de Matina **com a coluna "Custo de Compra"**
   (hoje ele não traz essa coluna).
-- **Igaporã:** o "Custo de Compra" do relatório de lá não vale (na maior parte é igual ao preço de venda: é o valor
-  da transferência). O custo é o do **mesmo produto em Matina**, achado pelo nome revisado e, nas transferências,
-  pelo valor da transferência igual ao preço de Matina. Só liga quando não há dúvida; o detalhe mostra de qual
-  produto veio (ex.: "Matina, cód. 05200"). A ligação é refeita a cada publicação (`vincular_produtos` em
-  `ferramentas/atualizar_estoque.py`). Como o relatório de Matina só traz o que tem estoque, os produtos que
-  acabaram lá ficam sem par.
+- **Igaporã:** tudo o que Igaporã vende sai do depósito de Matina e não existe custo de transferência: o custo
+  é o de compra do **mesmo produto em Matina** (Matina é a referência). O "Custo de Compra" do relatório de
+  Igaporã não vale (os funcionários lançam ali, em geral, o preço de venda de Matina da época). O mesmo produto
+  é achado pelo nome revisado e, como pista, pelo valor lançado em Igaporã igual ao preço de Matina. Só liga
+  quando não há dúvida; o detalhe mostra de qual produto veio (ex.: "Matina, cód. 05200"). A ligação é refeita a
+  cada publicação (`vincular_produtos` em `ferramentas/atualizar_estoque.py`).
+- **Relatório de Matina com os produtos sem estoque:** quanto mais produtos de Matina (inclusive os que
+  acabaram), mais produtos de Igaporã ganham custo. Os de estoque zero não aparecem no site: só entram no
+  cruzamento (ficam no armazenamento privado, `referencia/matina.json`).
 
 Proteções:
 - O arquivo tem que ser da loja certa (o relatório diz a cidade): trocado, é recusado.

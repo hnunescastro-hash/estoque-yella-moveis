@@ -291,10 +291,15 @@ def montar_loja(loja_id, conteudo, correcoes, lojas, nome=None, uf=None, anterio
     relatório), que a página mostra como etiqueta "Novo" por alguns dias. Produto antigo que só não
     vinha no relatório anterior não é novo.
 
+    Produto com estoque zero ou negativo (relatório tirado "com produtos sem estoque") não vai para o
+    site: só entra em "referencia", que serve para achar o mesmo produto em outra loja (ex.: o que foi
+    transferido para Igaporã e acabou em Matina).
+
     Devolve um dicionário com: saida (conteúdo de dados/<loja>.json), registro (entrada de
     dados/lojas.json), cidade e gerado_em do relatório, revisar (nomes com correção automática),
-    fornecedores_novos, avisos (conferência com os totais do próprio relatório) e custos
-    ({código: custo de compra}, quando o relatório traz a coluna — PRIVADO, fora de "saida")."""
+    fornecedores_novos, avisos (conferência com os totais do próprio relatório), custos
+    ({código: custo de compra}, quando o relatório traz a coluna — PRIVADO, fora de "saida") e
+    referencia (todos os produtos, com e sem estoque: código, nome, preço e fornecedor)."""
     linhas, total_relatorio, gerado_em, cidade, registros, colunas = extrair(conteudo)
     if not linhas:
         raise ErroRelatorio("Nenhum produto encontrado no relatório.")
@@ -307,7 +312,7 @@ def montar_loja(loja_id, conteudo, correcoes, lojas, nome=None, uf=None, anterio
     internos = correcoes.get("fornecedores_internos", {})
     produtos = []
     revisar = []
-    fornecedores_novos = set()
+    fornecedor_automatico_de = {}  # código -> fornecedor do relatório sem revisão em correcoes.json
     for linha in linhas:
         descricao = " ".join(linha["descricao"].split())
         nome_produto = correcoes["produtos"].get(chave(descricao))
@@ -323,7 +328,7 @@ def montar_loja(loja_id, conteudo, correcoes, lojas, nome=None, uf=None, anterio
         fornecedor = correcoes["fornecedores"].get(chave_fornecedor, "")
         if chave_fornecedor and not fornecedor:
             fornecedor = fornecedor_automatico(fornecedor_original)
-            fornecedores_novos.add(fornecedor_original)
+            fornecedor_automatico_de[linha["codigo"]] = fornecedor_original
 
         produto = {
             "codigo": linha["codigo"],
@@ -355,18 +360,24 @@ def montar_loja(loja_id, conteudo, correcoes, lojas, nome=None, uf=None, anterio
         produtos.append(produto)
 
     produtos.sort(key=lambda p: (sem_acento(p["nome"]).lower(), p["codigo"]))
+    todos = produtos
+    produtos = [p for p in todos if (p["quantidade"] or 0) > 0]  # o site mostra só o que tem estoque
+    em_estoque = {p["codigo"] for p in produtos}
+    revisar = [r for r in revisar if r[0] in em_estoque]
+    fornecedores_novos = {f for c, f in fornecedor_automatico_de.items() if c in em_estoque}
     total_unidades = sum(p["quantidade"] or 0 for p in produtos)
+    soma_relatorio = sum(p["quantidade"] or 0 for p in todos)  # para conferir com o total do relatório
 
     cadastrada = next((l for l in lojas["lojas"] if l["id"] == loja_id), {})
     nome_loja = nome or cadastrada.get("nome") or cidade or loja_id.capitalize()
     uf = uf or cadastrada.get("uf") or "BA"
 
     avisos = []
-    if registros is not None and registros != len(produtos):
-        avisos.append(f"o relatório diz {registros} registros, mas li {len(produtos)} produtos")
-    if total_relatorio is not None and abs(total_relatorio - total_unidades) > 0.001:
-        avisos.append(f"o total de unidades do relatório é {total_relatorio}, mas a soma lida é {total_unidades}")
-    codigos = [p["codigo"] for p in produtos]
+    if registros is not None and registros != len(todos):
+        avisos.append(f"o relatório diz {registros} registros, mas li {len(todos)} produtos")
+    if total_relatorio is not None and abs(total_relatorio - soma_relatorio) > 0.001:
+        avisos.append(f"o total de unidades do relatório é {total_relatorio}, mas a soma lida é {formatar_quantidade(soma_relatorio)}")
+    codigos = [p["codigo"] for p in todos]
     if len(set(codigos)) != len(codigos):
         avisos.append("há códigos de produto repetidos no relatório")
 
@@ -389,6 +400,7 @@ def montar_loja(loja_id, conteudo, correcoes, lojas, nome=None, uf=None, anterio
         "fornecedores_novos": fornecedores_novos,
         "avisos": avisos,
         "custos": custos,
+        "referencia": [{c: p[c] for c in ("codigo", "nome", "preco", "fornecedor")} for p in todos],
     }
 
 
@@ -429,9 +441,10 @@ def comparar(antes, depois):
     return mudancas
 
 
-# Custo de compra de uma loja que vem de outra. Igaporã (filial) recebe quase tudo de Matina (matriz)
-# e o "Custo de Compra" do relatório de lá não é o custo real (na maior parte é igual ao preço de
-# venda): o custo vale o do mesmo produto em Matina. Os códigos das lojas são independentes.
+# Custo de compra de uma loja que vem de outra. Tudo o que Igaporã (filial) vende sai do depósito de
+# Matina (matriz) e não existe custo de transferência: o custo de Igaporã é o de compra do mesmo produto
+# em Matina. O "Custo de Compra" do relatório de Igaporã não vale (os funcionários lançam ali, em geral,
+# o preço de venda de Matina da época). Os códigos das lojas são independentes.
 CUSTO_PELA_LOJA = {"igapora": "matina"}
 PALAVRAS_VAZIAS = {"de", "da", "do", "das", "dos", "e", "com", "para", "c", "p"}
 
@@ -445,18 +458,19 @@ def _parecido(a, b):
     return len(a & b) / len(a | b) if a | b else 0.0
 
 
-def vincular_produtos(produtos, outra, transferencia=None):
+def vincular_produtos(produtos, outra, lancado=None):
     """Acha, para cada produto de uma loja, o mesmo produto em outra loja (pelo nome revisado).
 
     Só aceita quando não há dúvida; sem certeza, o produto fica sem vínculo (melhor sem custo que
     com o custo de outro produto):
       - nome muito parecido (75% das palavras), mesmas medidas/modelo (palavras com número) e
         bem à frente do segundo mais parecido; ou
-      - valor da transferência igual ao preço do produto na outra loja (transferência sai pelo
-        preço de venda da matriz), com nome parecido (metade das palavras) e sem empate.
-    transferencia: {código: valor da transferência} (a coluna "Custo de Compra" da filial).
+      - valor lançado como custo na filial igual ao preço do produto na outra loja (os funcionários
+        costumam lançar o preço de venda da matriz), com nome parecido (metade das palavras) e sem empate.
+    outra: produtos da outra loja — de preferência com os sem estoque (o que acabou lá).
+    lancado: {código: valor da coluna "Custo de Compra" da filial} (só como pista, nunca como custo).
     Devolve {código: código do mesmo produto na outra loja}."""
-    transferencia = transferencia or {}
+    lancado = lancado or {}
     candidatos = [(q, _termos(q["nome"])) for q in outra]
     vinculos = {}
     for p in produtos:
@@ -470,7 +484,7 @@ def vincular_produtos(produtos, outra, transferencia=None):
         if nota >= 0.75 and nota - segunda >= 0.15 and modelo == frozenset(x for x in t if any(c.isdigit() for c in x)):
             vinculos[p["codigo"]] = q["codigo"]
             continue
-        valor = transferencia.get(p["codigo"])
+        valor = lancado.get(p["codigo"])
         if valor is None:
             continue
         mesmos = [(n, q2, t2) for n, q2, t2 in notas if abs(q2["preco"] - valor) < 0.005]

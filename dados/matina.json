@@ -2,9 +2,9 @@
  "loja": "matina",
  "nome": "Matina",
  "uf": "BA",
- "gerado_em": "2026-09-25T11:29:07",
- "total_produtos": 500,
- "total_unidades": 1448,
+ "gerado_em": "2026-09-26T09:16:25",
+ "total_produtos": 508,
+ "total_unidades": 1739,
  "produtos": [
   {
    "codigo": "04389",
@@ -304,9 +304,9 @@
    "nome_sistema": "BALCAO ISIS DUPLO BCO/BCO UV PTA FECHADA",
    "fornecedor": "Nicioli Indústria e Comércio de Móveis Ltda",
    "preco": 374.5,
-   "quantidade": 3,
+   "quantidade": 2,
    "ultima_compra": "2026-09-10",
-   "ultima_venda": null,
+   "ultima_venda": "2026-09-25",
    "marca": "Nicioli",
    "busca_foto": "Nicioli"
   },
@@ -328,9 +328,9 @@
    "nome_sistema": "BALCAO ISIS MICRO FORNO BCO/BCO PTA FECHADA",
    "fornecedor": "Nicioli Indústria e Comércio de Móveis Ltda",
    "preco": 402.5,
-   "quantidade": 2,
+   "quantidade": 1,
    "ultima_compra": "2026-09-10",
-   "ultima_venda": null,
+   "ultima_venda": "2026-09-25",
    "marca": "Nicioli",
    "busca_foto": "Nicioli"
   },
@@ -966,6 +966,16 @@
    "quantidade": 1,
    "ultima_compra": "2025-03-10",
    "ultima_venda": null
+  },
+  {
+   "codigo": "03436",
+   "nome": "Cabo Coaxial Série Rolo com 100 Metros",
+   "nome_sistema": "CABO COAXIAL SERIE ROLO COM 100 MTS",
+   "fornecedor": "Century Nossa Magazine Ltda",
+   "preco": 1.25,
+   "quantidade": 20,
+   "ultima_compra": "2020-12-07",
+   "ultima_venda": "2025-02-28"
   },
   {
    "codigo": "04056",
@@ -1935,6 +1945,16 @@
    "ultima_venda": "2025-10-20",
    "marca": "ACP Móveis",
    "busca_foto": "ACP Móveis"
+  },
+  {
+   "codigo": "03770",
+   "nome": "Conector para Cabo RG59 com Anel",
+   "nome_sistema": "CONECTOR PARA CABO RG 59 C/ ANEL",
+   "fornecedor": "Nazatech Distribuidora de Produtos Eletrônicos Ltda",
+   "preco": 1.52,
+   "quantidade": 60,
+   "ultima_compra": "2021-11-05",
+   "ultima_venda": "2026-03-07"
   },
   {
    "codigo": "04851",
@@ -3701,6 +3721,16 @@
    "busca_foto": "Imcal"
   },
   {
+   "codigo": "04864",
+   "nome": "Lâmpada 9W",
+   "nome_sistema": "LAMPADA 9W",
+   "fornecedor": "Hugo Nunes Castro",
+   "preco": 5.1,
+   "quantidade": 24,
+   "ultima_compra": "2025-03-10",
+   "ultima_venda": "2026-05-12"
+  },
+  {
    "codigo": "05239",
    "nome": "Lavadora 10kg Suggar Lavamax LX1022PR Prata",
    "nome_sistema": "LAV 10KG SUGGAR LAVAMAX LX1022PR PRATA",
@@ -4552,6 +4582,26 @@
    "busca_foto": "Rorato"
   },
   {
+   "codigo": "04636",
+   "nome": "Pilha AA",
+   "nome_sistema": "PILIA AA",
+   "fornecedor": "Hugo Nunes Castro",
+   "preco": 1.02,
+   "quantidade": 64,
+   "ultima_compra": "2024-06-26",
+   "ultima_venda": "2025-03-06"
+  },
+  {
+   "codigo": "04635",
+   "nome": "Pilha AAA",
+   "nome_sistema": "PILIA AAA",
+   "fornecedor": "Hugo Nunes Castro",
+   "preco": 1.02,
+   "quantidade": 116,
+   "ultima_compra": "2024-06-26",
+   "ultima_venda": "2025-10-01"
+  },
+  {
    "codigo": "05100",
    "nome": "Poltrona Ana Bela Amarela",
    "nome_sistema": "POLTRONA ANA BELA AMARELA",
@@ -4878,6 +4928,32 @@
    "busca_foto": "Hayamax"
   },
   {
+   "codigo": "05464",
+   "nome": "Roupeiro 10 Portas 3 Gavetas Nature/Off White B374-127",
+   "nome_sistema": "ROUPEIRO 10 P 3G NAT/OFF WHITE B374-127",
+   "fornecedor": "Indústria e Comércio de Móveis Henn Ltda",
+   "preco": 1571.32,
+   "quantidade": 2,
+   "ultima_compra": "2026-09-25",
+   "ultima_venda": null,
+   "marca": "Henn",
+   "busca_foto": "Henn",
+   "novo_desde": "2026-09-26"
+  },
+  {
+   "codigo": "05327",
+   "nome": "Roupeiro 2 Portas Deslizantes Cinamomo/Off White B353-227",
+   "nome_sistema": "ROUPEIRO 2 P DESL CIMO/OFF WHITE B353-227",
+   "fornecedor": "Indústria e Comércio de Móveis Henn Ltda",
+   "preco": 1260.0,
+   "quantidade": 2,
+   "ultima_compra": "2026-09-25",
+   "ultima_venda": "2026-07-25",
+   "marca": "Henn",
+   "busca_foto": "Henn",
+   "novo_desde": "2026-09-26"
+  },
+  {
    "codigo": "05402",
    "nome": "Roupeiro 3 Portas Deslizantes Nature/Avelã B376-127",
    "nome_sistema": "ROUPEIRO 3 P DESLIZ NAT/AVELA B376-127",
@@ -4895,8 +4971,8 @@
    "nome_sistema": "ROUPEIRO 04 P 3G NATURE/OFF WHITE B24-127",
    "fornecedor": "Indústria e Comércio de Móveis Henn Ltda",
    "preco": 1165.5,
-   "quantidade": 3,
-   "ultima_compra": "2026-08-10",
+   "quantidade": 6,
+   "ultima_compra": "2026-09-25",
    "ultima_venda": "2025-12-09",
    "marca": "Henn",
    "busca_foto": "Henn"
@@ -5204,6 +5280,19 @@
    "ultima_venda": "2026-07-14",
    "marca": "Henn",
    "busca_foto": "Henn"
+  },
+  {
+   "codigo": "03192",
+   "nome": "Roupeiro Verg 2 Portas Deslizantes Nature/Off White",
+   "nome_sistema": "ROUPEIRO VERG 02 PTS DESL NATURE/OFF WHITE O",
+   "fornecedor": "Indústria e Comércio de Móveis Henn Ltda",
+   "preco": 1905.08,
+   "quantidade": 2,
+   "ultima_compra": "2026-09-25",
+   "ultima_venda": "2020-10-26",
+   "marca": "Henn",
+   "busca_foto": "Henn",
+   "novo_desde": "2026-09-26"
   },
   {
    "codigo": "04889",

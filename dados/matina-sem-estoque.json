@@ -6,7 +6,7 @@
  "produtos": [
   {
    "codigo": "04494",
-   "nome": "Adega JB 4009 Luxo Pérola Pe:dourado",
+   "nome": "Adega JB 4009 Luxo Pérola Pé Dourado",
    "nome_sistema": "ADEGA JB 4009 LUXO PEROLA PE:DOURADO",
    "fornecedor": "JB Bechara Nassar Frange Cia Ltda",
    "preco": 452.52,
@@ -131,7 +131,7 @@
   },
   {
    "codigo": "04497",
-   "nome": "Aparador JB 4034 Lu Pérola Pe: Dourado",
+   "nome": "Aparador JB 4034 Lu Pérola Pé Dourado",
    "nome_sistema": "APARADOR JB 4034 LU PEROLA PE: DOURADO",
    "fornecedor": "JB Bechara Nassar Frange Cia Ltda",
    "preco": 375.54,
@@ -142,7 +142,7 @@
   },
   {
    "codigo": "04496",
-   "nome": "Aparador JB 4034 Lu Pérola Pe: Pérola",
+   "nome": "Aparador JB 4034 Lu Pérola Pé Pérola",
    "nome_sistema": "APARADOR JB 4034 LU PEROLA PE: PEROLA",
    "fornecedor": "JB Bechara Nassar Frange Cia Ltda",
    "preco": 371.18,
@@ -9855,7 +9855,7 @@
   },
   {
    "codigo": "04498",
-   "nome": "Mesa Apoio JB 8004 Lu Pérola Pe: Dourado",
+   "nome": "Mesa Apoio JB 8004 Lu Pérola Pé Dourado",
    "nome_sistema": "MESA APOIO JB 8004 LU PEROLA PE: DOURADO",
    "fornecedor": "JB Bechara Nassar Frange Cia Ltda",
    "preco": 186.85,
@@ -9866,7 +9866,7 @@
   },
   {
    "codigo": "04499",
-   "nome": "Mesa Apoio JB 8005 Lu Pérola Pe: Dourado",
+   "nome": "Mesa Apoio JB 8005 Lu Pérola Pé Dourado",
    "nome_sistema": "MESA APOIO JB 8005 LU PEROLA PE: DOURADO",
    "fornecedor": "JB Bechara Nassar Frange Cia Ltda",
    "preco": 186.85,
@@ -9899,7 +9899,7 @@
   },
   {
    "codigo": "04500",
-   "nome": "Mesa Centro JB 8006 Lu Pérola Pe:dourado",
+   "nome": "Mesa Centro JB 8006 Lu Pérola Pé Dourado",
    "nome_sistema": "MESA CENTRO JB 8006 LU PEROLA PE:DOURADO",
    "fornecedor": "JB Bechara Nassar Frange Cia Ltda",
    "preco": 182.89,
@@ -9932,7 +9932,7 @@
   },
   {
    "codigo": "04511",
-   "nome": "Mesa Centro JB 8045 Luxo Pérola Pe:bronze",
+   "nome": "Mesa Centro JB 8045 Luxo Pérola Pé Bronze",
    "nome_sistema": "MESA CENTRO JB 8045 LUXO PEROLA PE:BRONZE",
    "fornecedor": "JB Bechara Nassar Frange Cia Ltda",
    "preco": 368.51,
@@ -9943,7 +9943,7 @@
   },
   {
    "codigo": "04503",
-   "nome": "Mesa Centro JB 8045 Luxo Pérola Pe:dourado",
+   "nome": "Mesa Centro JB 8045 Luxo Pérola Pé Dourado",
    "nome_sistema": "MESA CENTRO JB 8045 LUXO PEROLA PE:DOURADO",
    "fornecedor": "JB Bechara Nassar Frange Cia Ltda",
    "preco": 368.51,

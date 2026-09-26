@@ -32,13 +32,13 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
 - **Novo:** etiqueta ao lado do nome do produto que entrou no estoque nos últimos 15 dias (a data de entrada é
   marcada na publicação em que o produto aparece pela primeira vez, se ele foi comprado nos últimos 30 dias).
 - **Sem estoque (encomenda):** os produtos de Matina que acabaram e foram comprados nos últimos 48 meses aparecem
-  na **busca**, depois dos que têm estoque, embaixo do separador "Sem estoque", com a caixinha cinza "0" — para
+  na **busca**, depois dos que têm estoque, embaixo do separador "Sem estoque", com a caixinha "0" em vermelho discreto — para
   consultar o preço quando o cliente aceita esperar a mercadoria chegar. Não aparecem na lista inicial nem nas
   categorias; a pílula **Sem estoque** mostra todos. A mensagem do WhatsApp deles sai com "📦 Sob encomenda".
 - **Enviar vários:** o botão **Selecionar** (ao lado da contagem) marca até 10 produtos e manda todos numa mensagem só
   do WhatsApp ("Separei estas opções para você:"), cada um com o preço no Pix e no cartão.
 - Cartão compacto: o **nome** numa linha só (cortado com "…" quando não cabe) e, abaixo, o **preço** e,
-  à direita, a **quantidade em estoque** (caixinha verde, âmbar na última unidade, cinza fora do estoque)
+  à direita, a **quantidade em estoque** (caixinha verde, âmbar na última unidade, vermelho discreto sem estoque)
   seguida dos botões **anunciar, WhatsApp, ver foto e detalhes**, tudo na mesma linha.
   Em **Detalhes**: nome completo, código, quantidade, **preço mínimo** (com o desconto máximo) e **você ganha**
   (comissão), fornecedor, origem (transferência entre lojas), última compra,
@@ -130,10 +130,12 @@ cheio (em verde, ou vermelho quando negativa). Sem preço de compra, a linha mos
   (hoje ele não traz essa coluna).
 - **Igaporã:** tudo o que Igaporã vende sai do depósito de Matina e não existe custo de transferência: o custo
   é o de compra do **mesmo produto em Matina** (Matina é a referência). O "Custo de Compra" do relatório de
-  Igaporã não vale (os funcionários lançam ali, em geral, o preço de venda de Matina da época). O mesmo produto
-  é achado pelo nome revisado e, como pista, pelo valor lançado em Igaporã igual ao preço de Matina. Só liga
-  quando não há dúvida; o detalhe mostra de qual produto veio (ex.: "Matina, cód. 05200"). A ligação é refeita a
-  cada publicação (`vincular_produtos` em `ferramentas/atualizar_estoque.py`).
+  Igaporã não vale. O mesmo produto é achado a cada publicação (`vincular_produtos` em
+  `ferramentas/atualizar_estoque.py`) **sem usar o código**, que é interno de cada sistema: compara as palavras
+  da descrição revisada e da do sistema, com mais peso para as raras (modelo, linha), tolerando palavra cortada
+  e erro de digitação, e veta tipo, número/medida, cor ou tamanho diferente e um modelo diferente de cada lado.
+  Na dúvida, não liga. Ligado, Igaporã passa a mostrar o **nome e o fornecedor de Matina**, o admin vê o custo de
+  Matina ("(Matina)") e as **fotos** de um valem para o outro (`dados/vinculos.json`, público, sem custo).
 - **Relatório de Matina com os produtos sem estoque:** quanto mais produtos de Matina (inclusive os que
   acabaram), mais produtos de Igaporã ganham custo. Os de estoque zero não aparecem no site: só entram no
   cruzamento (ficam no armazenamento privado, `referencia/matina.json`).

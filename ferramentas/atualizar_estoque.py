@@ -22,6 +22,7 @@ As funções montar_loja() e comparar() também são usadas pelo servidor de atu
 """
 
 import argparse
+import collections
 import html
 import json
 import re
@@ -257,6 +258,7 @@ def corrigir_automatico(descricao):
     if re.match(r"BIC(?:ICLETA)?\b", texto, re.I):  # bicicleta S/M, C/M -> sem marcha, com marcha
         texto = re.sub(r"\b([SC])/M\b", lambda m: "SEM MARCHA" if m.group(1).upper() == "S" else "COM MARCHA", texto, flags=re.I)
     texto = re.sub(r"\b([CSP])/\s*", lambda m: m.group(1).upper() + "/ ", texto, flags=re.I)  # C/ESPELHO -> C/ ESPELHO
+    texto = re.sub(r"\bP[EÉ]:\s*", "PÉ ", texto, flags=re.I)  # PE:DOURADO -> Pé Dourado
     partes = []
     for i, token in enumerate(texto.split(" ")):
         if "/" in token and token.upper() not in PALAVRAS:
@@ -419,7 +421,8 @@ def montar_loja(loja_id, conteudo, correcoes, lojas, nome=None, uf=None, anterio
         "avisos": avisos,
         "custos": custos,
         "sem_estoque": sem_estoque,
-        "referencia": [{c: p[c] for c in ("codigo", "nome", "preco", "fornecedor")} for p in todos],
+        "referencia": [{c: p[c] for c in ("codigo", "nome", "nome_sistema", "preco", "fornecedor", "ultima_compra")
+                        + tuple(k for k in ("busca_foto", "marca") if k in p)} for p in todos],
     }
 
 
@@ -466,55 +469,153 @@ def comparar(antes, depois):
 # em Matina. O "Custo de Compra" do relatório de Igaporã não vale (os funcionários lançam ali, em geral,
 # o preço de venda de Matina da época). Os códigos das lojas são independentes.
 CUSTO_PELA_LOJA = {"igapora": "matina"}
-PALAVRAS_VAZIAS = {"de", "da", "do", "das", "dos", "e", "com", "para", "c", "p"}
+
+# ---- achar o mesmo produto em duas lojas
+# Os códigos são internos de cada sistema e nunca entram na comparação. Compara as palavras da descrição
+# (a revisada e a do sistema, com as abreviações expandidas), dando mais peso às raras (modelo, linha, cor
+# pouco comum) e tolerando palavra cortada (a descrição do sistema tem 45 letras) e erro de digitação.
+# Vetos: tipo de produto diferente, número/medida diferente, cor diferente, casal x solteiro, e uma
+# palavra rara diferente de cada lado (modelo Celta x Stilus). Na dúvida (dois candidatos iguais), não liga.
+
+VAZIAS = {"de", "da", "do", "das", "dos", "e", "com", "para", "c", "p", "a", "o", "em", "na", "no", "x", "ref",
+          "cod", "mod", "modelo", "un", "und", "unidade", "unidades"}
+CORES = set("""branco branca preto preta cinza cinamomo off white freijo nature natural naturale avela castanho carvalho
+rosa azul vermelho vermelha amarelo amarela verde marrom bege dourado dourada perola grafite fendi canela mel imbuia ipe
+amendoa tabaco chocolate cacau wood rustico marfim prata cromado inox champagne sintra jequitiba damasco teka teca gris
+lilas violeta laranja vinho mogno tabacco nogueira cedro mocaccino mocacino carbono titanio titanium bronze grafito areia
+camurca capuccino cappuccino caramelo marinho safira ouro cobre rose""".split())
+TAMANHOS = {"casal", "solteiro", "queen", "king", "viuva", "infantil", "juvenil"}
+SINONIMOS_VINCULO = {"roupeiro": "guardaroupa", "refrigerador": "geladeira", "estofado": "sofa", "estofados": "sofa",
+                     "televisor": "tv", "televisao": "tv", "cznh": "cozinha", "coz": "cozinha"}
+TIPOS_IGUAIS = [{"kit", "cozinha"}]  # "Kit 8 Portas Golden" é cozinha
 
 
-def _termos(nome):
-    texto = re.sub(r"[^a-z0-9]+", " ", sem_acento(nome or "").lower())
-    return frozenset(t for t in texto.split() if t not in PALAVRAS_VAZIAS)
+def _palavras(texto):
+    t = sem_acento(texto or "").lower()
+    t = re.sub(r"guarda[\s-]*roupas?", "guardaroupa", t)
+    t = re.sub(r"\bconj(?:unto)?\.?\s+(?:de\s+)?(?:sofas?|estofados?)\b", "sofa", t)  # conjunto de sofá = estofado
+    t = re.sub(r"\bkit\s*/?\s*cozinha\b", "cozinha", t)
+    t = re.sub(r"\b(?:roupeiro|guardaroupa)\s+multiuso\b", "multiuso", t)
+    # decimal só com 1 dígito inteiro (1,60 m; 2,5 L): "138,24" é separador; unidade sai
+    t = re.sub(r"(?<!\d)(\d)[,.](\d{1,2})(?!\d)", lambda m: m.group(1) + (m.group(2).rstrip("0") and "." + m.group(2).rstrip("0")), t)
+    t = re.sub(r"(\d+(?:\.\d+)?)\s*(m|cm|mm|l|lts|litros|w|v|kg|pol|polegadas)\b", r"\1", t)
+    t = t.replace(".", "p")
+    t = re.sub(r"(\d)x(\d)", r"\1 \2", t)  # 138x188x41 -> 138 188 41
+    t = re.sub(r"[^a-z0-9]+", " ", t)
+    return [SINONIMOS_VINCULO.get(x, x) for x in t.split() if x not in VAZIAS]
 
 
-def _parecido(a, b):
-    return len(a & b) / len(a | b) if a | b else 0.0
+def _distancia1(a, b):
+    if abs(len(a) - len(b)) > 1:
+        return False
+    if len(a) == len(b):
+        return sum(x != y for x, y in zip(a, b)) <= 1
+    curto, longo = (a, b) if len(a) < len(b) else (b, a)
+    return any(longo[:i] + longo[i + 1:] == curto for i in range(len(longo)))
+
+
+def _iguais(a, b):
+    if a == b:
+        return True
+    if min(len(a), len(b)) >= 4 and (a.startswith(b) or b.startswith(a)):  # palavra cortada
+        return True
+    return (a.isalpha() and b.isalpha() and a[0] == b[0] and max(len(a), len(b)) >= 4 and min(len(a), len(b)) >= 3
+            and a not in TAMANHOS and b not in TAMANHOS and _distancia1(a, b))  # erro de digitação
+
+
+class _Descricao:
+    def __init__(self, p):
+        self.p = p
+        nome = _palavras(p["nome"])
+        sistema = _palavras(corrigir_automatico(p.get("nome_sistema") or ""))
+        self.nome_t, self.sist_t = set(nome), set(sistema)
+        self.t = self.nome_t | self.sist_t
+        self.tipo = nome[:1]
+        self.inicio = nome[:2] + sistema[:2]  # onde o tipo do produto aparece
+        self.digitos = {x for x in self.t if re.search(r"\d", x)}
+        self.cores = {x for x in self.t if x in CORES}
+        self.tamanhos = {x for x in self.t if x in TAMANHOS}
+
+
+def _cobre(conjunto, outro):
+    return all(any(_iguais(a, b) for b in outro) for a in conjunto)
+
+
+def _nota(g, m, idf, raro, medio):
+    """None (vetado) ou (cobertura de g, cobertura de m, tem palavra forte em comum, mesmo nome)."""
+    mesmo_tipo = lambda a, b: _iguais(a, b) or any(a in grupo and b in grupo for grupo in TIPOS_IGUAIS)
+    if g.tipo and m.tipo and not (any(mesmo_tipo(g.tipo[0], b) for b in m.inicio)
+                                  and any(mesmo_tipo(m.tipo[0], a) for a in g.inicio)):
+        return None  # cadeira x conjunto de 6 cadeiras
+    if g.digitos and m.digitos and not (_cobre(g.digitos, m.digitos) or _cobre(m.digitos, g.digitos)):
+        return None  # 4009 x 4064, 138 x 158
+    if g.cores and m.cores and not (_cobre(g.cores, m.cores) and _cobre(m.cores, g.cores)):
+        return None  # Branco/Lilás x Branco
+    if g.tamanhos and m.tamanhos and g.tamanhos != m.tamanhos:
+        return None  # casal x solteiro
+
+    def sobra(d, outro):  # na descrição que mais bate: erro de digitação da outra não conta
+        restos = [{a for a in r if not any(_iguais(a, b) for b in outro.t)} for r in (d.nome_t, d.sist_t) if r]
+        return {a for a in min(restos, key=len) if a not in CORES and not re.search(r"\d", a) and len(a) >= 3}
+    so_g, so_m = sobra(g, m), sobra(m, g)
+    if any(idf.get(x, 0) >= raro for x in so_g) and any(idf.get(x, 0) >= raro for x in so_m):
+        return None  # um modelo diferente de cada lado
+    if any(idf.get(x, 0) >= medio and len(x) >= 4 for x in so_g) and any(idf.get(x, 0) >= medio and len(x) >= 4 for x in so_m):
+        return None  # pedra x premium
+    peso = lambda conjunto: sum(idf.get(x, 0) for x in conjunto)
+    cobertura = lambda rep, outro: peso({a for a in rep if any(_iguais(a, b) for b in outro)}) / (peso(rep) or 1)
+    cg = max(cobertura(g.nome_t, m.t), cobertura(g.sist_t, m.t) if g.sist_t else 0)
+    cm = max(cobertura(m.nome_t, g.t), cobertura(m.sist_t, g.t) if m.sist_t else 0)
+    comuns = {a for a in g.t if any(_iguais(a, b) for b in m.t)}
+    forte = any((idf.get(x, 0) >= raro and x not in CORES and len(x) >= 3) or re.search(r"\d", x) for x in comuns)
+    return cg, cm, forte, g.nome_t == m.nome_t
 
 
 def vincular_produtos(produtos, outra, lancado=None):
-    """Acha, para cada produto de uma loja, o mesmo produto em outra loja (pelo nome revisado).
+    """Acha, para cada produto de uma loja (Igaporã), o mesmo produto na outra (Matina).
 
-    Só aceita quando não há dúvida; sem certeza, o produto fica sem vínculo (melhor sem custo que
-    com o custo de outro produto):
-      - nome muito parecido (75% das palavras), mesmas medidas/modelo (palavras com número) e
-        bem à frente do segundo mais parecido; ou
-      - valor lançado como custo na filial igual ao preço do produto na outra loja (os funcionários
-        costumam lançar o preço de venda da matriz), com nome parecido (metade das palavras) e sem empate.
-    outra: produtos da outra loja — de preferência com os sem estoque (o que acabou lá).
-    lancado: {código: valor da coluna "Custo de Compra" da filial} (só como pista, nunca como custo).
+    outra: produtos da outra loja, de preferência também os sem estoque (o que acabou lá). Cada produto
+    precisa de nome, nome_sistema e preco (ultima_compra desempata cadastros repetidos).
+    lancado: {código: valor lançado como custo na filial} — só uma pista a mais (igual ao preço da
+    outra loja), nunca o custo.
     Devolve {código: código do mesmo produto na outra loja}."""
+    import math
     lancado = lancado or {}
-    candidatos = [(q, _termos(q["nome"])) for q in outra]
+    lado = [_Descricao(p) for p in produtos]
+    outros = [_Descricao(q) for q in outra]
+    frequencia = collections.Counter()
+    for d in lado + outros:
+        frequencia.update(d.t)
+    total = len(lado) + len(outros)
+    idf = {t: math.log((total + 1) / (n + 1)) + 1 for t, n in frequencia.items()}
+    raro = math.log((total + 1) / 41) + 1    # palavra em até ~40 produtos: modelo, linha
+    medio = math.log((total + 1) / 151) + 1  # em até ~150
+    indice = collections.defaultdict(list)  # candidatos: quem divide alguma palavra pouco comum
+    for i, d in enumerate(outros):
+        for x in d.t:
+            if idf[x] >= raro * 0.7:
+                indice[x].append(i)
     vinculos = {}
-    for p in produtos:
-        termos = _termos(p["nome"])
-        modelo = frozenset(t for t in termos if any(c.isdigit() for c in t))
-        notas = sorted(((_parecido(termos, t), q, t) for q, t in candidatos), key=lambda x: -x[0])
+    for g in lado:
+        notas = []
+        for i in {i for x in g.t for i in indice.get(x, ())}:
+            r = _nota(g, outros[i], idf, raro, medio)
+            if not r:
+                continue
+            cg, cm, forte, mesmo_nome = r
+            if len(g.nome_t) == 1 and not mesmo_nome:
+                continue  # nome de uma palavra só ("Cesto") só liga se for igual
+            if mesmo_nome or (cg >= 0.75 and cm >= (0.25 if forte else 0.45) and (forte or cm >= 0.75)):
+                pista = 0.05 if abs(outros[i].p["preco"] - lancado.get(g.p["codigo"], -1)) < 0.005 else 0
+                notas.append((cg + 0.25 * cm + pista, i))
         if not notas:
             continue
-        nota, q, t = notas[0]
-        segunda = notas[1][0] if len(notas) > 1 else 0.0
-        if nota >= 0.75 and nota - segunda >= 0.15 and modelo == frozenset(x for x in t if any(c.isdigit() for c in x)):
-            vinculos[p["codigo"]] = q["codigo"]
-            continue
-        valor = lancado.get(p["codigo"])
-        if valor is None:
-            continue
-        mesmos = [(n, q2, t2) for n, q2, t2 in notas if abs(q2["preco"] - valor) < 0.005]
-        if not mesmos:
-            continue
-        nota, q, t = mesmos[0]
-        segunda = mesmos[1][0] if len(mesmos) > 1 else 0.0
-        modelo_q = frozenset(x for x in t if any(c.isdigit() for c in x))
-        if nota >= 0.5 and nota - segunda >= 0.15 and (not modelo or not modelo_q or modelo & modelo_q):
-            vinculos[p["codigo"]] = q["codigo"]
+        notas.sort(reverse=True)
+        empatados = [n for n in notas if notas[0][0] - n[0] < 0.03]
+        if len({tuple(sorted(outros[i].nome_t)) for _, i in empatados}) > 1:
+            continue  # dois produtos diferentes servem: na dúvida, não liga
+        escolhido = max(empatados, key=lambda n: outros[n[1]].p.get("ultima_compra") or "")  # cadastro repetido: o mais recente
+        vinculos[g.p["codigo"]] = outros[escolhido[1]].p["codigo"]
     return vinculos
 
 

@@ -412,7 +412,7 @@ body.selecionando .toast { bottom: calc(var(--altura-abas) + 76px + env(safe-are
 .valor.confirmar { font-size: 14px; font-weight: 700; color: var(--ambar); white-space: normal; line-height: 1.1; max-width: 5.6em; }
 
 /* estoque: container do tamanho dos botões, à esquerda do botão de anunciar;
-   verde com várias unidades, âmbar na última, cinza fora do estoque */
+   verde com várias unidades, âmbar na última, vermelho discreto sem estoque */
 .estoque {
   flex: none; display: inline-flex; align-items: center; gap: 3px;
   height: var(--altura-botao); padding: 0 8px 0 6px; border-radius: 10px;
@@ -421,7 +421,7 @@ body.selecionando .toast { bottom: calc(var(--altura-abas) + 76px + env(safe-are
 }
 .estoque .ic { width: 17px; height: 17px; stroke-width: 2; }
 .estoque.ultima { background: var(--ambar-fundo); color: var(--ambar); }
-.estoque.fora { background: var(--superficie-2); color: var(--suave); }
+.estoque.fora { background: var(--st-cancelado-fundo); color: var(--st-cancelado); } /* sem estoque: vermelho discreto */
 
 .botoes { display: flex; gap: 4px; margin-left: auto; }
 

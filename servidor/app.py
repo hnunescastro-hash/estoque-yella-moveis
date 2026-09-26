@@ -398,6 +398,7 @@ def processar(pasta, envios, vincular=False):
             })
 
     enviadas = set(saidas) | set(enviados_sem_estoque)
+    pares = []  # público: o mesmo produto nas duas lojas (nome, fornecedor e fotos de Matina valem para Igaporã)
     for loja_id, outra in ae.CUSTO_PELA_LOJA.items() if vincular else ():
         if not ({loja_id, outra} & enviadas) or loja_id not in por_id or outra not in por_id:
             continue
@@ -406,9 +407,21 @@ def processar(pasta, envios, vincular=False):
         com = (r["referencias"].get(outra) or ler_privado(f"referencia/{outra}.json")[0]
                or ler_json(pasta, por_id[outra]["arquivo"], {"produtos": []})["produtos"])
         sem = r["referencias_sem_estoque"].get(outra) or ler_privado(f"referencia-sem-estoque/{outra}.json")[0] or []
-        da_outra = list({**{x["codigo"]: x for x in sem}, **{x["codigo"]: x for x in com}}.values())
+        da_outra = {**{x["codigo"]: x for x in sem}, **{x["codigo"]: x for x in com}}
         lancado = r["custos"][loja_id] if loja_id in r["custos"] else ler_privado(f"custos/{loja_id}.json", {})[0]
-        r["vinculos"][loja_id] = {"loja": outra, "codigos": ae.vincular_produtos(produtos, da_outra, lancado)}
+        codigos = ae.vincular_produtos(produtos, list(da_outra.values()), lancado)
+        r["vinculos"][loja_id] = {"loja": outra, "codigos": codigos}
+        deste = {p["codigo"]: p for p in produtos}
+        for codigo, codigo_outra in sorted(codigos.items()):
+            q = da_outra[codigo_outra]
+            pares.append({"de": loja_id, "codigo": codigo, "sistema": deste[codigo].get("nome_sistema", ""),
+                          "para": outra, "codigo_para": codigo_outra, "nome": q["nome"], "sistema_para": q.get("nome_sistema", ""),
+                          "fornecedor": q.get("fornecedor", ""), **({"busca_foto": q["busca_foto"]} if q.get("busca_foto") else {})})
+    if r["vinculos"]:
+        texto = ae.texto_json({"pares": pares})
+        caminho = Path(pasta) / "dados/vinculos.json"
+        if not caminho.exists() or caminho.read_text(encoding="utf-8") != texto:
+            r["arquivos"]["dados/vinculos.json"] = texto
     return r
 
 

@@ -249,30 +249,58 @@
 
   // Junta os produtos das lojas escolhidas. Cada produto guarda a loja de onde veio,
   // porque o mesmo código pode ser de produtos diferentes em lojas diferentes.
+  // Mesmo produto nas duas lojas (o servidor acha pelas descrições, nunca pelo código, que é interno
+  // de cada sistema): Igaporã mostra o nome e o fornecedor de Matina, e as fotos valem para os dois.
+  function mapaDeVinculos() {
+    const ida = new Map();
+    const volta = new Map();
+    for (const v of (estado.vinculos && estado.vinculos.pares) || []) {
+      ida.set(`${v.de}:${v.codigo}`, v);
+      const chave = `${v.para}:${v.codigo_para}`;
+      if (!volta.has(chave)) volta.set(chave, []);
+      volta.get(chave).push(v.sistema);
+    }
+    return { ida, volta };
+  }
+
+  function comVinculo(p, loja, vinculos) {
+    const v = vinculos.ida.get(`${loja}:${p.codigo}`);
+    if (v) {
+      return Object.assign({}, p, {
+        nome: v.nome, fornecedor: v.fornecedor || p.fornecedor, busca_foto: v.busca_foto || p.busca_foto,
+        _nomeDaLoja: p.nome, _fotosTambem: [v.sistema_para],
+      });
+    }
+    const outros = vinculos.volta.get(`${loja}:${p.codigo}`);
+    return outros ? Object.assign({}, p, { _fotosTambem: outros }) : p;
+  }
+
   function prepararProdutos(partes) {
     const juntos = [];
+    const vinculos = mapaDeVinculos();
     partes.forEach(({ loja, dados, semEstoque }, posicaoLoja) => {
       const referencia = dados.gerado_em ? Date.parse(dados.gerado_em) : Date.now();
       const temVenda = (dados.produtos || []).some((p) => 'ultima_venda' in p);
-      for (const p of dados.produtos || []) {
+      for (const original of dados.produtos || []) {
+        const p = comVinculo(original, loja.id, vinculos);
         juntos.push({ p, loja: loja.id, posicaoLoja, chave: semAcento(p.nome), referencia, temVenda });
       }
       // Sem estoque (preço para encomenda): só o que não voltou ao estoque
       const temEstoque = new Set((dados.produtos || []).map((p) => p.codigo));
-      for (const p of semEstoque || []) {
-        if (!temEstoque.has(p.codigo)) juntos.push({ p, loja: loja.id, posicaoLoja, chave: semAcento(p.nome), referencia, temVenda: false, semEstoque: true });
+      for (const original of semEstoque || []) {
+        if (temEstoque.has(original.codigo)) continue;
+        const p = comVinculo(original, loja.id, vinculos);
+        juntos.push({ p, loja: loja.id, posicaoLoja, chave: semAcento(p.nome), referencia, temVenda: false, semEstoque: true });
       }
     });
-    // Cada arquivo já vem em ordem alfabética. Juntando lojas, reordena do mesmo jeito,
-    // para o mesmo produto das duas lojas ficar lado a lado.
-    if (partes.length > 1) {
-      const comparar = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
-      juntos.sort((a, b) => comparar(a.chave, b.chave) || comparar(a.p.codigo, b.p.codigo) || a.posicaoLoja - b.posicaoLoja);
-    }
+    // Em ordem alfabética (o nome de Matina pode ter trocado o de Igaporã); juntando lojas, o mesmo
+    // produto das duas fica lado a lado.
+    const comparar = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
+    juntos.sort((a, b) => comparar(a.chave, b.chave) || comparar(a.p.codigo, b.p.codigo) || a.posicaoLoja - b.posicaoLoja);
     estado.produtos = juntos.map(({ p, loja, referencia, temVenda, semEstoque }, ordem) => {
       const nome = normalizar(p.nome);
       const codigo = String(p.codigo).replace(/^0+/, '');
-      let busca = normalizar([p.nome, p.nome_sistema, p.codigo, codigo, p.marca].join(' '));
+      let busca = normalizar([p.nome, p._nomeDaLoja, p.nome_sistema, p.codigo, codigo, p.marca].join(' '));
       const comEspacos = ` ${busca} `;
       for (const grupo of SINONIMOS) {
         if (grupo.some((termo) => comEspacos.includes(` ${termo} `))) busca += ' ' + grupo.join(' ');
@@ -626,8 +654,10 @@
 
   // Mini galeria no fim dos detalhes (fotos em dados/fotos.json, pela descrição do sistema).
   function fotosDe(p) {
-    const lista = estado.fotos && estado.fotos[p.nome_sistema];
-    return Array.isArray(lista) ? lista.slice(0, 6) : []; // no máximo 6 fotos
+    const fotos = estado.fotos || {};
+    // as do próprio produto; sem elas, as do mesmo produto na outra loja
+    const lista = [p.nome_sistema, ...(p._fotosTambem || [])].map((s) => fotos[s]).find((l) => Array.isArray(l) && l.length);
+    return lista ? lista.slice(0, 6) : []; // no máximo 6 fotos
   }
 
   function galeriaHTML(p) {
@@ -1127,11 +1157,10 @@
     return custos ? custos[p.codigo] : undefined;
   }
 
-  // Custo tirado do mesmo produto em outra loja (Igaporã usa o de Matina): "Matina, cód. 05200".
+  // Custo tirado do mesmo produto em outra loja (Igaporã usa o de Matina): "(Matina)".
   function origemDoCusto(p) {
     const origem = estado.origemCustos && estado.origemCustos[p._loja];
-    const codigo = origem && origem.codigos && origem.codigos[p.codigo];
-    return codigo ? `${nomeDaLoja(origem.loja)}, cód. ${codigo}` : '';
+    return origem && origem.codigos && origem.codigos[p.codigo] ? nomeDaLoja(origem.loja) : '';
   }
 
   const faixa = (menor, maior) => (menor === maior ? reais(menor) : `${reais(menor)} a ${reais(maior)}`);
@@ -2224,6 +2253,7 @@
   // Abre uma loja ou TODAS (junta o estoque de todas as lojas).
   async function carregarLoja(id) {
     if (!estado.fotos) estado.fotos = await buscarJSON('dados/fotos.json').catch(() => ({}));
+    if (!estado.vinculos) estado.vinculos = await buscarJSON('dados/vinculos.json').catch(() => ({ pares: [] }));
     const anterior = estado.lojaId;
     const pedido = id === TODAS && estado.lojas.length > 1 ? TODAS : (lojaPorId(id) || estado.lojas[0]).id;
     const escolhidas = pedido === TODAS ? estado.lojas : [lojaPorId(pedido)];
@@ -2551,6 +2581,7 @@
     try { estado.lojas = (await buscarJSON(ARQUIVO_LOJAS)).lojas || estado.lojas; } catch (erro) { /* fica a lista que já tinha */ }
     estado.dadosLojas.clear();
     estado.semEstoqueLojas.clear();
+    estado.vinculos = null;
     montarAdmin();
     await carregarLoja(estado.lojaId);
     el.adminRelatorio.insertAdjacentHTML('afterbegin', '<p class="relatorio-resultado">Site atualizado.</p>');
@@ -2578,6 +2609,13 @@
         }
       } catch (erro) { /* sem internet: fica o estoque que já está na tela */ }
     }
+    try {
+      const vinculos = await buscarJSON('dados/vinculos.json');
+      if (JSON.stringify(vinculos) !== JSON.stringify(estado.vinculos)) {
+        estado.vinculos = vinculos;
+        mudou = true;
+      }
+    } catch (erro) { /* sem internet ou sem o arquivo: fica o que já está na tela */ }
     if (mudou) await carregarLoja(estado.lojaId);
   }
 

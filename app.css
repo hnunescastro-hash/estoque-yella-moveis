@@ -263,24 +263,32 @@ button, input, select { font: inherit; color: inherit; }
 }
 .atalho .ic { width: 22px; height: 22px; color: var(--suave); }
 .atalho-qtd { color: var(--suave); font-weight: 500; font-variant-numeric: tabular-nums; }
+.atalho-parados .ic { color: var(--ambar); }
 .atalho:active { background: var(--superficie-2); }
 
-.contagem { margin: 0 0 8px; font-size: 14px; color: var(--suave); }
+.barra-resultados { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; min-height: 30px; }
+.contagem { flex: 1; min-width: 0; margin: 0; font-size: 14px; color: var(--suave); }
+.selecionar {
+  flex: none; margin-left: auto; display: inline-flex; align-items: center; gap: 5px; min-height: 32px; padding: 0 10px;
+  border: 1.5px solid var(--linha); border-radius: 10px; background: var(--superficie); color: var(--texto);
+  font-size: 14px; font-weight: 700; cursor: pointer;
+}
+.selecionar .ic { width: 17px; height: 17px; color: var(--whatsapp); }
 .contagem strong { color: var(--texto); }
 
-/* filtro de fornecedor ativo */
-.filtro-fornecedor {
+/* filtro ativo (fornecedor ou parados) */
+.filtro-ativo {
   display: flex; align-items: center; gap: 8px;
   margin: 0 0 10px; padding: 5px 5px 5px 10px; border-radius: 10px;
   border: 1.5px solid var(--texto); background: var(--superficie); font-size: 14.5px;
 }
-.filtro-fornecedor > .ic { width: 20px; height: 20px; color: var(--suave); }
-.filtro-fornecedor > span { flex: 1; min-width: 0; line-height: 1.3; overflow-wrap: anywhere; }
-.filtro-fornecedor button {
+.filtro-ativo > .ic { width: 20px; height: 20px; color: var(--suave); }
+.filtro-ativo > span { flex: 1; min-width: 0; line-height: 1.3; overflow-wrap: anywhere; }
+.filtro-ativo button {
   flex: none; width: 36px; height: 36px; display: grid; place-items: center; cursor: pointer;
   border: 0; border-radius: 8px; background: var(--superficie-2); color: var(--texto);
 }
-.filtro-fornecedor button .ic { width: 18px; height: 18px; stroke-width: 2.2; }
+.filtro-ativo button .ic { width: 18px; height: 18px; stroke-width: 2.2; }
 
 /* a busca também é nome de fornecedor */
 .sugestao-fornecedor { display: flex; align-items: flex-start; gap: 6px; margin: -2px 0 8px; font-size: 14px; color: var(--suave); line-height: 1.35; }
@@ -332,6 +340,49 @@ button, input, select { font: inherit; color: inherit; }
   font-size: 16px; line-height: 1.3; font-weight: 700;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+
+/* "Novo" (entrou numa atualização recente) e tempo sem venda (filtro "Parados") */
+.selo-novo {
+  flex: none; padding: 0 7px; border-radius: 999px; line-height: 18px;
+  background: var(--verde); color: var(--sobre-status); font-size: 11px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase;
+}
+.selo-parado {
+  flex: none; display: inline-flex; align-items: center; gap: 2px; padding: 0 7px 0 5px; border-radius: 999px; line-height: 18px;
+  background: var(--ambar-fundo); color: var(--ambar); font-size: 12px; font-weight: 800; white-space: nowrap;
+}
+.selo-parado .ic { width: 13px; height: 13px; stroke-width: 2.2; }
+
+/* seleção de vários produtos para o WhatsApp */
+.marcador {
+  display: none; flex: none; width: 26px; height: 26px; padding: 0; border-radius: 50%; cursor: pointer;
+  place-items: center; border: 2px solid var(--linha); background: var(--superficie); color: transparent;
+}
+.marcador .ic { width: 16px; height: 16px; stroke-width: 3; }
+body.selecionando .marcador { display: grid; }
+body.selecionando .lista .card { cursor: pointer; }
+.card.selecionado { border-color: var(--whatsapp); box-shadow: 0 0 0 2px var(--whatsapp); }
+.card.selecionado .marcador { border-color: var(--whatsapp); background: var(--whatsapp); color: #fff; }
+
+.barra-selecao {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 22;
+  bottom: calc(var(--altura-abas) + 10px + env(safe-area-inset-bottom));
+  display: flex; align-items: center; gap: 10px; width: min(460px, calc(100vw - 24px));
+  padding: 6px 6px 6px 8px; border-radius: 16px; background: var(--tinta); color: #fff;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .28);
+}
+.barra-selecao-fechar {
+  flex: none; width: 40px; height: 40px; display: grid; place-items: center; border: 0; border-radius: 12px; cursor: pointer;
+  background: rgba(255, 255, 255, .12); color: #fff;
+}
+.barra-selecao-texto { flex: 1; min-width: 0; font-weight: 800; font-size: 15px; }
+.barra-selecao-enviar {
+  flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 42px; padding: 0 16px; border-radius: 12px;
+  background: #1faa59; color: #fff; font-weight: 800; text-decoration: none;
+}
+.barra-selecao-enviar .ic { width: 20px; height: 20px; }
+.barra-selecao-enviar.desativado { opacity: .45; pointer-events: none; }
+body.selecionando { padding-bottom: calc(var(--altura-abas) + 84px + env(safe-area-inset-bottom)); }
+body.selecionando .toast { bottom: calc(var(--altura-abas) + 76px + env(safe-area-inset-bottom)); }
 
 /* loja do produto, em "Todas as lojas": cada loja com a sua cor no texto */
 .selo-loja {
@@ -577,6 +628,62 @@ html.travado, html.travado body { overflow: hidden; }
 .relatorio-nada { margin: 0; font-size: 13.5px; color: var(--suave); }
 .relatorio-alerta { margin: 8px 0 0; font-size: 13px; font-weight: 700; color: var(--st-cancelado); }
 .relatorio-resultado { margin: 0; font-size: 14.5px; font-weight: 800; color: var(--verde); }
+
+/* ---------- administrador: imposto de saída e sobra ---------- */
+
+.admin-imposto { margin-bottom: 12px; }
+.detalhes .negativo { color: var(--st-cancelado); }
+
+/* ---------- vendas do mês (aba Anunciados) ---------- */
+
+.painel-vendas {
+  display: flex; align-items: center; gap: 6px; margin: 0 0 10px; padding: 6px;
+  border: 1px solid var(--linha); border-radius: 12px; background: var(--superficie); box-shadow: var(--sombra);
+}
+.vendas-resumo { flex: 1; min-width: 0; text-align: center; line-height: 1.3; }
+.vendas-resumo strong { display: block; font-size: 15px; }
+.vendas-resumo span { font-size: 13.5px; color: var(--suave); font-variant-numeric: tabular-nums; }
+.mes-seta {
+  flex: none; width: 38px; height: 38px; display: grid; place-items: center; cursor: pointer;
+  border: 0; border-radius: 10px; background: var(--superficie-2); color: var(--texto);
+}
+.mes-seta:disabled { opacity: .35; cursor: default; }
+html.ocultar-contas .vendas-comissao { display: none; }
+
+.botao-comprovante {
+  display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; min-height: 40px; margin-top: 8px;
+  border: 1.5px solid var(--st-vendido); border-radius: 10px; background: var(--st-vendido-fundo); color: var(--st-vendido);
+  font-weight: 800; font-size: 14px; cursor: pointer;
+}
+.botao-comprovante .ic { width: 19px; height: 19px; }
+
+/* ---------- venda: dados do cliente ---------- */
+
+.modal-caixa.venda {
+  max-width: 460px; text-align: left;
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;
+}
+.modal-caixa.venda h2 { grid-column: 1 / -1; font-size: 20px; }
+.venda-produto { grid-column: 1 / -1; margin: -6px 0 2px; font-size: 14.5px; font-weight: 700; color: var(--suave); }
+.venda-campo { display: flex; flex-direction: column; gap: 4px; min-width: 0; font-size: 13px; font-weight: 700; color: var(--suave); }
+.venda-campo .campo-texto { height: 44px; font-size: 16px; }
+.venda-largo { grid-column: 1 / -1; }
+.venda .botao-principal { margin-top: 4px; }
+.venda-cancelar { justify-self: center; }
+.assinatura-topo { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; font-weight: 700; color: var(--suave); }
+.assinatura-topo .link { padding: 0; font-size: 13px; }
+#venda-assinatura {
+  display: block; width: 100%; height: auto; aspect-ratio: 3 / 1; margin-top: 4px; touch-action: none; cursor: crosshair;
+  border: 1.5px dashed var(--linha); border-radius: 12px; background: #fffdf6;
+}
+
+/* ---------- comprovante gerado ---------- */
+
+.modal-caixa.comprovante { max-width: 430px; padding: 12px; display: grid; gap: 10px; }
+#comprovante-imagem { display: block; width: 100%; height: auto; border-radius: 10px; }
+.comprovante .botao-principal { margin: 0; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.comprovante-acoes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.comprovante-acoes .botao-secundario { padding: 0 8px; }
 
 /* ---------- primeiro acesso: nome do vendedor ---------- */
 

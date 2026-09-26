@@ -2,8 +2,8 @@
  "loja": "igapora",
  "nome": "Igaporã",
  "uf": "BA",
- "gerado_em": "2026-09-25T14:09:12",
- "total_produtos": 500,
+ "gerado_em": "2026-09-26T09:37:40",
+ "total_produtos": 499,
  "total_unidades": 815,
  "produtos": [
   {
@@ -14,6 +14,7 @@
    "preco": 18.0,
    "quantidade": 1,
    "ultima_compra": "2017-10-21",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -24,6 +25,7 @@
    "preco": 455.0,
    "quantidade": 1,
    "ultima_compra": "2023-09-19",
+   "ultima_venda": "2024-05-08",
    "transferido_de": "Matina"
   },
   {
@@ -34,6 +36,7 @@
    "preco": 425.0,
    "quantidade": 2,
    "ultima_compra": "2024-12-19",
+   "ultima_venda": "2024-05-31",
    "transferido_de": "Matina"
   },
   {
@@ -44,6 +47,7 @@
    "preco": 407.0,
    "quantidade": 1,
    "ultima_compra": "2025-02-19",
+   "ultima_venda": "2025-05-08",
    "transferido_de": "Matina"
   },
   {
@@ -54,7 +58,7 @@
    "preco": 528.0,
    "quantidade": 1,
    "ultima_compra": "2021-02-06",
-   "transferido_de": "Matina"
+   "ultima_venda": "2021-02-12"
   },
   {
    "codigo": "01083",
@@ -64,6 +68,7 @@
    "preco": 230.0,
    "quantidade": 3,
    "ultima_compra": "2021-11-12",
+   "ultima_venda": "2023-02-03",
    "transferido_de": "Matina"
   },
   {
@@ -74,6 +79,7 @@
    "preco": 279.0,
    "quantidade": 2,
    "ultima_compra": "2023-11-24",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -84,6 +90,7 @@
    "preco": 595.0,
    "quantidade": 1,
    "ultima_compra": "2025-09-22",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -94,6 +101,7 @@
    "preco": 905.0,
    "quantidade": 1,
    "ultima_compra": "2025-10-20",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -104,6 +112,7 @@
    "preco": 1.0,
    "quantidade": 1,
    "ultima_compra": "2018-01-12",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -114,6 +123,7 @@
    "preco": 315.0,
    "quantidade": 1,
    "ultima_compra": "2018-01-12",
+   "ultima_venda": "2019-08-30",
    "transferido_de": "Matina"
   },
   {
@@ -124,6 +134,7 @@
    "preco": 448.0,
    "quantidade": 1,
    "ultima_compra": "2025-07-11",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Poliman",
    "busca_foto": "Poliman"
@@ -136,6 +147,8 @@
    "preco": 1125.0,
    "quantidade": 1,
    "ultima_compra": "2026-04-28",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Bertolini",
    "busca_foto": "Bertolini"
   },
@@ -147,6 +160,8 @@
    "preco": 925.0,
    "quantidade": 1,
    "ultima_compra": "2026-07-17",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Bertolini",
    "busca_foto": "Bertolini"
   },
@@ -158,6 +173,8 @@
    "preco": 2545.0,
    "quantidade": 1,
    "ultima_compra": "2026-06-18",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Bertolini",
    "busca_foto": "Bertolini"
   },
@@ -169,6 +186,8 @@
    "preco": 1250.0,
    "quantidade": 1,
    "ultima_compra": "2026-07-18",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Bertolini",
    "busca_foto": "Bertolini"
   },
@@ -180,6 +199,7 @@
    "preco": 376.0,
    "quantidade": 1,
    "ultima_compra": "2025-11-03",
+   "ultima_venda": "2025-11-13",
    "transferido_de": "Matina",
    "marca": "Nicioli",
    "busca_foto": "Nicioli"
@@ -192,6 +212,7 @@
    "preco": 1150.0,
    "quantidade": 1,
    "ultima_compra": "2023-02-01",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -202,6 +223,7 @@
    "preco": 615.0,
    "quantidade": 1,
    "ultima_compra": "2023-05-24",
+   "ultima_venda": "2021-12-18",
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -213,6 +235,7 @@
    "preco": 635.0,
    "quantidade": 1,
    "ultima_compra": "2025-04-22",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -223,6 +246,7 @@
    "preco": 1.0,
    "quantidade": 1,
    "ultima_compra": "2018-01-12",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -233,7 +257,7 @@
    "preco": 692.0,
    "quantidade": 1,
    "ultima_compra": "2026-03-16",
-   "transferido_de": "Matina",
+   "ultima_venda": "2026-03-09",
    "busca_foto": "HB Móveis"
   },
   {
@@ -244,6 +268,7 @@
    "preco": 625.0,
    "quantidade": 1,
    "ultima_compra": "2023-09-05",
+   "ultima_venda": "2023-10-20",
    "transferido_de": "Matina"
   },
   {
@@ -254,6 +279,7 @@
    "preco": 1.0,
    "quantidade": 1,
    "ultima_compra": "2018-01-16",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -264,6 +290,7 @@
    "preco": 375.0,
    "quantidade": 1,
    "ultima_compra": "2022-04-20",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -274,6 +301,7 @@
    "preco": 126.0,
    "quantidade": 1,
    "ultima_compra": "2023-09-19",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "busca_foto": "JB Bechara"
   },
@@ -285,6 +313,7 @@
    "preco": 139.0,
    "quantidade": 4,
    "ultima_compra": "2026-09-08",
+   "ultima_venda": "2025-12-08",
    "transferido_de": "Matina"
   },
   {
@@ -295,6 +324,7 @@
    "preco": 116.0,
    "quantidade": 1,
    "ultima_compra": "2026-02-03",
+   "ultima_venda": "2026-09-03",
    "transferido_de": "Matina"
   },
   {
@@ -305,6 +335,7 @@
    "preco": 175.0,
    "quantidade": 1,
    "ultima_compra": "2024-03-11",
+   "ultima_venda": "2025-06-14",
    "transferido_de": "Matina"
   },
   {
@@ -315,6 +346,7 @@
    "preco": 145.0,
    "quantidade": 1,
    "ultima_compra": "2016-11-18",
+   "ultima_venda": "2019-10-29",
    "transferido_de": "Matina"
   },
   {
@@ -325,6 +357,7 @@
    "preco": 145.0,
    "quantidade": 1,
    "ultima_compra": "2026-03-16",
+   "ultima_venda": "2026-02-09",
    "transferido_de": "Matina"
   },
   {
@@ -334,7 +367,9 @@
    "fornecedor": "",
    "preco": 145.0,
    "quantidade": 1,
-   "ultima_compra": "2026-04-28"
+   "ultima_compra": "2026-04-28",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03921",
@@ -344,6 +379,8 @@
    "preco": 385.0,
    "quantidade": 1,
    "ultima_compra": "2026-07-28",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Sonos",
    "busca_foto": "Sonos Colchões"
   },
@@ -355,6 +392,7 @@
    "preco": 415.0,
    "quantidade": 1,
    "ultima_compra": "2026-05-08",
+   "ultima_venda": "2026-07-24",
    "transferido_de": "Matina",
    "busca_foto": "Estofado Bello"
   },
@@ -365,7 +403,9 @@
    "fornecedor": "Luiz Carlos Diniz",
    "preco": 547.0,
    "quantidade": 2,
-   "ultima_compra": "2022-02-07"
+   "ultima_compra": "2022-02-07",
+   "ultima_venda": "2022-12-10",
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03871",
@@ -374,7 +414,9 @@
    "fornecedor": "Luiz Carlos Diniz",
    "preco": 645.0,
    "quantidade": 1,
-   "ultima_compra": "2026-06-18"
+   "ultima_compra": "2026-06-18",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03447",
@@ -384,6 +426,7 @@
    "preco": 445.0,
    "quantidade": 1,
    "ultima_compra": "2026-07-27",
+   "ultima_venda": "2026-09-03",
    "transferido_de": "Matina"
   },
   {
@@ -394,6 +437,8 @@
    "preco": 338.0,
    "quantidade": 1,
    "ultima_compra": "2026-03-25",
+   "ultima_venda": "2026-03-25",
+   "transferido_de": "Matina",
    "busca_foto": "Estofado Bello"
   },
   {
@@ -404,6 +449,7 @@
    "preco": 346.0,
    "quantidade": 1,
    "ultima_compra": "2026-06-30",
+   "ultima_venda": "2026-07-10",
    "transferido_de": "Matina"
   },
   {
@@ -414,6 +460,7 @@
    "preco": 359.0,
    "quantidade": 1,
    "ultima_compra": "2024-09-02",
+   "ultima_venda": "2024-08-29",
    "transferido_de": "Matina",
    "marca": "Ortobom",
    "busca_foto": "Ortobom"
@@ -426,6 +473,7 @@
    "preco": 295.0,
    "quantidade": 1,
    "ultima_compra": "2025-05-20",
+   "ultima_venda": "2025-08-01",
    "transferido_de": "Matina"
   },
   {
@@ -436,6 +484,7 @@
    "preco": 290.0,
    "quantidade": 2,
    "ultima_compra": "2020-11-27",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -446,6 +495,7 @@
    "preco": 569.0,
    "quantidade": 1,
    "ultima_compra": "2018-07-13",
+   "ultima_venda": "2020-12-01",
    "busca_foto": "WJ Tubos"
   },
   {
@@ -456,6 +506,7 @@
    "preco": 515.0,
    "quantidade": 1,
    "ultima_compra": "2024-07-22",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Reconflex",
    "busca_foto": "Reconflex"
@@ -468,6 +519,7 @@
    "preco": 750.0,
    "quantidade": 1,
    "ultima_compra": "2025-04-29",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -478,6 +530,7 @@
    "preco": 660.0,
    "quantidade": 1,
    "ultima_compra": "2023-01-05",
+   "ultima_venda": "2023-01-07",
    "transferido_de": "Matina"
   },
   {
@@ -488,6 +541,8 @@
    "preco": 1125.0,
    "quantidade": 1,
    "ultima_compra": "2026-07-10",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "busca_foto": "Nara Móveis"
   },
   {
@@ -498,6 +553,7 @@
    "preco": 325.0,
    "quantidade": 1,
    "ultima_compra": "2023-08-12",
+   "ultima_venda": "2016-04-26",
    "transferido_de": "Matina"
   },
   {
@@ -508,6 +564,7 @@
    "preco": 627.0,
    "quantidade": 1,
    "ultima_compra": "2024-12-16",
+   "ultima_venda": "2023-12-08",
    "transferido_de": "Matina"
   },
   {
@@ -518,6 +575,7 @@
    "preco": 790.0,
    "quantidade": 1,
    "ultima_compra": "2025-10-20",
+   "ultima_venda": "2025-11-03",
    "transferido_de": "Matina",
    "marca": "Henn",
    "busca_foto": "Henn"
@@ -530,6 +588,7 @@
    "preco": 330.0,
    "quantidade": 1,
    "ultima_compra": "2023-07-04",
+   "ultima_venda": "2018-02-20",
    "transferido_de": "Matina",
    "marca": "Batrol",
    "busca_foto": "Batrol"
@@ -542,6 +601,7 @@
    "preco": 568.0,
    "quantidade": 1,
    "ultima_compra": "2022-10-20",
+   "ultima_venda": "2025-07-21",
    "transferido_de": "Matina"
   },
   {
@@ -552,6 +612,8 @@
    "preco": 326.0,
    "quantidade": 1,
    "ultima_compra": "2026-05-06",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Athor",
    "busca_foto": "Athor"
   },
@@ -563,6 +625,8 @@
    "preco": 326.0,
    "quantidade": 1,
    "ultima_compra": "2026-05-29",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Athor",
    "busca_foto": "Athor"
   },
@@ -574,6 +638,7 @@
    "preco": 275.0,
    "quantidade": 1,
    "ultima_compra": "2024-09-04",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -585,6 +650,7 @@
    "preco": 275.0,
    "quantidade": 1,
    "ultima_compra": "2024-01-02",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -595,6 +661,7 @@
    "preco": 175.0,
    "quantidade": 1,
    "ultima_compra": "2024-01-05",
+   "ultima_venda": "2017-12-23",
    "transferido_de": "Matina"
   },
   {
@@ -605,6 +672,7 @@
    "preco": 639.0,
    "quantidade": 1,
    "ultima_compra": "2023-09-05",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Athor",
    "busca_foto": "Athor"
@@ -617,6 +685,8 @@
    "preco": 835.0,
    "quantidade": 1,
    "ultima_compra": "2026-05-06",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Athor",
    "busca_foto": "Athor"
   },
@@ -628,6 +698,8 @@
    "preco": 835.0,
    "quantidade": 1,
    "ultima_compra": "2026-05-06",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Athor",
    "busca_foto": "Athor"
   },
@@ -639,6 +711,8 @@
    "preco": 829.0,
    "quantidade": 1,
    "ultima_compra": "2026-05-13",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Athor",
    "busca_foto": "Athor"
   },
@@ -650,6 +724,7 @@
    "preco": 445.0,
    "quantidade": 1,
    "ultima_compra": "2021-10-01",
+   "ultima_venda": "2022-02-01",
    "transferido_de": "Matina"
   },
   {
@@ -659,7 +734,9 @@
    "fornecedor": "",
    "preco": 970.0,
    "quantidade": 1,
-   "ultima_compra": "2026-05-06"
+   "ultima_compra": "2026-05-06",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03270",
@@ -669,6 +746,7 @@
    "preco": 1156.0,
    "quantidade": 1,
    "ultima_compra": "2024-09-04",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -679,6 +757,7 @@
    "preco": 855.0,
    "quantidade": 1,
    "ultima_compra": "2023-06-09",
+   "ultima_venda": "2023-12-20",
    "transferido_de": "Matina"
   },
   {
@@ -688,7 +767,9 @@
    "fornecedor": "",
    "preco": 995.0,
    "quantidade": 1,
-   "ultima_compra": "2026-05-06"
+   "ultima_compra": "2026-05-06",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03853",
@@ -698,6 +779,8 @@
    "preco": 1169.0,
    "quantidade": 1,
    "ultima_compra": "2026-06-09",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Athor",
    "busca_foto": "Athor"
   },
@@ -709,6 +792,7 @@
    "preco": 999.0,
    "quantidade": 1,
    "ultima_compra": "2025-11-03",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -719,6 +803,7 @@
    "preco": 1475.0,
    "quantidade": 1,
    "ultima_compra": "2025-03-25",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -728,7 +813,9 @@
    "fornecedor": "",
    "preco": 1230.0,
    "quantidade": 1,
-   "ultima_compra": "2026-07-13"
+   "ultima_compra": "2026-07-13",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03308",
@@ -738,6 +825,7 @@
    "preco": 1035.0,
    "quantidade": 2,
    "ultima_compra": "2026-01-03",
+   "ultima_venda": "2026-07-30",
    "transferido_de": "Matina"
   },
   {
@@ -748,7 +836,7 @@
    "preco": 420.0,
    "quantidade": 1,
    "ultima_compra": "2025-10-09",
-   "transferido_de": "Matina",
+   "ultima_venda": null,
    "busca_foto": "Yes Estofados"
   },
   {
@@ -759,6 +847,7 @@
    "preco": 338.0,
    "quantidade": 1,
    "ultima_compra": "2024-04-25",
+   "ultima_venda": "2024-05-07",
    "transferido_de": "Matina"
   },
   {
@@ -769,6 +858,7 @@
    "preco": 545.0,
    "quantidade": 1,
    "ultima_compra": "2025-05-15",
+   "ultima_venda": "2025-10-31",
    "transferido_de": "Matina",
    "busca_foto": "Estofado Bello"
   },
@@ -780,6 +870,7 @@
    "preco": 425.0,
    "quantidade": 1,
    "ultima_compra": "2024-06-18",
+   "ultima_venda": "2024-06-06",
    "transferido_de": "Matina",
    "busca_foto": "Geesca"
   },
@@ -791,6 +882,7 @@
    "preco": 489.0,
    "quantidade": 1,
    "ultima_compra": "2026-07-18",
+   "ultima_venda": "2022-11-14",
    "transferido_de": "Matina",
    "busca_foto": "Geesca"
   },
@@ -802,6 +894,7 @@
    "preco": 337.0,
    "quantidade": 1,
    "ultima_compra": "2022-12-30",
+   "ultima_venda": "2018-10-29",
    "transferido_de": "Matina",
    "busca_foto": "Geesca"
   },
@@ -813,6 +906,7 @@
    "preco": 649.0,
    "quantidade": 1,
    "ultima_compra": "2026-09-24",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -824,6 +918,7 @@
    "preco": 687.0,
    "quantidade": 1,
    "ultima_compra": "2026-09-24",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -835,6 +930,7 @@
    "preco": 338.0,
    "quantidade": 1,
    "ultima_compra": "2024-05-02",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -844,7 +940,9 @@
    "fornecedor": "",
    "preco": 1025.0,
    "quantidade": 1,
-   "ultima_compra": "2026-07-31"
+   "ultima_compra": "2026-07-31",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "02548",
@@ -853,7 +951,8 @@
    "fornecedor": "Luiz Carlos Diniz",
    "preco": 225.0,
    "quantidade": 3,
-   "ultima_compra": "2022-07-13"
+   "ultima_compra": "2022-07-13",
+   "ultima_venda": "2023-08-03"
   },
   {
    "codigo": "01133",
@@ -863,6 +962,7 @@
    "preco": 49.0,
    "quantidade": 1,
    "ultima_compra": "2017-10-21",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -873,6 +973,7 @@
    "preco": 7.0,
    "quantidade": 1,
    "ultima_compra": "2017-10-21",
+   "ultima_venda": "2018-01-11",
    "transferido_de": "Matina"
   },
   {
@@ -883,6 +984,8 @@
    "preco": 956.0,
    "quantidade": 4,
    "ultima_compra": "2025-08-26",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Unimóvel",
    "busca_foto": "Unimóvel"
   },
@@ -894,6 +997,7 @@
    "preco": 928.0,
    "quantidade": 1,
    "ultima_compra": "2025-07-11",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Unimóvel",
    "busca_foto": "Unimóvel"
@@ -906,6 +1010,7 @@
    "preco": 370.0,
    "quantidade": 1,
    "ultima_compra": "2017-11-10",
+   "ultima_venda": "2020-12-01",
    "transferido_de": "Matina"
   },
   {
@@ -916,6 +1021,7 @@
    "preco": 455.0,
    "quantidade": 1,
    "ultima_compra": "2018-06-19",
+   "ultima_venda": "2019-01-05",
    "transferido_de": "Matina"
   },
   {
@@ -925,7 +1031,9 @@
    "fornecedor": "",
    "preco": 56.0,
    "quantidade": 4,
-   "ultima_compra": "2026-05-20"
+   "ultima_compra": "2026-05-20",
+   "ultima_venda": "2026-07-04",
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03895",
@@ -934,7 +1042,9 @@
    "fornecedor": "",
    "preco": 62.0,
    "quantidade": 4,
-   "ultima_compra": "2026-07-10"
+   "ultima_compra": "2026-07-10",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03834",
@@ -943,7 +1053,9 @@
    "fornecedor": "",
    "preco": 81.0,
    "quantidade": 3,
-   "ultima_compra": "2026-05-13"
+   "ultima_compra": "2026-05-13",
+   "ultima_venda": "2026-08-29",
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03683",
@@ -953,6 +1065,7 @@
    "preco": 56.0,
    "quantidade": 2,
    "ultima_compra": "2026-05-12",
+   "ultima_venda": "2026-09-17",
    "transferido_de": "Matina"
   },
   {
@@ -963,6 +1076,7 @@
    "preco": 225.0,
    "quantidade": 1,
    "ultima_compra": "2023-06-09",
+   "ultima_venda": "2023-09-13",
    "transferido_de": "Matina"
   },
   {
@@ -973,6 +1087,7 @@
    "preco": 180.0,
    "quantidade": 1,
    "ultima_compra": "2026-08-07",
+   "ultima_venda": "2026-08-08",
    "transferido_de": "Matina"
   },
   {
@@ -983,7 +1098,7 @@
    "preco": 270.0,
    "quantidade": 1,
    "ultima_compra": "2026-06-09",
-   "transferido_de": "Matina"
+   "ultima_venda": "2026-06-20"
   },
   {
    "codigo": "03559",
@@ -993,6 +1108,7 @@
    "preco": 110.0,
    "quantidade": 1,
    "ultima_compra": "2025-08-05",
+   "ultima_venda": "2025-08-11",
    "transferido_de": "Matina"
   },
   {
@@ -1003,6 +1119,7 @@
    "preco": 51.0,
    "quantidade": 3,
    "ultima_compra": "2023-03-09",
+   "ultima_venda": "2026-05-05",
    "transferido_de": "Matina",
    "busca_foto": "Plastmaster"
   },
@@ -1013,7 +1130,9 @@
    "fornecedor": "",
    "preco": 670.0,
    "quantidade": 1,
-   "ultima_compra": "2026-05-13"
+   "ultima_compra": "2026-05-13",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "00341",
@@ -1023,6 +1142,7 @@
    "preco": 39.0,
    "quantidade": 9,
    "ultima_compra": "2024-01-02",
+   "ultima_venda": "2024-06-08",
    "transferido_de": "Matina"
   },
   {
@@ -1032,7 +1152,9 @@
    "fornecedor": "",
    "preco": 260.0,
    "quantidade": 1,
-   "ultima_compra": null
+   "ultima_compra": null,
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03881",
@@ -1041,7 +1163,9 @@
    "fornecedor": "",
    "preco": 48.0,
    "quantidade": 6,
-   "ultima_compra": "2026-07-03"
+   "ultima_compra": "2026-07-03",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03676",
@@ -1051,6 +1175,7 @@
    "preco": 48.0,
    "quantidade": 7,
    "ultima_compra": "2025-12-04",
+   "ultima_venda": "2026-05-04",
    "transferido_de": "Matina",
    "busca_foto": "Plastmaster"
   },
@@ -1061,7 +1186,9 @@
    "fornecedor": "",
    "preco": 48.0,
    "quantidade": 6,
-   "ultima_compra": "2026-05-20"
+   "ultima_compra": "2026-05-20",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "02437",
@@ -1071,6 +1198,7 @@
    "preco": 541.0,
    "quantidade": 1,
    "ultima_compra": "2021-07-21",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -1081,6 +1209,7 @@
    "preco": 789.0,
    "quantidade": 1,
    "ultima_compra": "2024-08-02",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -1090,7 +1219,9 @@
    "fornecedor": "",
    "preco": 789.0,
    "quantidade": 1,
-   "ultima_compra": null
+   "ultima_compra": null,
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "00780",
@@ -1100,6 +1231,7 @@
    "preco": 28.0,
    "quantidade": 1,
    "ultima_compra": "2017-01-21",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -1110,6 +1242,7 @@
    "preco": 30.0,
    "quantidade": 1,
    "ultima_compra": "2017-10-21",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -1120,6 +1253,7 @@
    "preco": 75.0,
    "quantidade": 1,
    "ultima_compra": "2017-10-21",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -1130,6 +1264,7 @@
    "preco": 395.0,
    "quantidade": 1,
    "ultima_compra": "2025-05-06",
+   "ultima_venda": "2025-05-30",
    "transferido_de": "Matina"
   },
   {
@@ -1140,6 +1275,7 @@
    "preco": 179.0,
    "quantidade": 2,
    "ultima_compra": "2020-11-10",
+   "ultima_venda": "2018-06-06",
    "transferido_de": "Matina"
   },
   {
@@ -1150,6 +1286,7 @@
    "preco": 999.0,
    "quantidade": 1,
    "ultima_compra": "2026-06-16",
+   "ultima_venda": "2026-01-03",
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -1161,6 +1298,7 @@
    "preco": 1125.0,
    "quantidade": 1,
    "ultima_compra": "2026-06-16",
+   "ultima_venda": "2025-06-20",
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -1171,7 +1309,9 @@
    "fornecedor": "",
    "preco": 397.0,
    "quantidade": 1,
-   "ultima_compra": "2026-04-17"
+   "ultima_compra": "2026-04-17",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03786",
@@ -1181,6 +1321,8 @@
    "preco": 576.0,
    "quantidade": 1,
    "ultima_compra": "2026-04-17",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Sumay",
    "busca_foto": "Sumay"
   },
@@ -1192,6 +1334,7 @@
    "preco": 83.0,
    "quantidade": 3,
    "ultima_compra": "2022-01-12",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -1202,6 +1345,7 @@
    "preco": 1215.0,
    "quantidade": 1,
    "ultima_compra": "2026-03-09",
+   "ultima_venda": "2026-02-04",
    "transferido_de": "Matina"
   },
   {
@@ -1212,6 +1356,7 @@
    "preco": 227.0,
    "quantidade": 1,
    "ultima_compra": "2021-12-08",
+   "ultima_venda": "2024-12-10",
    "transferido_de": "Matina"
   },
   {
@@ -1222,6 +1367,7 @@
    "preco": 595.0,
    "quantidade": 2,
    "ultima_compra": "2022-09-12",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "busca_foto": "Mercado Livre"
   },
@@ -1233,6 +1379,7 @@
    "preco": 493.0,
    "quantidade": 2,
    "ultima_compra": "2017-01-21",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -1243,6 +1390,7 @@
    "preco": 499.0,
    "quantidade": 4,
    "ultima_compra": "2025-05-20",
+   "ultima_venda": "2025-11-20",
    "transferido_de": "Matina"
   },
   {
@@ -1253,6 +1401,7 @@
    "preco": 685.0,
    "quantidade": 2,
    "ultima_compra": "2024-01-02",
+   "ultima_venda": "2023-11-08",
    "transferido_de": "Matina"
   },
   {
@@ -1263,6 +1412,7 @@
    "preco": 989.0,
    "quantidade": 3,
    "ultima_compra": "2026-06-15",
+   "ultima_venda": "2026-09-03",
    "transferido_de": "Matina",
    "marca": "Reconflex",
    "busca_foto": "Reconflex"
@@ -1275,6 +1425,7 @@
    "preco": 717.0,
    "quantidade": 1,
    "ultima_compra": "2025-05-05",
+   "ultima_venda": "2025-05-09",
    "transferido_de": "Matina",
    "marca": "Reconflex",
    "busca_foto": "Reconflex"
@@ -1287,6 +1438,7 @@
    "preco": 645.0,
    "quantidade": 1,
    "ultima_compra": "2026-09-08",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -1297,6 +1449,7 @@
    "preco": 705.0,
    "quantidade": 1,
    "ultima_compra": "2021-09-16",
+   "ultima_venda": "2021-11-16",
    "transferido_de": "Matina"
   },
   {
@@ -1307,6 +1460,7 @@
    "preco": 590.0,
    "quantidade": 1,
    "ultima_compra": "2026-09-24",
+   "ultima_venda": "2026-06-12",
    "transferido_de": "Matina"
   },
   {
@@ -1317,7 +1471,7 @@
    "preco": 416.0,
    "quantidade": 1,
    "ultima_compra": "2023-11-21",
-   "transferido_de": "Matina"
+   "ultima_venda": "2024-04-06"
   },
   {
    "codigo": "00360",
@@ -1327,6 +1481,7 @@
    "preco": 439.0,
    "quantidade": 1,
    "ultima_compra": "2015-12-09",
+   "ultima_venda": "2015-12-19",
    "transferido_de": "Matina"
   },
   {
@@ -1336,7 +1491,8 @@
    "fornecedor": "Antônio Carlos",
    "preco": 195.0,
    "quantidade": 1,
-   "ultima_compra": "2018-10-03"
+   "ultima_compra": "2018-10-03",
+   "ultima_venda": null
   },
   {
    "codigo": "01048",
@@ -1346,6 +1502,7 @@
    "preco": 597.0,
    "quantidade": 1,
    "ultima_compra": "2017-08-16",
+   "ultima_venda": "2018-11-24",
    "transferido_de": "Matina"
   },
   {
@@ -1356,6 +1513,7 @@
    "preco": 405.0,
    "quantidade": 1,
    "ultima_compra": "2016-11-09",
+   "ultima_venda": "2017-07-29",
    "transferido_de": "Matina"
   },
   {
@@ -1366,6 +1524,7 @@
    "preco": 435.0,
    "quantidade": 1,
    "ultima_compra": "2020-07-01",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -1376,6 +1535,8 @@
    "preco": 745.0,
    "quantidade": 1,
    "ultima_compra": "2026-07-10",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "busca_foto": "Nara Móveis"
   },
   {
@@ -1386,6 +1547,7 @@
    "preco": 185.0,
    "quantidade": 1,
    "ultima_compra": "2017-07-28",
+   "ultima_venda": "2018-01-04",
    "transferido_de": "Matina"
   },
   {
@@ -1396,6 +1558,7 @@
    "preco": 650.0,
    "quantidade": 1,
    "ultima_compra": "2022-09-01",
+   "ultima_venda": "2023-06-20",
    "transferido_de": "Matina"
   },
   {
@@ -1406,7 +1569,7 @@
    "preco": 945.0,
    "quantidade": 1,
    "ultima_compra": "2025-12-19",
-   "transferido_de": "Matina"
+   "ultima_venda": "2026-05-15"
   },
   {
    "codigo": "03492",
@@ -1416,6 +1579,7 @@
    "preco": 649.0,
    "quantidade": 1,
    "ultima_compra": "2025-05-30",
+   "ultima_venda": "2026-05-29",
    "transferido_de": "Matina"
   },
   {
@@ -1426,6 +1590,7 @@
    "preco": 750.0,
    "quantidade": 2,
    "ultima_compra": "2024-11-11",
+   "ultima_venda": "2025-06-27",
    "transferido_de": "Matina"
   },
   {
@@ -1436,6 +1601,7 @@
    "preco": 1012.0,
    "quantidade": 2,
    "ultima_compra": "2024-11-11",
+   "ultima_venda": "2025-06-27",
    "transferido_de": "Matina"
   },
   {
@@ -1446,6 +1612,7 @@
    "preco": 490.0,
    "quantidade": 1,
    "ultima_compra": "2026-09-24",
+   "ultima_venda": "2026-09-03",
    "transferido_de": "Matina"
   },
   {
@@ -1456,6 +1623,7 @@
    "preco": 215.0,
    "quantidade": 1,
    "ultima_compra": "2017-05-20",
+   "ultima_venda": "2018-12-05",
    "transferido_de": "Matina"
   },
   {
@@ -1466,6 +1634,8 @@
    "preco": 590.0,
    "quantidade": 1,
    "ultima_compra": "2026-07-10",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "busca_foto": "Nara Móveis"
   },
   {
@@ -1476,7 +1646,7 @@
    "preco": 618.0,
    "quantidade": 4,
    "ultima_compra": "2025-12-19",
-   "transferido_de": "Matina",
+   "ultima_venda": "2026-04-29",
    "marca": "Topázio Colchões",
    "busca_foto": "Topázio Colchões"
   },
@@ -1488,6 +1658,7 @@
    "preco": 912.0,
    "quantidade": 3,
    "ultima_compra": "2025-05-30",
+   "ultima_venda": "2026-01-23",
    "transferido_de": "Matina"
   },
   {
@@ -1498,6 +1669,7 @@
    "preco": 780.0,
    "quantidade": 1,
    "ultima_compra": "2023-07-21",
+   "ultima_venda": "2025-01-29",
    "transferido_de": "Matina"
   },
   {
@@ -1508,6 +1680,7 @@
    "preco": 535.0,
    "quantidade": 1,
    "ultima_compra": "2016-11-23",
+   "ultima_venda": "2022-09-12",
    "transferido_de": "Matina"
   },
   {
@@ -1518,6 +1691,7 @@
    "preco": 155.0,
    "quantidade": 1,
    "ultima_compra": "2017-05-20",
+   "ultima_venda": "2020-02-22",
    "transferido_de": "Matina"
   },
   {
@@ -1528,6 +1702,7 @@
    "preco": 27.0,
    "quantidade": 1,
    "ultima_compra": "2018-06-13",
+   "ultima_venda": "2020-08-22",
    "transferido_de": "Matina"
   },
   {
@@ -1538,6 +1713,7 @@
    "preco": 14.0,
    "quantidade": 1,
    "ultima_compra": "2017-10-21",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -1548,6 +1724,7 @@
    "preco": 1040.0,
    "quantidade": 1,
    "ultima_compra": "2023-03-16",
+   "ultima_venda": "2023-05-23",
    "transferido_de": "Matina"
   },
   {
@@ -1558,6 +1735,7 @@
    "preco": 149.0,
    "quantidade": 1,
    "ultima_compra": "2026-02-23",
+   "ultima_venda": "2026-07-20",
    "transferido_de": "Matina"
   },
   {
@@ -1568,6 +1746,7 @@
    "preco": 2222.0,
    "quantidade": 1,
    "ultima_compra": "2021-12-20",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -1578,6 +1757,7 @@
    "preco": 1055.0,
    "quantidade": 1,
    "ultima_compra": "2026-09-08",
+   "ultima_venda": "2026-09-17",
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -1585,11 +1765,11 @@
    "codigo": "00640",
    "nome": "Colcha Aconchego Casal",
    "nome_sistema": "colcha aconchego casal",
-   "fornecedor": "",
+   "fornecedor": "Colchas Mil",
    "preco": 223.0,
    "quantidade": 1,
    "ultima_compra": "2016-11-10",
-   "transferido_de": "Matina"
+   "ultima_venda": "2021-04-29"
   },
   {
    "codigo": "01666",
@@ -1599,6 +1779,7 @@
    "preco": 99.0,
    "quantidade": 1,
    "ultima_compra": "2023-06-22",
+   "ultima_venda": "2023-08-03",
    "transferido_de": "Matina"
   },
   {
@@ -1609,6 +1790,7 @@
    "preco": 634.0,
    "quantidade": 1,
    "ultima_compra": "2024-10-03",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Reconflex",
    "busca_foto": "Reconflex"
@@ -1621,6 +1803,7 @@
    "preco": 498.0,
    "quantidade": 1,
    "ultima_compra": "2023-04-13",
+   "ultima_venda": "2023-04-18",
    "transferido_de": "Matina",
    "marca": "Reconflex",
    "busca_foto": "Reconflex"
@@ -1633,6 +1816,7 @@
    "preco": 177.0,
    "quantidade": 1,
    "ultima_compra": "2023-01-13",
+   "ultima_venda": "2023-06-10",
    "transferido_de": "Matina",
    "marca": "Reconflex",
    "busca_foto": "Reconflex"
@@ -1645,6 +1829,7 @@
    "preco": 506.0,
    "quantidade": 1,
    "ultima_compra": "2024-06-04",
+   "ultima_venda": "2025-06-13",
    "transferido_de": "Matina"
   },
   {
@@ -1655,6 +1840,7 @@
    "preco": 590.0,
    "quantidade": 2,
    "ultima_compra": "2024-06-04",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -1664,7 +1850,9 @@
    "fornecedor": "",
    "preco": 570.0,
    "quantidade": 1,
-   "ultima_compra": "2023-08-28"
+   "ultima_compra": "2023-08-28",
+   "ultima_venda": "2024-03-15",
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03096",
@@ -1674,6 +1862,7 @@
    "preco": 845.0,
    "quantidade": 1,
    "ultima_compra": "2023-12-05",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -1684,6 +1873,7 @@
    "preco": 768.0,
    "quantidade": 1,
    "ultima_compra": "2024-06-04",
+   "ultima_venda": "2025-06-18",
    "transferido_de": "Matina"
   },
   {
@@ -1693,7 +1883,9 @@
    "fornecedor": "",
    "preco": 870.0,
    "quantidade": 1,
-   "ultima_compra": "2023-08-28"
+   "ultima_compra": "2023-08-28",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03594",
@@ -1703,6 +1895,7 @@
    "preco": 1035.0,
    "quantidade": 1,
    "ultima_compra": "2025-09-16",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Reconflex",
    "busca_foto": "Reconflex"
@@ -1715,6 +1908,7 @@
    "preco": 1185.0,
    "quantidade": 1,
    "ultima_compra": "2025-05-06",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Reconflex",
    "busca_foto": "Reconflex"
@@ -1727,6 +1921,7 @@
    "preco": 748.0,
    "quantidade": 1,
    "ultima_compra": "2023-05-22",
+   "ultima_venda": "2024-04-24",
    "transferido_de": "Matina"
   },
   {
@@ -1737,6 +1932,7 @@
    "preco": 136.0,
    "quantidade": 7,
    "ultima_compra": "2025-04-08",
+   "ultima_venda": "2025-12-02",
    "transferido_de": "Matina"
   },
   {
@@ -1747,6 +1943,7 @@
    "preco": 153.0,
    "quantidade": 10,
    "ultima_compra": "2025-04-08",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -1757,6 +1954,8 @@
    "preco": 734.0,
    "quantidade": 1,
    "ultima_compra": "2026-06-26",
+   "ultima_venda": "2026-07-09",
+   "transferido_de": "Matina",
    "marca": "Reconflex",
    "busca_foto": "Reconflex"
   },
@@ -1768,6 +1967,7 @@
    "preco": 745.0,
    "quantidade": 1,
    "ultima_compra": "2026-08-07",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Reconflex",
    "busca_foto": "Reconflex"
@@ -1780,6 +1980,7 @@
    "preco": 795.0,
    "quantidade": 1,
    "ultima_compra": "2025-11-03",
+   "ultima_venda": "2025-05-03",
    "transferido_de": "Matina",
    "marca": "Reconflex",
    "busca_foto": "Reconflex"
@@ -1792,6 +1993,7 @@
    "preco": 987.0,
    "quantidade": 1,
    "ultima_compra": "2026-04-24",
+   "ultima_venda": "2026-05-19",
    "transferido_de": "Matina",
    "marca": "Reconflex",
    "busca_foto": "Reconflex"
@@ -1804,6 +2006,7 @@
    "preco": 735.0,
    "quantidade": 1,
    "ultima_compra": "2024-12-03",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Reconflex",
    "busca_foto": "Reconflex"
@@ -1816,6 +2019,7 @@
    "preco": 675.0,
    "quantidade": 1,
    "ultima_compra": "2024-04-09",
+   "ultima_venda": "2026-02-05",
    "transferido_de": "Matina"
   },
   {
@@ -1826,6 +2030,7 @@
    "preco": 675.0,
    "quantidade": 2,
    "ultima_compra": "2026-07-22",
+   "ultima_venda": "2026-06-30",
    "transferido_de": "Matina",
    "marca": "Ortobom",
    "busca_foto": "Ortobom"
@@ -1838,6 +2043,7 @@
    "preco": 155.0,
    "quantidade": 1,
    "ultima_compra": "2023-09-04",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Ortobom",
    "busca_foto": "Ortobom"
@@ -1850,6 +2056,7 @@
    "preco": 216.0,
    "quantidade": 2,
    "ultima_compra": "2023-08-03",
+   "ultima_venda": "2025-03-01",
    "transferido_de": "Matina",
    "marca": "Ortobom",
    "busca_foto": "Ortobom"
@@ -1862,6 +2069,7 @@
    "preco": 919.0,
    "quantidade": 1,
    "ultima_compra": "2026-07-20",
+   "ultima_venda": "2026-08-07",
    "transferido_de": "Matina",
    "marca": "Ortobom",
    "busca_foto": "Ortobom"
@@ -1874,6 +2082,7 @@
    "preco": 508.0,
    "quantidade": 2,
    "ultima_compra": "2026-08-18",
+   "ultima_venda": "2022-08-27",
    "transferido_de": "Matina",
    "marca": "Ortobom",
    "busca_foto": "Ortobom"
@@ -1886,6 +2095,8 @@
    "preco": 1078.0,
    "quantidade": 1,
    "ultima_compra": "2026-07-28",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Sonos",
    "busca_foto": "Sonos Colchões"
   },
@@ -1897,6 +2108,7 @@
    "preco": 290.0,
    "quantidade": 1,
    "ultima_compra": "2022-10-25",
+   "ultima_venda": "2022-11-07",
    "transferido_de": "Matina",
    "marca": "Reconflex",
    "busca_foto": "Reconflex"
@@ -1909,6 +2121,7 @@
    "preco": 465.0,
    "quantidade": 2,
    "ultima_compra": "2023-08-03",
+   "ultima_venda": "2024-04-01",
    "transferido_de": "Matina"
   },
   {
@@ -1919,6 +2132,7 @@
    "preco": 376.0,
    "quantidade": 1,
    "ultima_compra": "2019-02-13",
+   "ultima_venda": "2019-03-20",
    "transferido_de": "Matina"
   },
   {
@@ -1929,6 +2143,7 @@
    "preco": 485.0,
    "quantidade": 1,
    "ultima_compra": "2018-08-25",
+   "ultima_venda": "2022-05-16",
    "transferido_de": "Matina"
   },
   {
@@ -1939,6 +2154,7 @@
    "preco": 179.0,
    "quantidade": 1,
    "ultima_compra": "2026-01-22",
+   "ultima_venda": "2026-03-06",
    "transferido_de": "Matina"
   },
   {
@@ -1949,6 +2165,7 @@
    "preco": 130.0,
    "quantidade": 2,
    "ultima_compra": "2025-02-19",
+   "ultima_venda": "2023-07-04",
    "transferido_de": "Matina",
    "marca": "Reconflex",
    "busca_foto": "Reconflex"
@@ -1961,6 +2178,7 @@
    "preco": 45.0,
    "quantidade": 4,
    "ultima_compra": "2023-01-13",
+   "ultima_venda": "2023-07-29",
    "transferido_de": "Matina",
    "marca": "Reconflex",
    "busca_foto": "Reconflex"
@@ -1973,6 +2191,7 @@
    "preco": 86.0,
    "quantidade": 1,
    "ultima_compra": "2026-02-26",
+   "ultima_venda": "2026-07-06",
    "transferido_de": "Matina",
    "marca": "Ortobom",
    "busca_foto": "Ortobom"
@@ -1985,6 +2204,7 @@
    "preco": 250.0,
    "quantidade": 1,
    "ultima_compra": "2025-05-19",
+   "ultima_venda": "2024-06-25",
    "transferido_de": "Matina",
    "marca": "Batrol",
    "busca_foto": "Batrol"
@@ -1997,6 +2217,7 @@
    "preco": 915.0,
    "quantidade": 1,
    "ultima_compra": "2023-08-28",
+   "ultima_venda": "2025-04-26",
    "transferido_de": "Matina"
   },
   {
@@ -2007,6 +2228,7 @@
    "preco": 669.0,
    "quantidade": 1,
    "ultima_compra": "2025-07-25",
+   "ultima_venda": "2025-09-15",
    "transferido_de": "Matina",
    "marca": "ACP Móveis",
    "busca_foto": "ACP Móveis"
@@ -2019,6 +2241,8 @@
    "preco": 467.0,
    "quantidade": 1,
    "ultima_compra": "2026-07-14",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
   {
@@ -2029,6 +2253,7 @@
    "preco": 480.0,
    "quantidade": 1,
    "ultima_compra": "2022-02-02",
+   "ultima_venda": "2022-04-27",
    "transferido_de": "Matina"
   },
   {
@@ -2039,6 +2264,7 @@
    "preco": 670.0,
    "quantidade": 1,
    "ultima_compra": "2025-12-19",
+   "ultima_venda": "2025-12-12",
    "transferido_de": "Matina"
   },
   {
@@ -2049,6 +2275,7 @@
    "preco": 49.0,
    "quantidade": 1,
    "ultima_compra": "2017-10-21",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2059,6 +2286,7 @@
    "preco": 1.5,
    "quantidade": 10,
    "ultima_compra": "2021-11-12",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2069,6 +2297,7 @@
    "preco": 556.0,
    "quantidade": 2,
    "ultima_compra": "2023-10-10",
+   "ultima_venda": "2024-01-30",
    "transferido_de": "Matina",
    "busca_foto": "KS Móveis"
   },
@@ -2080,6 +2309,7 @@
    "preco": 450.0,
    "quantidade": 1,
    "ultima_compra": "2019-09-13",
+   "ultima_venda": "2019-03-11",
    "transferido_de": "Matina"
   },
   {
@@ -2090,7 +2320,7 @@
    "preco": 870.0,
    "quantidade": 1,
    "ultima_compra": "2025-07-11",
-   "transferido_de": "Matina"
+   "ultima_venda": null
   },
   {
    "codigo": "03712",
@@ -2100,6 +2330,7 @@
    "preco": 915.0,
    "quantidade": 1,
    "ultima_compra": "2026-01-15",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2110,6 +2341,7 @@
    "preco": 2238.0,
    "quantidade": 1,
    "ultima_compra": "2026-01-15",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "busca_foto": "Nara Móveis"
   },
@@ -2121,6 +2353,7 @@
    "preco": 325.0,
    "quantidade": 1,
    "ultima_compra": "2015-10-10",
+   "ultima_venda": "2015-10-12",
    "transferido_de": "Matina"
   },
   {
@@ -2131,6 +2364,7 @@
    "preco": 1600.0,
    "quantidade": 1,
    "ultima_compra": "2025-06-17",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2141,6 +2375,7 @@
    "preco": 1495.0,
    "quantidade": 1,
    "ultima_compra": "2024-05-28",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2151,6 +2386,7 @@
    "preco": 567.0,
    "quantidade": 1,
    "ultima_compra": "2019-06-15",
+   "ultima_venda": "2019-06-15",
    "transferido_de": "Matina"
   },
   {
@@ -2161,6 +2397,7 @@
    "preco": 685.0,
    "quantidade": 1,
    "ultima_compra": "2018-07-28",
+   "ultima_venda": "2025-02-27",
    "transferido_de": "Matina"
   },
   {
@@ -2171,6 +2408,7 @@
    "preco": 1495.0,
    "quantidade": 1,
    "ultima_compra": "2025-12-16",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2181,6 +2419,7 @@
    "preco": 25.0,
    "quantidade": 1,
    "ultima_compra": "2022-07-08",
+   "ultima_venda": "2023-06-05",
    "transferido_de": "Matina"
   },
   {
@@ -2190,17 +2429,18 @@
    "fornecedor": "Diniz Estofado",
    "preco": 2070.0,
    "quantidade": 1,
-   "ultima_compra": "2025-06-27"
+   "ultima_compra": "2025-06-27",
+   "ultima_venda": "2026-06-25"
   },
   {
    "codigo": "03478",
    "nome": "Conjunto de Sofá Olivença",
    "nome_sistema": "CONJ DE SOFA OLIVENCA",
-   "fornecedor": "",
+   "fornecedor": "Diniz Estofado",
    "preco": 2082.5,
    "quantidade": 1,
    "ultima_compra": "2025-10-24",
-   "transferido_de": "Matina"
+   "ultima_venda": "2025-10-27"
   },
   {
    "codigo": "02361",
@@ -2210,6 +2450,7 @@
    "preco": 424.0,
    "quantidade": 1,
    "ultima_compra": "2021-04-21",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2220,6 +2461,7 @@
    "preco": 870.0,
    "quantidade": 1,
    "ultima_compra": "2022-03-29",
+   "ultima_venda": "2022-08-09",
    "transferido_de": "Matina"
   },
   {
@@ -2230,6 +2472,7 @@
    "preco": 1414.0,
    "quantidade": 2,
    "ultima_compra": "2025-05-30",
+   "ultima_venda": "2025-12-09",
    "transferido_de": "Matina"
   },
   {
@@ -2240,6 +2483,7 @@
    "preco": 1025.0,
    "quantidade": 1,
    "ultima_compra": "2025-04-22",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2250,6 +2494,7 @@
    "preco": 1425.0,
    "quantidade": 1,
    "ultima_compra": "2025-06-17",
+   "ultima_venda": "2025-06-06",
    "transferido_de": "Matina"
   },
   {
@@ -2260,6 +2505,7 @@
    "preco": 535.0,
    "quantidade": 1,
    "ultima_compra": "2019-10-18",
+   "ultima_venda": "2018-12-26",
    "transferido_de": "Matina"
   },
   {
@@ -2270,6 +2516,8 @@
    "preco": 1627.0,
    "quantidade": 1,
    "ultima_compra": "2026-07-18",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "busca_foto": "Mercadomóveis"
   },
   {
@@ -2280,6 +2528,8 @@
    "preco": 1627.0,
    "quantidade": 1,
    "ultima_compra": "2026-07-18",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "busca_foto": "Mercadomóveis"
   },
   {
@@ -2290,6 +2540,7 @@
    "preco": 1768.0,
    "quantidade": 1,
    "ultima_compra": "2026-02-03",
+   "ultima_venda": "2025-10-02",
    "transferido_de": "Matina",
    "marca": "Poliman",
    "busca_foto": "Poliman"
@@ -2302,6 +2553,7 @@
    "preco": 786.0,
    "quantidade": 1,
    "ultima_compra": "2025-06-17",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Poliman",
    "busca_foto": "Poliman"
@@ -2314,6 +2566,7 @@
    "preco": 598.0,
    "quantidade": 1,
    "ultima_compra": "2025-03-25",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Poliman",
    "busca_foto": "Poliman"
@@ -2326,6 +2579,7 @@
    "preco": 585.0,
    "quantidade": 1,
    "ultima_compra": "2025-06-17",
+   "ultima_venda": "2025-06-18",
    "transferido_de": "Matina",
    "marca": "Poliman",
    "busca_foto": "Poliman"
@@ -2338,6 +2592,7 @@
    "preco": 1015.0,
    "quantidade": 1,
    "ultima_compra": "2016-03-19",
+   "ultima_venda": "2016-03-19",
    "transferido_de": "Matina"
   },
   {
@@ -2348,7 +2603,7 @@
    "preco": 2348.0,
    "quantidade": 2,
    "ultima_compra": "2026-09-08",
-   "transferido_de": "Matina",
+   "ultima_venda": "2026-08-21",
    "marca": "Poliman",
    "busca_foto": "Poliman"
   },
@@ -2360,6 +2615,7 @@
    "preco": 1445.0,
    "quantidade": 1,
    "ultima_compra": "2026-01-22",
+   "ultima_venda": "2026-01-22",
    "transferido_de": "Matina",
    "marca": "Poliman",
    "busca_foto": "Poliman"
@@ -2372,6 +2628,7 @@
    "preco": 1343.0,
    "quantidade": 1,
    "ultima_compra": "2024-03-16",
+   "ultima_venda": "2022-07-07",
    "transferido_de": "Matina"
   },
   {
@@ -2382,6 +2639,7 @@
    "preco": 120.0,
    "quantidade": 14,
    "ultima_compra": "2024-05-02",
+   "ultima_venda": "2025-06-02",
    "transferido_de": "Matina"
   },
   {
@@ -2392,6 +2650,7 @@
    "preco": 80.0,
    "quantidade": 1,
    "ultima_compra": "2024-01-19",
+   "ultima_venda": "2025-06-02",
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -2403,6 +2662,7 @@
    "preco": 580.0,
    "quantidade": 1,
    "ultima_compra": "2024-01-12",
+   "ultima_venda": "2024-03-16",
    "transferido_de": "Matina"
   },
   {
@@ -2413,6 +2673,7 @@
    "preco": 1812.0,
    "quantidade": 1,
    "ultima_compra": "2026-02-23",
+   "ultima_venda": "2025-10-21",
    "transferido_de": "Matina",
    "busca_foto": "HB Móveis"
   },
@@ -2423,7 +2684,9 @@
    "fornecedor": "",
    "preco": 1387.0,
    "quantidade": 1,
-   "ultima_compra": "2026-07-13"
+   "ultima_compra": "2026-07-13",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "02593",
@@ -2433,6 +2696,7 @@
    "preco": 15.0,
    "quantidade": 3,
    "ultima_compra": "2022-02-16",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2443,6 +2707,7 @@
    "preco": 25.0,
    "quantidade": 2,
    "ultima_compra": "2022-02-16",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2453,6 +2718,7 @@
    "preco": 125.0,
    "quantidade": 1,
    "ultima_compra": "2016-11-23",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2463,6 +2729,7 @@
    "preco": 585.0,
    "quantidade": 1,
    "ultima_compra": "2023-06-09",
+   "ultima_venda": "2023-06-09",
    "transferido_de": "Matina"
   },
   {
@@ -2473,7 +2740,7 @@
    "preco": 340.0,
    "quantidade": 1,
    "ultima_compra": "2025-07-11",
-   "transferido_de": "Matina",
+   "ultima_venda": null,
    "busca_foto": "Gazin"
   },
   {
@@ -2484,6 +2751,7 @@
    "preco": 395.0,
    "quantidade": 1,
    "ultima_compra": "2025-08-15",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -2495,6 +2763,7 @@
    "preco": 1522.5,
    "quantidade": 4,
    "ultima_compra": "2026-08-31",
+   "ultima_venda": "2025-12-05",
    "busca_foto": "JK Estofados"
   },
   {
@@ -2505,6 +2774,7 @@
    "preco": 2890.0,
    "quantidade": 1,
    "ultima_compra": "2026-08-07",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2515,6 +2785,8 @@
    "preco": 1575.0,
    "quantidade": 2,
    "ultima_compra": "2026-08-31",
+   "ultima_venda": "2024-04-09",
+   "transferido_de": "Matina",
    "busca_foto": "JK Estofados"
   },
   {
@@ -2525,6 +2797,7 @@
    "preco": 1496.0,
    "quantidade": 1,
    "ultima_compra": "2024-10-22",
+   "ultima_venda": "2025-01-17",
    "transferido_de": "Matina"
   },
   {
@@ -2535,6 +2808,7 @@
    "preco": 2890.0,
    "quantidade": 1,
    "ultima_compra": "2024-06-14",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2545,6 +2819,7 @@
    "preco": 2187.5,
    "quantidade": 1,
    "ultima_compra": "2026-08-31",
+   "ultima_venda": null,
    "busca_foto": "JK Estofados"
   },
   {
@@ -2555,6 +2830,7 @@
    "preco": 1312.5,
    "quantidade": 4,
    "ultima_compra": "2026-08-31",
+   "ultima_venda": null,
    "busca_foto": "JK Estofados"
   },
   {
@@ -2565,7 +2841,7 @@
    "preco": 1690.0,
    "quantidade": 1,
    "ultima_compra": "2025-10-09",
-   "transferido_de": "Matina"
+   "ultima_venda": "2026-07-13"
   },
   {
    "codigo": "03618",
@@ -2575,7 +2851,7 @@
    "preco": 3390.0,
    "quantidade": 2,
    "ultima_compra": "2025-10-09",
-   "transferido_de": "Matina"
+   "ultima_venda": "2026-02-19"
   },
   {
    "codigo": "02569",
@@ -2585,7 +2861,7 @@
    "preco": 1028.0,
    "quantidade": 1,
    "ultima_compra": "2026-03-16",
-   "transferido_de": "Matina",
+   "ultima_venda": "2025-06-13",
    "busca_foto": "Estofado Bello"
   },
   {
@@ -2596,6 +2872,7 @@
    "preco": 58.0,
    "quantidade": 3,
    "ultima_compra": "2022-04-20",
+   "ultima_venda": "2023-07-14",
    "transferido_de": "Matina"
   },
   {
@@ -2606,6 +2883,7 @@
    "preco": 125.0,
    "quantidade": 2,
    "ultima_compra": "2026-08-07",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2616,6 +2894,7 @@
    "preco": 89.0,
    "quantidade": 1,
    "ultima_compra": "2022-03-08",
+   "ultima_venda": "2023-09-26",
    "transferido_de": "Matina"
   },
   {
@@ -2626,6 +2905,7 @@
    "preco": 99.0,
    "quantidade": 1,
    "ultima_compra": "2026-08-07",
+   "ultima_venda": "2026-09-10",
    "transferido_de": "Matina"
   },
   {
@@ -2636,7 +2916,7 @@
    "preco": 175.0,
    "quantidade": 1,
    "ultima_compra": "2026-08-07",
-   "transferido_de": "Matina",
+   "ultima_venda": "2026-08-27",
    "busca_foto": "Britânia"
   },
   {
@@ -2647,6 +2927,8 @@
    "preco": 1339.0,
    "quantidade": 1,
    "ultima_compra": "2026-07-08",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Esmaltec",
    "busca_foto": "Esmaltec"
   },
@@ -2657,7 +2939,9 @@
    "fornecedor": "Esmaltec S.A.",
    "preco": 1138.0,
    "quantidade": 1,
-   "ultima_compra": "2026-06-16"
+   "ultima_compra": "2026-06-16",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03576",
@@ -2667,6 +2951,7 @@
    "preco": 769.0,
    "quantidade": 1,
    "ultima_compra": "2026-04-24",
+   "ultima_venda": "2026-05-29",
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -2678,6 +2963,8 @@
    "preco": 1246.0,
    "quantidade": 1,
    "ultima_compra": "2026-06-16",
+   "ultima_venda": "2026-07-02",
+   "transferido_de": "Matina",
    "marca": "Atlas",
    "busca_foto": "Atlas"
   },
@@ -2689,6 +2976,7 @@
    "preco": 1105.0,
    "quantidade": 1,
    "ultima_compra": "2024-10-17",
+   "ultima_venda": "2024-11-22",
    "transferido_de": "Matina"
   },
   {
@@ -2699,6 +2987,7 @@
    "preco": 1680.0,
    "quantidade": 1,
    "ultima_compra": "2025-05-19",
+   "ultima_venda": "2024-08-02",
    "transferido_de": "Matina"
   },
   {
@@ -2709,6 +2998,7 @@
    "preco": 1255.0,
    "quantidade": 1,
    "ultima_compra": "2025-11-14",
+   "ultima_venda": "2026-07-31",
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -2720,6 +3010,7 @@
    "preco": 1355.0,
    "quantidade": 1,
    "ultima_compra": "2025-05-20",
+   "ultima_venda": "2024-04-16",
    "transferido_de": "Matina"
   },
   {
@@ -2729,7 +3020,9 @@
    "fornecedor": "",
    "preco": 1225.0,
    "quantidade": 1,
-   "ultima_compra": null
+   "ultima_compra": null,
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "02306",
@@ -2739,6 +3032,7 @@
    "preco": 1205.0,
    "quantidade": 1,
    "ultima_compra": "2021-02-11",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2749,7 +3043,7 @@
    "preco": 1589.0,
    "quantidade": 1,
    "ultima_compra": "2025-09-08",
-   "transferido_de": "Matina",
+   "ultima_venda": null,
    "marca": "Itatiaia",
    "busca_foto": "Itatiaia"
   },
@@ -2761,6 +3055,7 @@
    "preco": 1964.0,
    "quantidade": 1,
    "ultima_compra": "2025-09-08",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2771,7 +3066,7 @@
    "preco": 147.0,
    "quantidade": 2,
    "ultima_compra": "2020-12-15",
-   "transferido_de": "Matina"
+   "ultima_venda": null
   },
   {
    "codigo": "03225",
@@ -2781,6 +3076,7 @@
    "preco": 70.0,
    "quantidade": 2,
    "ultima_compra": "2024-06-27",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2791,6 +3087,7 @@
    "preco": 955.0,
    "quantidade": 1,
    "ultima_compra": "2023-10-17",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2801,6 +3098,7 @@
    "preco": 1070.0,
    "quantidade": 1,
    "ultima_compra": "2022-05-13",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2811,6 +3109,7 @@
    "preco": 2515.0,
    "quantidade": 2,
    "ultima_compra": "2025-06-13",
+   "ultima_venda": "2025-06-13",
    "transferido_de": "Matina"
   },
   {
@@ -2821,6 +3120,7 @@
    "preco": 3990.0,
    "quantidade": 1,
    "ultima_compra": "2025-11-14",
+   "ultima_venda": "2025-05-19",
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -2832,6 +3132,7 @@
    "preco": 2557.0,
    "quantidade": 1,
    "ultima_compra": "2025-05-19",
+   "ultima_venda": "2025-05-19",
    "transferido_de": "Matina"
   },
   {
@@ -2841,7 +3142,9 @@
    "fornecedor": "",
    "preco": 3014.0,
    "quantidade": 1,
-   "ultima_compra": "2026-07-18"
+   "ultima_compra": "2026-07-18",
+   "ultima_venda": "2026-07-28",
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03915",
@@ -2850,7 +3153,9 @@
    "fornecedor": "",
    "preco": 3543.0,
    "quantidade": 1,
-   "ultima_compra": "2026-07-18"
+   "ultima_compra": "2026-07-18",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "02860",
@@ -2860,6 +3165,7 @@
    "preco": 2820.0,
    "quantidade": 1,
    "ultima_compra": "2024-05-21",
+   "ultima_venda": "2024-07-02",
    "transferido_de": "Matina"
   },
   {
@@ -2870,6 +3176,7 @@
    "preco": 425.0,
    "quantidade": 2,
    "ultima_compra": "2024-12-19",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2879,7 +3186,9 @@
    "fornecedor": "",
    "preco": 405.0,
    "quantidade": 1,
-   "ultima_compra": null
+   "ultima_compra": null,
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03602",
@@ -2889,6 +3198,7 @@
    "preco": 345.0,
    "quantidade": 2,
    "ultima_compra": "2025-11-03",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Madine",
    "busca_foto": "Madine"
@@ -2900,7 +3210,9 @@
    "fornecedor": "",
    "preco": 187.0,
    "quantidade": 1,
-   "ultima_compra": "2026-05-13"
+   "ultima_compra": "2026-05-13",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03820",
@@ -2909,7 +3221,9 @@
    "fornecedor": "",
    "preco": 309.0,
    "quantidade": 1,
-   "ultima_compra": "2026-05-13"
+   "ultima_compra": "2026-05-13",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03818",
@@ -2918,7 +3232,9 @@
    "fornecedor": "José Gonçalves da Silva Eireli - EPP",
    "preco": 555.0,
    "quantidade": 1,
-   "ultima_compra": "2026-05-13"
+   "ultima_compra": "2026-05-13",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "01825",
@@ -2928,6 +3244,7 @@
    "preco": 397.0,
    "quantidade": 1,
    "ultima_compra": "2022-01-24",
+   "ultima_venda": "2019-09-03",
    "busca_foto": "Nobrelar"
   },
   {
@@ -2938,7 +3255,7 @@
    "preco": 559.0,
    "quantidade": 1,
    "ultima_compra": "2023-12-07",
-   "transferido_de": "Matina",
+   "ultima_venda": "2024-11-01",
    "marca": "Nobrelar",
    "busca_foto": "Nobrelar"
   },
@@ -2950,6 +3267,7 @@
    "preco": 237.0,
    "quantidade": 1,
    "ultima_compra": "2024-06-08",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -2961,6 +3279,7 @@
    "preco": 714.0,
    "quantidade": 1,
    "ultima_compra": "2023-05-04",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Batrol",
    "busca_foto": "Batrol"
@@ -2973,6 +3292,7 @@
    "preco": 1038.0,
    "quantidade": 1,
    "ultima_compra": "2022-05-13",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -2983,6 +3303,8 @@
    "preco": 1265.0,
    "quantidade": 1,
    "ultima_compra": "2026-08-04",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Henn",
    "busca_foto": "Henn"
   },
@@ -2994,7 +3316,7 @@
    "preco": 4264.0,
    "quantidade": 1,
    "ultima_compra": "2025-03-11",
-   "transferido_de": "Matina"
+   "ultima_venda": null
   },
   {
    "codigo": "01435",
@@ -3004,6 +3326,7 @@
    "preco": 435.0,
    "quantidade": 1,
    "ultima_compra": "2023-09-06",
+   "ultima_venda": "2020-11-17",
    "transferido_de": "Matina",
    "marca": "Batrol",
    "busca_foto": "Batrol"
@@ -3016,6 +3339,8 @@
    "preco": 1185.0,
    "quantidade": 1,
    "ultima_compra": "2026-06-18",
+   "ultima_venda": "2026-08-26",
+   "transferido_de": "Matina",
    "marca": "Henn",
    "busca_foto": "Henn"
   },
@@ -3027,6 +3352,8 @@
    "preco": 1375.0,
    "quantidade": 1,
    "ultima_compra": "2026-07-11",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Henn",
    "busca_foto": "Henn"
   },
@@ -3038,6 +3365,7 @@
    "preco": 690.0,
    "quantidade": 1,
    "ultima_compra": "2026-02-26",
+   "ultima_venda": "2026-03-20",
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -3049,6 +3377,7 @@
    "preco": 1375.0,
    "quantidade": 1,
    "ultima_compra": "2026-09-24",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Henn",
    "busca_foto": "Henn"
@@ -3061,6 +3390,8 @@
    "preco": 1375.0,
    "quantidade": 1,
    "ultima_compra": "2026-06-09",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Henn",
    "busca_foto": "Henn"
   },
@@ -3072,6 +3403,7 @@
    "preco": 1225.0,
    "quantidade": 1,
    "ultima_compra": "2026-09-24",
+   "ultima_venda": "2023-12-08",
    "transferido_de": "Matina"
   },
   {
@@ -3082,6 +3414,7 @@
    "preco": 670.0,
    "quantidade": 1,
    "ultima_compra": "2021-12-03",
+   "ultima_venda": "2022-04-28",
    "transferido_de": "Matina",
    "marca": "Batrol",
    "busca_foto": "Batrol"
@@ -3094,6 +3427,8 @@
    "preco": 1645.0,
    "quantidade": 1,
    "ultima_compra": "2026-09-24",
+   "ultima_venda": "2026-05-08",
+   "transferido_de": "Matina",
    "marca": "Panan",
    "busca_foto": "Panan"
   },
@@ -3105,7 +3440,7 @@
    "preco": 525.0,
    "quantidade": 1,
    "ultima_compra": "2026-06-16",
-   "transferido_de": "Matina"
+   "ultima_venda": "2025-12-12"
   },
   {
    "codigo": "03861",
@@ -3115,6 +3450,7 @@
    "preco": 855.0,
    "quantidade": 2,
    "ultima_compra": "2026-09-08",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "ACP Móveis",
    "busca_foto": "ACP Móveis"
@@ -3127,6 +3463,7 @@
    "preco": 3900.0,
    "quantidade": 1,
    "ultima_compra": "2017-05-08",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -3138,6 +3475,7 @@
    "preco": 425.0,
    "quantidade": 1,
    "ultima_compra": "2024-09-10",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -3148,6 +3486,7 @@
    "preco": 1019.0,
    "quantidade": 1,
    "ultima_compra": "2025-05-15",
+   "ultima_venda": "2024-03-08",
    "transferido_de": "Matina"
   },
   {
@@ -3156,8 +3495,9 @@
    "nome_sistema": "GR PAOLLA 06 PTS CINAMO,OFF,WHITE",
    "fornecedor": "ACP Indústria de Móveis",
    "preco": 1540.0,
-   "quantidade": 1,
+   "quantidade": 2,
    "ultima_compra": "2026-09-08",
+   "ultima_venda": "2026-09-08",
    "transferido_de": "Matina",
    "marca": "ACP Móveis",
    "busca_foto": "ACP Móveis"
@@ -3170,6 +3510,7 @@
    "preco": 985.0,
    "quantidade": 1,
    "ultima_compra": "1899-12-30",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -3180,6 +3521,7 @@
    "preco": 68.0,
    "quantidade": 2,
    "ultima_compra": "2023-01-17",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -3189,7 +3531,9 @@
    "fornecedor": "",
    "preco": 1345.0,
    "quantidade": 1,
-   "ultima_compra": "2026-07-17"
+   "ultima_compra": "2026-07-17",
+   "ultima_venda": "2026-07-17",
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03891",
@@ -3198,7 +3542,9 @@
    "fornecedor": "",
    "preco": 1879.0,
    "quantidade": 2,
-   "ultima_compra": "2026-07-13"
+   "ultima_compra": "2026-07-13",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03568",
@@ -3207,7 +3553,8 @@
    "fornecedor": "",
    "preco": 1155.0,
    "quantidade": 1,
-   "ultima_compra": "2026-07-18"
+   "ultima_compra": "2026-07-18",
+   "ultima_venda": "2026-06-22"
   },
   {
    "codigo": "03860",
@@ -3217,6 +3564,8 @@
    "preco": 1335.0,
    "quantidade": 1,
    "ultima_compra": "2026-06-15",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Bechara",
    "busca_foto": "Bechara"
   },
@@ -3227,7 +3576,9 @@
    "fornecedor": "",
    "preco": 1767.0,
    "quantidade": 2,
-   "ultima_compra": "2026-07-13"
+   "ultima_compra": "2026-07-13",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03771",
@@ -3236,7 +3587,9 @@
    "fornecedor": "",
    "preco": 946.0,
    "quantidade": 1,
-   "ultima_compra": "2026-03-24"
+   "ultima_compra": "2026-03-24",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03610",
@@ -3246,6 +3599,7 @@
    "preco": 115.0,
    "quantidade": 1,
    "ultima_compra": "2026-08-18",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Sumay",
    "busca_foto": "Sumay"
@@ -3258,6 +3612,7 @@
    "preco": 865.0,
    "quantidade": 1,
    "ultima_compra": "2026-02-05",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -3268,6 +3623,7 @@
    "preco": 218.0,
    "quantidade": 1,
    "ultima_compra": "2021-07-08",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -3278,6 +3634,7 @@
    "preco": 220.0,
    "quantidade": 1,
    "ultima_compra": "2025-01-30",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -3288,6 +3645,7 @@
    "preco": 25.0,
    "quantidade": 1,
    "ultima_compra": "2017-06-14",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -3298,6 +3656,7 @@
    "preco": 25.0,
    "quantidade": 1,
    "ultima_compra": "2017-06-14",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -3308,6 +3667,7 @@
    "preco": 65.0,
    "quantidade": 1,
    "ultima_compra": "2026-06-16",
+   "ultima_venda": "2026-06-13",
    "transferido_de": "Matina",
    "marca": "Sumay",
    "busca_foto": "Sumay"
@@ -3320,6 +3680,7 @@
    "preco": 35.0,
    "quantidade": 2,
    "ultima_compra": "2017-09-02",
+   "ultima_venda": "2017-12-23",
    "transferido_de": "Matina"
   },
   {
@@ -3330,6 +3691,7 @@
    "preco": 1187.0,
    "quantidade": 1,
    "ultima_compra": "2025-04-08",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -3341,6 +3703,7 @@
    "preco": 1490.0,
    "quantidade": 1,
    "ultima_compra": "2023-11-28",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -3352,6 +3715,7 @@
    "preco": 819.0,
    "quantidade": 1,
    "ultima_compra": "2023-08-12",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -3362,6 +3726,7 @@
    "preco": 780.0,
    "quantidade": 1,
    "ultima_compra": "2024-01-05",
+   "ultima_venda": "2024-03-09",
    "transferido_de": "Matina"
   },
   {
@@ -3372,6 +3737,8 @@
    "preco": 1545.0,
    "quantidade": 1,
    "ultima_compra": "2026-06-18",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Bertolini",
    "busca_foto": "Bertolini"
   },
@@ -3383,6 +3750,7 @@
    "preco": 905.0,
    "quantidade": 1,
    "ultima_compra": "2026-09-24",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Nicioli",
    "busca_foto": "Nicioli"
@@ -3395,6 +3763,7 @@
    "preco": 597.0,
    "quantidade": 1,
    "ultima_compra": "2022-03-22",
+   "ultima_venda": "2022-06-03",
    "transferido_de": "Matina"
   },
   {
@@ -3405,6 +3774,7 @@
    "preco": 1294.82,
    "quantidade": 3,
    "ultima_compra": "2026-09-04",
+   "ultima_venda": null,
    "busca_foto": "Mercadomóveis"
   },
   {
@@ -3415,6 +3785,7 @@
    "preco": 665.0,
    "quantidade": 1,
    "ultima_compra": "2026-09-24",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Nicioli",
    "busca_foto": "Nicioli"
@@ -3427,6 +3798,7 @@
    "preco": 599.0,
    "quantidade": 1,
    "ultima_compra": "2021-12-07",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -3437,6 +3809,7 @@
    "preco": 565.0,
    "quantidade": 1,
    "ultima_compra": "2026-09-08",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -3448,6 +3821,7 @@
    "preco": 1279.0,
    "quantidade": 1,
    "ultima_compra": "2026-02-03",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Poliman",
    "busca_foto": "Poliman"
@@ -3460,6 +3834,7 @@
    "preco": 1606.0,
    "quantidade": 1,
    "ultima_compra": "2026-02-03",
+   "ultima_venda": "2026-07-16",
    "transferido_de": "Matina",
    "marca": "Poliman",
    "busca_foto": "Poliman"
@@ -3472,6 +3847,7 @@
    "preco": 1606.0,
    "quantidade": 2,
    "ultima_compra": "2026-07-16",
+   "ultima_venda": "2026-05-23",
    "transferido_de": "Matina",
    "marca": "Poliman",
    "busca_foto": "Poliman"
@@ -3484,6 +3860,7 @@
    "preco": 1435.0,
    "quantidade": 1,
    "ultima_compra": "2026-08-07",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Nicioli",
    "busca_foto": "Nicioli"
@@ -3496,6 +3873,7 @@
    "preco": 1435.0,
    "quantidade": 1,
    "ultima_compra": "2026-08-11",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Nicioli",
    "busca_foto": "Nicioli"
@@ -3508,6 +3886,7 @@
    "preco": 1189.0,
    "quantidade": 1,
    "ultima_compra": "2026-09-08",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -3519,6 +3898,8 @@
    "preco": 215.0,
    "quantidade": 1,
    "ultima_compra": "2026-05-13",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Lancer",
    "busca_foto": "Tapetes Lancer"
   },
@@ -3530,6 +3911,7 @@
    "preco": 1.0,
    "quantidade": 1,
    "ultima_compra": "2018-01-12",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -3539,7 +3921,9 @@
    "fornecedor": "",
    "preco": 745.0,
    "quantidade": 1,
-   "ultima_compra": "2026-07-03"
+   "ultima_compra": "2026-07-03",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03372",
@@ -3549,6 +3933,7 @@
    "preco": 690.0,
    "quantidade": 1,
    "ultima_compra": "2026-04-28",
+   "ultima_venda": "2026-06-09",
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -3560,6 +3945,7 @@
    "preco": 690.0,
    "quantidade": 1,
    "ultima_compra": "2026-06-16",
+   "ultima_venda": "2026-05-16",
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -3571,6 +3957,7 @@
    "preco": 535.0,
    "quantidade": 1,
    "ultima_compra": "2018-07-31",
+   "ultima_venda": "2018-08-31",
    "transferido_de": "Matina"
   },
   {
@@ -3581,6 +3968,7 @@
    "preco": 917.0,
    "quantidade": 1,
    "ultima_compra": "2024-01-25",
+   "ultima_venda": "2024-03-11",
    "transferido_de": "Matina"
   },
   {
@@ -3590,7 +3978,9 @@
    "fornecedor": "",
    "preco": 2624.0,
    "quantidade": 1,
-   "ultima_compra": "2026-07-18"
+   "ultima_compra": "2026-07-18",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03242",
@@ -3600,6 +3990,7 @@
    "preco": 185.0,
    "quantidade": 2,
    "ultima_compra": "2026-03-16",
+   "ultima_venda": "2026-02-03",
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -3611,6 +4002,7 @@
    "preco": 185.0,
    "quantidade": 2,
    "ultima_compra": "2024-08-02",
+   "ultima_venda": "2024-07-30",
    "transferido_de": "Matina"
   },
   {
@@ -3621,6 +4013,7 @@
    "preco": 199.0,
    "quantidade": 1,
    "ultima_compra": "2026-01-22",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -3632,18 +4025,9 @@
    "preco": 135.0,
    "quantidade": 1,
    "ultima_compra": "2025-03-14",
+   "ultima_venda": "2024-04-30",
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
-  },
-  {
-   "codigo": "03410",
-   "nome": "Liquidificador Walita 600W Preto",
-   "nome_sistema": "LIDQ WALITA 600 W PTO",
-   "fornecedor": "",
-   "preco": 219.0,
-   "quantidade": 1,
-   "ultima_compra": "2025-03-14",
-   "transferido_de": "Matina"
   },
   {
    "codigo": "02367",
@@ -3653,6 +4037,7 @@
    "preco": 419.0,
    "quantidade": 1,
    "ultima_compra": "2025-07-29",
+   "ultima_venda": "2025-07-25",
    "transferido_de": "Matina",
    "busca_foto": "Candian"
   },
@@ -3663,7 +4048,9 @@
    "fornecedor": "",
    "preco": 45.0,
    "quantidade": 1,
-   "ultima_compra": "2025-08-27"
+   "ultima_compra": "2025-08-27",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "02905",
@@ -3673,6 +4060,7 @@
    "preco": 800.0,
    "quantidade": 1,
    "ultima_compra": "2023-05-04",
+   "ultima_venda": "2023-11-08",
    "transferido_de": "Matina"
   },
   {
@@ -3683,6 +4071,7 @@
    "preco": 175.0,
    "quantidade": 1,
    "ultima_compra": "2022-02-24",
+   "ultima_venda": "2021-06-07",
    "transferido_de": "Matina"
   },
   {
@@ -3693,6 +4082,7 @@
    "preco": 205.0,
    "quantidade": 1,
    "ultima_compra": "2022-11-21",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -3703,6 +4093,7 @@
    "preco": 1048.0,
    "quantidade": 1,
    "ultima_compra": "2025-04-29",
+   "ultima_venda": "2025-09-24",
    "transferido_de": "Matina",
    "marca": "Poliman",
    "busca_foto": "Poliman"
@@ -3715,6 +4106,7 @@
    "preco": 1195.0,
    "quantidade": 1,
    "ultima_compra": "2025-08-19",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Poliman",
    "busca_foto": "Poliman"
@@ -3727,6 +4119,7 @@
    "preco": 285.0,
    "quantidade": 1,
    "ultima_compra": "2025-12-16",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -3737,6 +4130,7 @@
    "preco": 225.0,
    "quantidade": 1,
    "ultima_compra": "2023-11-24",
+   "ultima_venda": "2025-07-16",
    "transferido_de": "Matina",
    "busca_foto": "JB Bechara"
   },
@@ -3748,6 +4142,7 @@
    "preco": 225.0,
    "quantidade": 1,
    "ultima_compra": "2023-09-19",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "busca_foto": "JB Bechara"
   },
@@ -3759,6 +4154,7 @@
    "preco": 141.0,
    "quantidade": 1,
    "ultima_compra": "2018-06-19",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -3768,7 +4164,9 @@
    "fornecedor": "Cia. da Cadeira",
    "preco": 100.0,
    "quantidade": 1,
-   "ultima_compra": "2026-02-18"
+   "ultima_compra": "2026-02-18",
+   "ultima_venda": "2026-02-18",
+   "transferido_de": "Matina"
   },
   {
    "codigo": "02874",
@@ -3778,6 +4176,7 @@
    "preco": 215.0,
    "quantidade": 1,
    "ultima_compra": "2023-03-15",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -3788,6 +4187,7 @@
    "preco": 215.0,
    "quantidade": 1,
    "ultima_compra": "2023-03-15",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -3798,6 +4198,7 @@
    "preco": 475.0,
    "quantidade": 1,
    "ultima_compra": "2017-02-22",
+   "ultima_venda": "2018-11-08",
    "transferido_de": "Matina"
   },
   {
@@ -3808,6 +4209,7 @@
    "preco": 98.0,
    "quantidade": 2,
    "ultima_compra": "2026-04-09",
+   "ultima_venda": "2026-05-20",
    "transferido_de": "Matina"
   },
   {
@@ -3818,6 +4220,7 @@
    "preco": 65.0,
    "quantidade": 1,
    "ultima_compra": "2017-06-02",
+   "ultima_venda": "2017-12-06",
    "transferido_de": "Matina"
   },
   {
@@ -3827,7 +4230,9 @@
    "fornecedor": "",
    "preco": 98.0,
    "quantidade": 1,
-   "ultima_compra": "2026-07-03"
+   "ultima_compra": "2026-07-03",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "02899",
@@ -3837,6 +4242,7 @@
    "preco": 960.0,
    "quantidade": 2,
    "ultima_compra": "2023-05-04",
+   "ultima_venda": "2023-04-17",
    "transferido_de": "Matina"
   },
   {
@@ -3847,17 +4253,19 @@
    "preco": 160.0,
    "quantidade": 1,
    "ultima_compra": "2023-08-28",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
    "codigo": "00646",
    "nome": "Mesa Supreme Cromada com Vidro 1,68m",
    "nome_sistema": "MESA SUPREME CROMADA C/ VIDRO 1.68",
-   "fornecedor": "",
+   "fornecedor": "WJ Tubos de Móveis Ltda",
    "preco": 790.0,
    "quantidade": 1,
    "ultima_compra": "2020-07-01",
-   "transferido_de": "Matina"
+   "ultima_venda": "2020-06-05",
+   "busca_foto": "WJ Tubos"
   },
   {
    "codigo": "03322",
@@ -3867,6 +4275,7 @@
    "preco": 206.0,
    "quantidade": 1,
    "ultima_compra": "2024-11-05",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -3877,7 +4286,9 @@
    "fornecedor": "",
    "preco": 787.0,
    "quantidade": 1,
-   "ultima_compra": null
+   "ultima_compra": null,
+   "ultima_venda": "2026-09-24",
+   "transferido_de": "Matina"
   },
   {
    "codigo": "02553",
@@ -3887,6 +4298,7 @@
    "preco": 110.0,
    "quantidade": 1,
    "ultima_compra": "2022-01-12",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -3897,6 +4309,7 @@
    "preco": 499.0,
    "quantidade": 2,
    "ultima_compra": "2022-02-18",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -3907,6 +4320,7 @@
    "preco": 12.0,
    "quantidade": 2,
    "ultima_compra": "2019-05-23",
+   "ultima_venda": "2021-12-02",
    "transferido_de": "Matina",
    "marca": "Multilaser",
    "busca_foto": "Multilaser"
@@ -3919,6 +4333,7 @@
    "preco": 18.0,
    "quantidade": 1,
    "ultima_compra": "2017-01-21",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Multilaser",
    "busca_foto": "Multilaser"
@@ -3931,6 +4346,7 @@
    "preco": 12.0,
    "quantidade": 1,
    "ultima_compra": "2017-10-21",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -3941,6 +4357,7 @@
    "preco": 335.0,
    "quantidade": 1,
    "ultima_compra": "2025-05-20",
+   "ultima_venda": "2025-06-02",
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -3952,6 +4369,7 @@
    "preco": 448.0,
    "quantidade": 1,
    "ultima_compra": "2026-09-08",
+   "ultima_venda": "2026-04-15",
    "transferido_de": "Matina",
    "marca": "ACP Móveis",
    "busca_foto": "ACP Móveis"
@@ -3964,6 +4382,7 @@
    "preco": 430.0,
    "quantidade": 3,
    "ultima_compra": "2024-11-05",
+   "ultima_venda": "2023-06-28",
    "transferido_de": "Matina",
    "marca": "ACP Móveis",
    "busca_foto": "ACP Móveis"
@@ -3976,6 +4395,7 @@
    "preco": 488.0,
    "quantidade": 1,
    "ultima_compra": "2026-09-08",
+   "ultima_venda": "2025-12-10",
    "transferido_de": "Matina",
    "marca": "ACP Móveis",
    "busca_foto": "ACP Móveis"
@@ -3988,6 +4408,7 @@
    "preco": 95.0,
    "quantidade": 1,
    "ultima_compra": "2018-11-08",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -3998,6 +4419,7 @@
    "preco": 80.0,
    "quantidade": 6,
    "ultima_compra": "2022-02-16",
+   "ultima_venda": "2024-08-14",
    "transferido_de": "Matina"
   },
   {
@@ -4008,6 +4430,7 @@
    "preco": 399.0,
    "quantidade": 1,
    "ultima_compra": "2021-06-19",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -4018,6 +4441,7 @@
    "preco": 379.0,
    "quantidade": 2,
    "ultima_compra": "2021-07-21",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -4028,6 +4452,7 @@
    "preco": 489.0,
    "quantidade": 1,
    "ultima_compra": "2024-05-21",
+   "ultima_venda": "2024-03-16",
    "transferido_de": "Matina",
    "busca_foto": "JB Bechara"
   },
@@ -4039,6 +4464,7 @@
    "preco": 218.0,
    "quantidade": 1,
    "ultima_compra": "2023-07-04",
+   "ultima_venda": "2023-08-30",
    "transferido_de": "Matina",
    "busca_foto": "HB Móveis"
   },
@@ -4050,6 +4476,7 @@
    "preco": 489.0,
    "quantidade": 1,
    "ultima_compra": "2024-03-11",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -4059,7 +4486,8 @@
    "fornecedor": "",
    "preco": 723.0,
    "quantidade": 4,
-   "ultima_compra": "2026-07-13"
+   "ultima_compra": "2026-07-13",
+   "ultima_venda": null
   },
   {
    "codigo": "03842",
@@ -4069,6 +4497,8 @@
    "preco": 347.0,
    "quantidade": 1,
    "ultima_compra": "2026-05-29",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Bechara",
    "busca_foto": "Bechara"
   },
@@ -4080,6 +4510,7 @@
    "preco": 336.0,
    "quantidade": 1,
    "ultima_compra": "2021-09-11",
+   "ultima_venda": "2021-12-13",
    "transferido_de": "Matina"
   },
   {
@@ -4090,6 +4521,7 @@
    "preco": 135.0,
    "quantidade": 1,
    "ultima_compra": "2019-08-24",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Alusol",
    "busca_foto": "Alusol"
@@ -4102,6 +4534,7 @@
    "preco": 68.0,
    "quantidade": 2,
    "ultima_compra": "2022-07-01",
+   "ultima_venda": "2022-06-21",
    "transferido_de": "Matina",
    "marca": "Alusol",
    "busca_foto": "Alusol"
@@ -4114,6 +4547,7 @@
    "preco": 65.0,
    "quantidade": 1,
    "ultima_compra": "2022-07-01",
+   "ultima_venda": "2022-05-16",
    "transferido_de": "Matina",
    "marca": "Alusol",
    "busca_foto": "Alusol"
@@ -4126,6 +4560,7 @@
    "preco": 586.0,
    "quantidade": 1,
    "ultima_compra": "2018-01-12",
+   "ultima_venda": "2023-06-05",
    "transferido_de": "Matina"
   },
   {
@@ -4136,6 +4571,7 @@
    "preco": 157.0,
    "quantidade": 1,
    "ultima_compra": "2022-11-21",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "busca_foto": "Americanas"
   },
@@ -4147,6 +4583,7 @@
    "preco": 5.0,
    "quantidade": 7,
    "ultima_compra": "2025-03-14",
+   "ultima_venda": "2026-07-17",
    "transferido_de": "Matina"
   },
   {
@@ -4157,6 +4594,7 @@
    "preco": 135.0,
    "quantidade": 1,
    "ultima_compra": "2022-08-18",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -4167,6 +4605,7 @@
    "preco": 185.0,
    "quantidade": 1,
    "ultima_compra": "2022-08-18",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -4177,6 +4616,7 @@
    "preco": 135.0,
    "quantidade": 1,
    "ultima_compra": "2022-08-18",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -4187,6 +4627,7 @@
    "preco": 35.0,
    "quantidade": 1,
    "ultima_compra": "2018-11-19",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -4197,6 +4638,7 @@
    "preco": 25.0,
    "quantidade": 2,
    "ultima_compra": "2019-03-23",
+   "ultima_venda": "2020-09-28",
    "transferido_de": "Matina"
   },
   {
@@ -4207,6 +4649,7 @@
    "preco": 25.0,
    "quantidade": 29,
    "ultima_compra": "2021-08-13",
+   "ultima_venda": "2020-09-28",
    "transferido_de": "Matina"
   },
   {
@@ -4216,7 +4659,8 @@
    "fornecedor": "JR Stone Mármores e Granitos",
    "preco": 640.5,
    "quantidade": 1,
-   "ultima_compra": "2025-06-27"
+   "ultima_compra": "2025-06-27",
+   "ultima_venda": "2025-12-09"
   },
   {
    "codigo": "01812",
@@ -4225,7 +4669,8 @@
    "fornecedor": "Valderi Pereira Gama",
    "preco": 320.0,
    "quantidade": 3,
-   "ultima_compra": "2022-11-21"
+   "ultima_compra": "2022-11-21",
+   "ultima_venda": "2025-11-17"
   },
   {
    "codigo": "01813",
@@ -4234,7 +4679,8 @@
    "fornecedor": "Valderi Pereira Gama",
    "preco": 400.0,
    "quantidade": 1,
-   "ultima_compra": "2022-11-21"
+   "ultima_compra": "2022-11-21",
+   "ultima_venda": "2023-09-04"
   },
   {
    "codigo": "03900",
@@ -4244,6 +4690,8 @@
    "preco": 277.0,
    "quantidade": 1,
    "ultima_compra": "2026-07-10",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Inoxsul",
    "busca_foto": "Inoxsul"
   },
@@ -4255,6 +4703,8 @@
    "preco": 316.0,
    "quantidade": 1,
    "ultima_compra": "2026-07-10",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Inoxsul",
    "busca_foto": "Inoxsul"
   },
@@ -4266,6 +4716,8 @@
    "preco": 365.0,
    "quantidade": 1,
    "ultima_compra": "2026-07-10",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Inoxsul",
    "busca_foto": "Inoxsul"
   },
@@ -4276,7 +4728,9 @@
    "fornecedor": "",
    "preco": 595.0,
    "quantidade": 1,
-   "ultima_compra": "2026-07-10"
+   "ultima_compra": "2026-07-10",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03783",
@@ -4286,6 +4740,7 @@
    "preco": 312.0,
    "quantidade": 1,
    "ultima_compra": "2026-04-09",
+   "ultima_venda": null,
    "marca": "Rorato",
    "busca_foto": "Rorato"
   },
@@ -4297,6 +4752,8 @@
    "preco": 352.0,
    "quantidade": 1,
    "ultima_compra": "2026-04-09",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Rorato",
    "busca_foto": "Rorato"
   },
@@ -4308,6 +4765,8 @@
    "preco": 439.0,
    "quantidade": 1,
    "ultima_compra": "2026-04-09",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Rorato",
    "busca_foto": "Rorato"
   },
@@ -4319,6 +4778,7 @@
    "preco": 1.0,
    "quantidade": 26,
    "ultima_compra": "2024-06-27",
+   "ultima_venda": "2025-07-22",
    "transferido_de": "Matina"
   },
   {
@@ -4329,6 +4789,7 @@
    "preco": 1.0,
    "quantidade": 38,
    "ultima_compra": "2024-06-27",
+   "ultima_venda": "2024-07-06",
    "transferido_de": "Matina"
   },
   {
@@ -4339,7 +4800,7 @@
    "preco": 81.0,
    "quantidade": 5,
    "ultima_compra": "2026-02-10",
-   "transferido_de": "Matina",
+   "ultima_venda": "2026-05-30",
    "busca_foto": "Plastmaster"
   },
   {
@@ -4350,6 +4811,7 @@
    "preco": 840.0,
    "quantidade": 1,
    "ultima_compra": "2024-01-25",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "busca_foto": "Yes Estofados"
   },
@@ -4361,6 +4823,7 @@
    "preco": 840.0,
    "quantidade": 1,
    "ultima_compra": "2024-01-25",
+   "ultima_venda": "2024-01-27",
    "transferido_de": "Matina",
    "busca_foto": "Yes Estofados"
   },
@@ -4372,6 +4835,7 @@
    "preco": 575.0,
    "quantidade": 1,
    "ultima_compra": "2024-07-24",
+   "ultima_venda": "2025-09-16",
    "transferido_de": "Matina"
   },
   {
@@ -4382,6 +4846,7 @@
    "preco": 36.0,
    "quantidade": 1,
    "ultima_compra": "2017-05-08",
+   "ultima_venda": "2019-01-05",
    "transferido_de": "Matina"
   },
   {
@@ -4392,6 +4857,7 @@
    "preco": 96.0,
    "quantidade": 1,
    "ultima_compra": "2019-08-06",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -4402,6 +4868,7 @@
    "preco": 120.0,
    "quantidade": 2,
    "ultima_compra": "2018-05-14",
+   "ultima_venda": "2019-02-02",
    "transferido_de": "Matina"
   },
   {
@@ -4412,6 +4879,8 @@
    "preco": 567.0,
    "quantidade": 1,
    "ultima_compra": "2026-05-29",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Bechara",
    "busca_foto": "Bechara"
   },
@@ -4423,6 +4892,8 @@
    "preco": 638.0,
    "quantidade": 1,
    "ultima_compra": "2026-05-29",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Bechara",
    "busca_foto": "Bechara"
   },
@@ -4434,6 +4905,7 @@
    "preco": 298.0,
    "quantidade": 1,
    "ultima_compra": "2025-10-20",
+   "ultima_venda": "2026-06-09",
    "transferido_de": "Matina"
   },
   {
@@ -4444,6 +4916,8 @@
    "preco": 745.0,
    "quantidade": 1,
    "ultima_compra": "2026-05-29",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Bechara",
    "busca_foto": "Bechara"
   },
@@ -4455,6 +4929,7 @@
    "preco": 51.0,
    "quantidade": 3,
    "ultima_compra": "2023-03-09",
+   "ultima_venda": "2024-12-09",
    "transferido_de": "Matina"
   },
   {
@@ -4465,6 +4940,7 @@
    "preco": 350.0,
    "quantidade": 2,
    "ultima_compra": "2022-02-16",
+   "ultima_venda": "2022-08-12",
    "transferido_de": "Matina"
   },
   {
@@ -4475,6 +4951,7 @@
    "preco": 395.0,
    "quantidade": 1,
    "ultima_compra": "2025-11-14",
+   "ultima_venda": "2026-01-26",
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -4486,6 +4963,7 @@
    "preco": 2648.0,
    "quantidade": 1,
    "ultima_compra": "2026-03-24",
+   "ultima_venda": "2026-02-12",
    "transferido_de": "Matina"
   },
   {
@@ -4496,6 +4974,7 @@
    "preco": 2939.83,
    "quantidade": 2,
    "ultima_compra": "2026-09-18",
+   "ultima_venda": null,
    "busca_foto": "Gazin"
   },
   {
@@ -4506,6 +4985,7 @@
    "preco": 1890.0,
    "quantidade": 1,
    "ultima_compra": "2022-12-23",
+   "ultima_venda": "2026-04-28",
    "transferido_de": "Matina"
   },
   {
@@ -4516,6 +4996,7 @@
    "preco": 3394.83,
    "quantidade": 3,
    "ultima_compra": "2026-09-04",
+   "ultima_venda": null,
    "busca_foto": "Gazin"
   },
   {
@@ -4526,6 +5007,7 @@
    "preco": 4024.83,
    "quantidade": 1,
    "ultima_compra": "2026-09-09",
+   "ultima_venda": null,
    "busca_foto": "Gazin"
   },
   {
@@ -4536,6 +5018,7 @@
    "preco": 4385.83,
    "quantidade": 2,
    "ultima_compra": "2026-08-28",
+   "ultima_venda": null,
    "busca_foto": "Gazin"
   },
   {
@@ -4546,6 +5029,7 @@
    "preco": 4777.33,
    "quantidade": 1,
    "ultima_compra": "2026-09-09",
+   "ultima_venda": null,
    "busca_foto": "Gazin"
   },
   {
@@ -4556,6 +5040,7 @@
    "preco": 3990.33,
    "quantidade": 2,
    "ultima_compra": "2026-08-24",
+   "ultima_venda": null,
    "busca_foto": "Gazin"
   },
   {
@@ -4566,6 +5051,7 @@
    "preco": 4320.0,
    "quantidade": 1,
    "ultima_compra": "2023-03-09",
+   "ultima_venda": "2024-02-29",
    "transferido_de": "Matina"
   },
   {
@@ -4576,6 +5062,8 @@
    "preco": 3610.28,
    "quantidade": 1,
    "ultima_compra": "2026-08-21",
+   "ultima_venda": "2026-08-26",
+   "transferido_de": "Matina",
    "busca_foto": "Mercadomóveis"
   },
   {
@@ -4586,6 +5074,7 @@
    "preco": 3615.0,
    "quantidade": 1,
    "ultima_compra": "2026-05-06",
+   "ultima_venda": "2026-04-11",
    "transferido_de": "Matina"
   },
   {
@@ -4595,7 +5084,9 @@
    "fornecedor": "",
    "preco": 5205.0,
    "quantidade": 1,
-   "ultima_compra": "2026-07-03"
+   "ultima_compra": "2026-07-03",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "01126",
@@ -4605,6 +5096,7 @@
    "preco": 33.0,
    "quantidade": 1,
    "ultima_compra": "2017-10-21",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -4615,6 +5107,7 @@
    "preco": 15.0,
    "quantidade": 2,
    "ultima_compra": "2016-11-23",
+   "ultima_venda": "2018-02-17",
    "transferido_de": "Matina"
   },
   {
@@ -4625,6 +5118,7 @@
    "preco": 12.0,
    "quantidade": 3,
    "ultima_compra": "2016-11-23",
+   "ultima_venda": "2019-12-04",
    "transferido_de": "Matina"
   },
   {
@@ -4635,6 +5129,7 @@
    "preco": 18.0,
    "quantidade": 4,
    "ultima_compra": "2017-10-21",
+   "ultima_venda": "2018-02-17",
    "transferido_de": "Matina",
    "busca_foto": "Hayamax"
   },
@@ -4646,6 +5141,7 @@
    "preco": 16.0,
    "quantidade": 2,
    "ultima_compra": "2017-10-21",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "busca_foto": "Hayamax"
   },
@@ -4657,6 +5153,7 @@
    "preco": 105.0,
    "quantidade": 1,
    "ultima_compra": "2018-10-06",
+   "ultima_venda": "2018-10-09",
    "transferido_de": "Matina"
   },
   {
@@ -4667,7 +5164,7 @@
    "preco": 2016.0,
    "quantidade": 1,
    "ultima_compra": "2026-09-24",
-   "transferido_de": "Matina",
+   "ultima_venda": "2026-09-09",
    "marca": "Henn",
    "busca_foto": "Henn"
   },
@@ -4679,6 +5176,7 @@
    "preco": 1915.0,
    "quantidade": 1,
    "ultima_compra": "2026-06-09",
+   "ultima_venda": "2026-06-09",
    "transferido_de": "Matina",
    "marca": "Henn",
    "busca_foto": "Henn"
@@ -4691,6 +5189,7 @@
    "preco": 318.0,
    "quantidade": 1,
    "ultima_compra": "2024-04-09",
+   "ultima_venda": "2025-04-16",
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -4702,6 +5201,8 @@
    "preco": 147.0,
    "quantidade": 1,
    "ultima_compra": "2025-07-04",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
   {
@@ -4712,6 +5213,8 @@
    "preco": 127.0,
    "quantidade": 1,
    "ultima_compra": "2025-07-04",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
   {
@@ -4722,6 +5225,7 @@
    "preco": 150.0,
    "quantidade": 1,
    "ultima_compra": "2021-02-16",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -4732,6 +5236,7 @@
    "preco": 166.0,
    "quantidade": 1,
    "ultima_compra": "2024-08-02",
+   "ultima_venda": "2022-06-21",
    "transferido_de": "Matina"
   },
   {
@@ -4742,6 +5247,7 @@
    "preco": 1360.0,
    "quantidade": 1,
    "ultima_compra": "2024-05-10",
+   "ultima_venda": "2025-07-12",
    "transferido_de": "Matina"
   },
   {
@@ -4752,7 +5258,7 @@
    "preco": 2167.5,
    "quantidade": 2,
    "ultima_compra": "2025-04-08",
-   "transferido_de": "Matina"
+   "ultima_venda": "2024-07-24"
   },
   {
    "codigo": "03249",
@@ -4762,6 +5268,7 @@
    "preco": 2965.0,
    "quantidade": 1,
    "ultima_compra": "2024-07-30",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -4771,7 +5278,9 @@
    "fornecedor": "",
    "preco": 2692.0,
    "quantidade": 1,
-   "ultima_compra": "2025-08-19"
+   "ultima_compra": "2025-08-19",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "03711",
@@ -4781,6 +5290,7 @@
    "preco": 2890.0,
    "quantidade": 1,
    "ultima_compra": "2026-01-15",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -4791,6 +5301,7 @@
    "preco": 65.0,
    "quantidade": 2,
    "ultima_compra": "2019-11-15",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -4801,6 +5312,7 @@
    "preco": 88.0,
    "quantidade": 1,
    "ultima_compra": "2023-09-04",
+   "ultima_venda": "2025-01-07",
    "transferido_de": "Matina",
    "marca": "Ortobom",
    "busca_foto": "Ortobom"
@@ -4813,6 +5325,7 @@
    "preco": 42.0,
    "quantidade": 1,
    "ultima_compra": "2017-10-21",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -4823,6 +5336,7 @@
    "preco": 30.0,
    "quantidade": 3,
    "ultima_compra": "2026-03-04",
+   "ultima_venda": "2026-04-07",
    "transferido_de": "Matina"
   },
   {
@@ -4833,6 +5347,8 @@
    "preco": 1355.0,
    "quantidade": 1,
    "ultima_compra": "2026-05-06",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Romero",
    "busca_foto": "Romero"
   },
@@ -4844,6 +5360,8 @@
    "preco": 1008.0,
    "quantidade": 1,
    "ultima_compra": "2026-05-06",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Romero",
    "busca_foto": "Romero"
   },
@@ -4855,6 +5373,7 @@
    "preco": 297.0,
    "quantidade": 1,
    "ultima_compra": "2025-05-05",
+   "ultima_venda": null,
    "transferido_de": "Matina",
    "marca": "Lancer",
    "busca_foto": "Tapetes Lancer"
@@ -4867,6 +5386,7 @@
    "preco": 390.0,
    "quantidade": 1,
    "ultima_compra": "2022-07-19",
+   "ultima_venda": "2024-06-11",
    "transferido_de": "Matina"
   },
   {
@@ -4877,6 +5397,8 @@
    "preco": 347.0,
    "quantidade": 1,
    "ultima_compra": "2026-05-13",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Lancer",
    "busca_foto": "Tapetes Lancer"
   },
@@ -4888,6 +5410,7 @@
    "preco": 189.0,
    "quantidade": 1,
    "ultima_compra": "2026-06-16",
+   "ultima_venda": "2026-06-10",
    "transferido_de": "Matina",
    "marca": "Lancer",
    "busca_foto": "Tapetes Lancer"
@@ -4900,6 +5423,8 @@
    "preco": 287.0,
    "quantidade": 1,
    "ultima_compra": "2026-05-13",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Lancer",
    "busca_foto": "Tapetes Lancer"
   },
@@ -4911,6 +5436,8 @@
    "preco": 347.0,
    "quantidade": 1,
    "ultima_compra": "2026-05-13",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "marca": "Lancer",
    "busca_foto": "Tapetes Lancer"
   },
@@ -4922,6 +5449,7 @@
    "preco": 32.0,
    "quantidade": 1,
    "ultima_compra": "2017-10-21",
+   "ultima_venda": "2018-06-27",
    "transferido_de": "Matina"
   },
   {
@@ -4932,6 +5460,7 @@
    "preco": 27.0,
    "quantidade": 1,
    "ultima_compra": "2016-11-23",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -4942,6 +5471,7 @@
    "preco": 45.0,
    "quantidade": 1,
    "ultima_compra": "2016-11-23",
+   "ultima_venda": "2021-09-28",
    "transferido_de": "Matina"
   },
   {
@@ -4952,6 +5482,7 @@
    "preco": 145.0,
    "quantidade": 1,
    "ultima_compra": "2017-10-21",
+   "ultima_venda": null,
    "transferido_de": "Matina"
   },
   {
@@ -4962,6 +5493,7 @@
    "preco": 99.0,
    "quantidade": 8,
    "ultima_compra": "2023-11-09",
+   "ultima_venda": "2026-08-11",
    "transferido_de": "Matina",
    "marca": "Ortobom",
    "busca_foto": "Ortobom"
@@ -4974,6 +5506,7 @@
    "preco": 15.0,
    "quantidade": 1,
    "ultima_compra": "2025-12-04",
+   "ultima_venda": "2026-04-18",
    "transferido_de": "Matina",
    "marca": "Ortobom",
    "busca_foto": "Ortobom"
@@ -4986,6 +5519,7 @@
    "preco": 18.0,
    "quantidade": 1,
    "ultima_compra": "2024-12-16",
+   "ultima_venda": "2025-05-10",
    "transferido_de": "Matina",
    "marca": "Ortobom",
    "busca_foto": "Ortobom"
@@ -4998,6 +5532,7 @@
    "preco": 30.0,
    "quantidade": 2,
    "ultima_compra": "2020-08-12",
+   "ultima_venda": "2021-05-26",
    "transferido_de": "Matina"
   },
   {
@@ -5008,6 +5543,7 @@
    "preco": 40.0,
    "quantidade": 13,
    "ultima_compra": "2023-06-10",
+   "ultima_venda": "2023-03-30",
    "transferido_de": "Matina",
    "marca": "Ortobom",
    "busca_foto": "Ortobom"
@@ -5020,6 +5556,7 @@
    "preco": 48.0,
    "quantidade": 8,
    "ultima_compra": "2025-09-22",
+   "ultima_venda": "2026-09-10",
    "transferido_de": "Matina",
    "marca": "Ortobom",
    "busca_foto": "Ortobom"
@@ -5032,6 +5569,7 @@
    "preco": 1085.0,
    "quantidade": 1,
    "ultima_compra": "2017-05-31",
+   "ultima_venda": "2018-05-26",
    "transferido_de": "Matina"
   },
   {
@@ -5041,7 +5579,9 @@
    "fornecedor": "",
    "preco": 1575.0,
    "quantidade": 1,
-   "ultima_compra": "2026-07-03"
+   "ultima_compra": "2026-07-03",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "02536",
@@ -5051,6 +5591,7 @@
    "preco": 1479.0,
    "quantidade": 1,
    "ultima_compra": "2026-06-16",
+   "ultima_venda": "2026-06-20",
    "transferido_de": "Matina"
   },
   {
@@ -5061,6 +5602,7 @@
    "preco": 1869.0,
    "quantidade": 1,
    "ultima_compra": "2026-08-07",
+   "ultima_venda": "2026-08-04",
    "transferido_de": "Matina"
   },
   {
@@ -5071,6 +5613,8 @@
    "preco": 2435.0,
    "quantidade": 1,
    "ultima_compra": "2026-07-03",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
   {
@@ -5081,6 +5625,8 @@
    "preco": 3015.0,
    "quantidade": 1,
    "ultima_compra": "2026-07-03",
+   "ultima_venda": null,
+   "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
   {
@@ -5091,6 +5637,7 @@
    "preco": 115.0,
    "quantidade": 1,
    "ultima_compra": "2025-02-13",
+   "ultima_venda": "2025-11-10",
    "transferido_de": "Matina"
   },
   {
@@ -5101,6 +5648,7 @@
    "preco": 165.0,
    "quantidade": 2,
    "ultima_compra": "2026-01-05",
+   "ultima_venda": "2026-02-02",
    "transferido_de": "Matina"
   },
   {
@@ -5111,6 +5659,7 @@
    "preco": 237.0,
    "quantidade": 1,
    "ultima_compra": "2022-02-02",
+   "ultima_venda": "2023-01-18",
    "transferido_de": "Matina"
   },
   {
@@ -5121,6 +5670,7 @@
    "preco": 265.0,
    "quantidade": 2,
    "ultima_compra": "2026-08-22",
+   "ultima_venda": "2025-12-08",
    "transferido_de": "Matina",
    "busca_foto": "Gazin"
   },
@@ -5132,6 +5682,7 @@
    "preco": 305.0,
    "quantidade": 1,
    "ultima_compra": "2026-08-22",
+   "ultima_venda": "2026-09-11",
    "transferido_de": "Matina"
   },
   {
@@ -5142,6 +5693,7 @@
    "preco": 270.0,
    "quantidade": 1,
    "ultima_compra": "2025-03-14",
+   "ultima_venda": "2022-02-07",
    "transferido_de": "Matina"
   },
   {
@@ -5152,6 +5704,7 @@
    "preco": 179.0,
    "quantidade": 1,
    "ultima_compra": "2026-08-22",
+   "ultima_venda": "2026-09-02",
    "transferido_de": "Matina",
    "busca_foto": "Mercadomóveis"
   },
@@ -5162,7 +5715,9 @@
    "fornecedor": "",
    "preco": 182.0,
    "quantidade": 1,
-   "ultima_compra": "2026-02-13"
+   "ultima_compra": "2026-02-13",
+   "ultima_venda": null,
+   "transferido_de": "Matina"
   },
   {
    "codigo": "02221",
@@ -5172,6 +5727,7 @@
    "preco": 165.0,
    "quantidade": 1,
    "ultima_compra": "2020-10-15",
+   "ultima_venda": "2020-10-31",
    "transferido_de": "Matina"
   },
   {
@@ -5182,6 +5738,7 @@
    "preco": 252.0,
    "quantidade": 1,
    "ultima_compra": "2020-04-20",
+   "ultima_venda": "2020-10-14",
    "transferido_de": "Matina"
   },
   {
@@ -5192,6 +5749,7 @@
    "preco": 149.0,
    "quantidade": 1,
    "ultima_compra": "2022-04-20",
+   "ultima_venda": "2022-10-04",
    "transferido_de": "Matina"
   },
   {
@@ -5202,6 +5760,7 @@
    "preco": 99.0,
    "quantidade": 2,
    "ultima_compra": "2023-08-03",
+   "ultima_venda": "2024-01-22",
    "transferido_de": "Matina"
   }
  ]

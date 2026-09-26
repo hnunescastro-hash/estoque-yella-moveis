@@ -30,7 +30,11 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
   (conta a mais recente das duas: produto que acabou de chegar não é parado). Mostra o mais parado primeiro, com o
   tempo parado ao lado do nome. Só nas lojas cujo relatório traz a última venda (hoje, Matina).
 - **Novo:** etiqueta ao lado do nome do produto que entrou no estoque nos últimos 15 dias (a data de entrada é
-  marcada na publicação em que o produto aparece pela primeira vez).
+  marcada na publicação em que o produto aparece pela primeira vez, se ele foi comprado nos últimos 30 dias).
+- **Sem estoque (encomenda):** os produtos de Matina que acabaram e foram comprados nos últimos 48 meses aparecem
+  na **busca**, depois dos que têm estoque, embaixo do separador "Sem estoque", com a caixinha cinza "0" — para
+  consultar o preço quando o cliente aceita esperar a mercadoria chegar. Não aparecem na lista inicial nem nas
+  categorias; a pílula **Sem estoque** mostra todos. A mensagem do WhatsApp deles sai com "📦 Sob encomenda".
 - **Enviar vários:** o botão **Selecionar** (ao lado da contagem) marca até 10 produtos e manda todos numa mensagem só
   do WhatsApp ("Separei estas opções para você:"), cada um com o preço no Pix e no cartão.
 - Cartão compacto: o **nome** numa linha só (cortado com "…" quando não cabe) e, abaixo, o **preço** e,
@@ -109,7 +113,10 @@ O nome original do sistema continua visível em **Detalhes**, para conferir no C
 2. No site, toque nas suas iniciais (no topo) → **Administrador** → digite a **chave de administrador** → Entrar.
    A chave fica no Bitwarden Secrets Manager: `ESTOQUE_YELLA_CHAVE_ADMIN`. O aparelho lembra dela até tocar em
    "Sair do modo administrador".
-3. Escolha o relatório de cada loja (pode ser só uma) e toque em **Conferir mudanças**. Aparece a lista do que mudou:
+3. Escolha o relatório de cada loja (pode ser só uma) e toque em **Conferir mudanças**. Em **Matina - BA · sem
+   estoque** vai o relatório dos produtos com estoque zero (com as colunas Código e Custo de Compra): ele atualiza a
+   lista de encomenda (só os comprados nos últimos 48 meses aparecem) e ajuda a achar o custo de Igaporã.
+   Publicando só o estoque, o produto que acabou passa sozinho para a lista "sem estoque", com o custo que tinha. Aparece a lista do que mudou:
    ▲▼ quantidade, + produto novo, − produto que saiu, R$ preço, e os **nomes automáticos** de produtos novos para conferir.
 4. Toque em **Publicar**. O site atualiza para todos em cerca de 1 minuto (a própria tela avisa quando terminar).
    Quem estiver com o site aberto recebe o estoque novo ao voltar para a página.
@@ -207,4 +214,5 @@ equipe ou a chave de administrador.
 | `ferramentas/correcoes.json` | nomes revisados de produtos e fornecedores, fornecedor cruzado de Igaporã, fornecedores usados na busca de foto |
 | `servidor/` | servidor de atualização pelo site (Cloud Run): `app.py`, `Dockerfile`, `implantar.sh` |
 
-Os relatórios brutos do CompuFour não vão para o GitHub (estão no `.gitignore`).
+Os relatórios brutos do CompuFour não vão para o GitHub: o `.gitignore` bloqueia qualquer `.html` da pasta, menos o
+`index.html` (os relatórios têm o custo de compra). `dados/matina-sem-estoque.json` é gerado pelo servidor.

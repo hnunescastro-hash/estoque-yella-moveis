@@ -56,6 +56,7 @@ OBRIGATORIAS = {"codigo", "descricao", "preco", "quantidade"}
 # Colunas privadas: lidas só para o servidor de atualização (modo administrador), nunca gravadas em dados/.
 COLUNAS_PRIVADAS = {"custo de compra": "custo"}
 NOVO_POR_DIAS = 30  # "novo_desde" some dos dados depois disso
+MESES_SEM_ESTOQUE = 48  # produto sem estoque só aparece no site (preço para encomenda) se comprado nesse prazo
 
 
 class ErroRelatorio(SystemExit):
@@ -70,6 +71,12 @@ def sem_acento(texto):
 def chave(texto):
     """Chave usada no correcoes.json: espaços repetidos removidos e tudo em maiúsculas."""
     return " ".join(texto.split()).upper()
+
+
+def meses_antes(dia, meses):
+    """A mesma data, tantos meses antes (29/02 vira 28/02)."""
+    ano, mes = divmod(dia.year * 12 + dia.month - 1 - meses, 12)
+    return date(ano, mes + 1, min(dia.day, 28 if mes + 1 == 2 else 30 if mes + 1 in (4, 6, 9, 11) else 31))
 
 
 def limpar_celula(bruto):
@@ -245,6 +252,10 @@ def _formatar_token(token, primeiro):
 def corrigir_automatico(descricao):
     texto = " ".join(descricao.split())
     texto = re.sub(r"^([A-Za-z]{2,5})\.(?=\S)", r"\1. ", texto)  # ARM.LONDRES -> ARM. LONDRES
+    if re.search(r"\bTV\b", texto, re.I):  # TV 32P, painel para TV até 60P -> polegadas (4P continua portas)
+        texto = re.sub(r"(?<![\d,.])(\d{2})\s*P\b(?!/)", r"\1 POLEGADAS", texto, flags=re.I)
+    if re.match(r"BIC(?:ICLETA)?\b", texto, re.I):  # bicicleta S/M, C/M -> sem marcha, com marcha
+        texto = re.sub(r"\b([SC])/M\b", lambda m: "SEM MARCHA" if m.group(1).upper() == "S" else "COM MARCHA", texto, flags=re.I)
     texto = re.sub(r"\b([CSP])/\s*", lambda m: m.group(1).upper() + "/ ", texto, flags=re.I)  # C/ESPELHO -> C/ ESPELHO
     partes = []
     for i, token in enumerate(texto.split(" ")):
@@ -291,15 +302,17 @@ def montar_loja(loja_id, conteudo, correcoes, lojas, nome=None, uf=None, anterio
     relatório), que a página mostra como etiqueta "Novo" por alguns dias. Produto antigo que só não
     vinha no relatório anterior não é novo.
 
-    Produto com estoque zero ou negativo (relatório tirado "com produtos sem estoque") não vai para o
-    site: só entra em "referencia", que serve para achar o mesmo produto em outra loja (ex.: o que foi
+    Produto com estoque zero ou negativo (relatório de produtos sem estoque) não entra em "saida": vai
+    para "sem_estoque" se foi comprado nos últimos MESES_SEM_ESTOQUE meses (o site mostra o preço para
+    encomenda) e para "referencia", que serve para achar o mesmo produto em outra loja (ex.: o que foi
     transferido para Igaporã e acabou em Matina).
 
     Devolve um dicionário com: saida (conteúdo de dados/<loja>.json), registro (entrada de
     dados/lojas.json), cidade e gerado_em do relatório, revisar (nomes com correção automática),
     fornecedores_novos, avisos (conferência com os totais do próprio relatório), custos
-    ({código: custo de compra}, quando o relatório traz a coluna — PRIVADO, fora de "saida") e
-    referencia (todos os produtos, com e sem estoque: código, nome, preço e fornecedor)."""
+    ({código: custo de compra}, quando o relatório traz a coluna — PRIVADO, fora de "saida"),
+    sem_estoque (produtos sem estoque comprados há pouco, com quantidade 0) e referencia (todos os
+    produtos, com e sem estoque: código, nome, preço e fornecedor)."""
     linhas, total_relatorio, gerado_em, cidade, registros, colunas = extrair(conteudo)
     if not linhas:
         raise ErroRelatorio("Nenhum produto encontrado no relatório.")
@@ -367,6 +380,11 @@ def montar_loja(loja_id, conteudo, correcoes, lojas, nome=None, uf=None, anterio
     fornecedores_novos = {f for c, f in fornecedor_automatico_de.items() if c in em_estoque}
     total_unidades = sum(p["quantidade"] or 0 for p in produtos)
     soma_relatorio = sum(p["quantidade"] or 0 for p in todos)  # para conferir com o total do relatório
+    limite = meses_antes(referencia, MESES_SEM_ESTOQUE) if referencia else None
+    sem_estoque = [
+        {**{k: v for k, v in p.items() if k != "novo_desde"}, "quantidade": 0} for p in todos
+        if (p["quantidade"] or 0) <= 0 and limite and p["ultima_compra"] and date.fromisoformat(p["ultima_compra"]) >= limite
+    ]
 
     cadastrada = next((l for l in lojas["lojas"] if l["id"] == loja_id), {})
     nome_loja = nome or cadastrada.get("nome") or cidade or loja_id.capitalize()
@@ -400,15 +418,17 @@ def montar_loja(loja_id, conteudo, correcoes, lojas, nome=None, uf=None, anterio
         "fornecedores_novos": fornecedores_novos,
         "avisos": avisos,
         "custos": custos,
+        "sem_estoque": sem_estoque,
         "referencia": [{c: p[c] for c in ("codigo", "nome", "preco", "fornecedor")} for p in todos],
     }
 
 
 def registrar_loja(lojas, registro):
-    """Acrescenta ou atualiza a loja em dados/lojas.json (em memória)."""
+    """Acrescenta ou atualiza a loja em dados/lojas.json (em memória), mantendo o que já havia nela
+    (ex.: o arquivo de produtos sem estoque)."""
     for i, loja in enumerate(lojas["lojas"]):
         if loja["id"] == registro["id"]:
-            lojas["lojas"][i] = registro
+            lojas["lojas"][i] = {**loja, **registro}
             return
     lojas["lojas"].append(registro)
 

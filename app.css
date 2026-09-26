@@ -276,7 +276,15 @@ button, input, select { font: inherit; color: inherit; }
 .selecionar .ic { width: 17px; height: 17px; color: var(--whatsapp); }
 .contagem strong { color: var(--texto); }
 
-/* filtro ativo (fornecedor ou parados) */
+/* busca: os produtos sem estoque (preço para encomenda) vêm depois, com este separador */
+.separador-lista {
+  display: flex; align-items: center; gap: 10px; margin: 6px 2px 0; list-style: none;
+  font-size: 12.5px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--suave);
+}
+.separador-lista::after { content: ""; flex: 1; height: 1px; background: var(--linha); }
+.atalho-sem-estoque .ic { color: var(--suave); }
+
+/* filtro ativo (fornecedor, parados ou sem estoque) */
 .filtro-ativo {
   display: flex; align-items: center; gap: 8px;
   margin: 0 0 10px; padding: 5px 5px 5px 10px; border-radius: 10px;

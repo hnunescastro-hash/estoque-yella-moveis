@@ -120,6 +120,7 @@
     gavetaFechar: $('gaveta-fechar'), formGaveta: $('form-gaveta'), nome: $('nome'), telefone: $('telefone'), temas: $('temas'),
     mostrarContas: $('mostrar-contas'),
     filtroParados: $('filtro-parados'), filtroParadosLimpar: $('filtro-parados-limpar'), imposto: $('imposto'),
+    filtroSemEstoque: $('filtro-sem-estoque'), filtroSemEstoqueLimpar: $('filtro-sem-estoque-limpar'),
     painelVendas: $('painel-vendas'), vendasMes: $('vendas-mes'), vendasNumeros: $('vendas-numeros'),
     mesAnterior: $('mes-anterior'), mesProximo: $('mes-proximo'),
     modalVenda: $('modal-venda'), formVenda: $('form-venda'), vendaProduto: $('venda-produto'), vendaNome: $('venda-nome'),
@@ -167,6 +168,7 @@
     consulta: '', ordem: 'az', comissao: 0, desconto: 0,
     nome: '', fornecedor: null, verTodosFornecedores: false, consultaMostrada: '',
     filtroParados: false, ordemAntesParados: 'az', selecionando: false, selecionados: new Map(),
+    semEstoqueLojas: new Map(), filtroSemEstoque: false, soComEstoque: false,
     selecionandoAnuncios: false, anunciosSelecionados: new Set(),
     custos: null, origemCustos: null, imposto: 0, mesVendas: null,
     anunciados: [], filtroStatus: 'todos', anunciosAbertos: new Set(), tema: 'auto', mostrarContas: true, telefone: '',
@@ -249,11 +251,16 @@
   // porque o mesmo código pode ser de produtos diferentes em lojas diferentes.
   function prepararProdutos(partes) {
     const juntos = [];
-    partes.forEach(({ loja, dados }, posicaoLoja) => {
+    partes.forEach(({ loja, dados, semEstoque }, posicaoLoja) => {
       const referencia = dados.gerado_em ? Date.parse(dados.gerado_em) : Date.now();
       const temVenda = (dados.produtos || []).some((p) => 'ultima_venda' in p);
       for (const p of dados.produtos || []) {
         juntos.push({ p, loja: loja.id, posicaoLoja, chave: semAcento(p.nome), referencia, temVenda });
+      }
+      // Sem estoque (preço para encomenda): só o que não voltou ao estoque
+      const temEstoque = new Set((dados.produtos || []).map((p) => p.codigo));
+      for (const p of semEstoque || []) {
+        if (!temEstoque.has(p.codigo)) juntos.push({ p, loja: loja.id, posicaoLoja, chave: semAcento(p.nome), referencia, temVenda: false, semEstoque: true });
       }
     });
     // Cada arquivo já vem em ordem alfabética. Juntando lojas, reordena do mesmo jeito,
@@ -262,7 +269,7 @@
       const comparar = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
       juntos.sort((a, b) => comparar(a.chave, b.chave) || comparar(a.p.codigo, b.p.codigo) || a.posicaoLoja - b.posicaoLoja);
     }
-    estado.produtos = juntos.map(({ p, loja, referencia, temVenda }, ordem) => {
+    estado.produtos = juntos.map(({ p, loja, referencia, temVenda, semEstoque }, ordem) => {
       const nome = normalizar(p.nome);
       const codigo = String(p.codigo).replace(/^0+/, '');
       let busca = normalizar([p.nome, p.nome_sistema, p.codigo, codigo, p.marca].join(' '));
@@ -280,6 +287,7 @@
       return Object.assign({}, p, {
         _loja: loja, _chave: `${loja}:${p.codigo}`,
         _ordem: ordem, _nome: nome, _nomeEspaco: ' ' + nome, _busca: busca, _codigo: codigo, _diasParado: diasParado,
+        _semEstoque: Boolean(semEstoque),
       });
     });
     estado.porChave = new Map(estado.produtos.map((p) => [p._chave, p]));
@@ -324,13 +332,15 @@
   }
 
   // Com um fornecedor escolhido, a busca fica só nos produtos dele.
-  const parado = (p) => p._diasParado != null && p._diasParado >= DIAS_PARADO;
-  const baseDaBusca = () => ((estado.fornecedor || estado.filtroParados)
-    ? estado.produtos.filter((p) => (!estado.fornecedor || p.fornecedor === estado.fornecedor) && (!estado.filtroParados || parado(p)))
-    : estado.produtos);
+  const parado = (p) => !p._semEstoque && p._diasParado != null && p._diasParado >= DIAS_PARADO;
+  // Sem estoque (preço para encomenda) só aparece na busca digitada e no filtro de fornecedor (depois
+  // dos com estoque) e na pílula "Sem estoque"; nunca na lista inicial, nas categorias nem nos parados.
+  const mostraSemEstoque = () => estado.filtroSemEstoque
+    || (!estado.filtroParados && !estado.soComEstoque && (estado.consulta.trim() !== '' || Boolean(estado.fornecedor)));
+  const baseDaBusca = () => estado.produtos.filter((p) => (estado.filtroSemEstoque ? p._semEstoque : !p._semEstoque || mostraSemEstoque())
+    && (!estado.fornecedor || p.fornecedor === estado.fornecedor) && (!estado.filtroParados || parado(p)));
 
-  function buscar(consulta) {
-    const base = baseDaBusca();
+  function buscar(consulta, base = baseDaBusca()) {
     const termos = normalizar(consulta).split(' ').filter((t) => t && !IGNORAR.has(t));
     if (!termos.length) return base.slice();
 
@@ -407,6 +417,7 @@
   // Sem produto (anunciado que saiu do estoque atual): cinza, com 0.
   function estoqueHTML(p) {
     if (!p) return `<span class="estoque fora" title="Fora do estoque atual" role="img" aria-label="Fora do estoque atual">${icone('caixa')}0</span>`;
+    if (p._semEstoque) return `<span class="estoque fora" title="Sem estoque" role="img" aria-label="Sem estoque">${icone('caixa')}0</span>`;
     const q = p.quantidade;
     const texto = q === 1 ? 'Só 1 em estoque' : `${numero.format(q)} em estoque`;
     return `<span class="estoque${q === 1 ? ' ultima' : ''}" title="${texto}" role="img" aria-label="${texto}">${icone('caixa')}${numero.format(q)}</span>`;
@@ -450,6 +461,7 @@
   }
 
   function linhaEstoqueMensagem(p) {
+    if (p._semEstoque) return '📦 Sob encomenda';
     if (p.quantidade >= 1 && p.quantidade <= 3) return '🔥 Últimas unidades!'; // até 3 unidades
     return p.quantidade > 3 ? '✅ Pronta entrega' : '';
   }
@@ -600,7 +612,7 @@
     const linhas = [
       ['Nome completo', escapar(p.nome)], // no cartão o nome pode aparecer cortado com "…"
       ['Código', escapar(p.codigo)],
-      ['Em estoque', p.quantidade === 1 ? '1 unidade' : `${numero.format(p.quantidade)} unidades`],
+      ['Em estoque', p._semEstoque ? 'Sem estoque' : p.quantidade === 1 ? '1 unidade' : `${numero.format(p.quantidade)} unidades`],
       ...linhasContas(p),
       ['Fornecedor', escapar(p.fornecedor || 'Não identificado')],
     ];
@@ -734,7 +746,16 @@
 
   function mostrarMais() {
     const proximos = estado.resultado.slice(estado.exibidos, estado.exibidos + POR_PAGINA);
-    if (proximos.length) el.lista.insertAdjacentHTML('beforeend', proximos.map(cartaoHTML).join(''));
+    if (proximos.length) {
+      let anterior = estado.resultado[estado.exibidos - 1];
+      el.lista.insertAdjacentHTML('beforeend', proximos.map((p) => {
+        // na busca, os sem estoque (preço para encomenda) vêm depois deste separador
+        const separador = p._semEstoque && !estado.filtroSemEstoque && !(anterior && anterior._semEstoque)
+          ? '<li class="separador-lista">Sem estoque</li>' : '';
+        anterior = p;
+        return separador + cartaoHTML(p);
+      }).join(''));
+    }
     estado.exibidos += proximos.length;
     const restantes = estado.resultado.length - estado.exibidos;
     el.mais.hidden = restantes <= 0;
@@ -766,6 +787,7 @@
     }
     const resultado = semDados ? [] : buscar(estado.consulta);
     if (ORDENACOES[estado.ordem]) resultado.sort(ORDENACOES[estado.ordem]);
+    resultado.sort((a, b) => a._semEstoque - b._semEstoque); // sem estoque depois (a ordem de cada grupo continua)
     const codigoBuscado = /^\d+$/.test(consulta) ? consulta.replace(/^0+/, '') : '';
     if (codigoBuscado) resultado.sort((a, b) => (b._codigo === codigoBuscado) - (a._codigo === codigoBuscado));
     estado.resultado = resultado;
@@ -775,6 +797,7 @@
     atualizarContagem();
     el.filtroFornecedor.hidden = !estado.fornecedor;
     el.filtroParados.hidden = !estado.filtroParados;
+    el.filtroSemEstoque.hidden = !estado.filtroSemEstoque;
     el.filtroFornecedorNome.textContent = estado.fornecedor || '';
     let fornecedoresHTML = '';
     let titulo = ''; // busca sem resultado já avisa na contagem
@@ -786,6 +809,9 @@
     } else if (estado.filtroParados) {
       if (!consulta) titulo = 'Nenhum produto parado aqui';
       fornecedoresHTML = `<button type="button" class="botao-secundario" data-acao="tirar-parados">${icone('cancelar')}Tirar o filtro de parados</button>`;
+    } else if (estado.filtroSemEstoque) {
+      if (!consulta) titulo = 'Nenhum produto sem estoque aqui';
+      fornecedoresHTML = `<button type="button" class="botao-secundario" data-acao="tirar-sem-estoque">${icone('cancelar')}Tirar o filtro de sem estoque</button>`;
     } else if (!resultado.length && consulta) {
       fornecedoresHTML = buscaPorFornecedorHTML(consulta);
     }
@@ -905,13 +931,18 @@
   }
 
   function montarAtalhos() {
-    const parados = estado.filtroParados ? 0
-      : estado.produtos.filter((p) => (!estado.fornecedor || p.fornecedor === estado.fornecedor) && parado(p)).length;
+    const doFornecedor = estado.produtos.filter((p) => !estado.fornecedor || p.fornecedor === estado.fornecedor);
+    const comEstoque = doFornecedor.filter((p) => !p._semEstoque);
+    const parados = estado.filtroParados ? 0 : comEstoque.filter(parado).length;
     const chipParados = parados
       ? `<button type="button" class="atalho atalho-parados" data-acao="parados">${icone('ampulheta')}<span>Parados</span><span class="atalho-qtd">${parados}</span></button>`
       : '';
-    el.atalhos.innerHTML = chipParados + ATALHOS.map(([termo, nomeIcone]) => {
-      const total = buscar(termo).length;
+    const semEstoque = estado.filtroSemEstoque ? 0 : doFornecedor.length - comEstoque.length;
+    const chipSemEstoque = semEstoque
+      ? `<button type="button" class="atalho atalho-sem-estoque" data-acao="sem-estoque">${icone('caixa')}<span>Sem estoque</span><span class="atalho-qtd">${semEstoque}</span></button>`
+      : '';
+    el.atalhos.innerHTML = chipParados + chipSemEstoque + ATALHOS.map(([termo, nomeIcone]) => {
+      const total = buscar(termo, comEstoque).length;
       return total
         ? `<button type="button" class="atalho" data-busca="${escapar(termo)}">${icone(nomeIcone)}<span>${escapar(termo)}</span><span class="atalho-qtd">${total}</span></button>`
         : '';
@@ -1808,6 +1839,8 @@
   // ---------------------------------------------------------------- "Parados" e seleção de vários produtos
 
   function ativarParados() {
+    estado.filtroSemEstoque = false;
+    estado.soComEstoque = false;
     estado.filtroParados = true;
     if (estado.ordem !== 'parado') estado.ordemAntesParados = estado.ordem;
     estado.ordem = 'parado'; // mais parado primeiro; tocar num classificador troca a ordem
@@ -1816,6 +1849,29 @@
     el.limpar.hidden = true;
     estado.consulta = '';
     atualizarOrdens();
+    montarAtalhos();
+    atualizarLista();
+    voltarAoTopoDaLista();
+  }
+
+  // "Sem estoque": produtos que acabaram (comprados nos últimos meses), com o preço para encomenda.
+  function ativarSemEstoque() {
+    estado.filtroParados = false;
+    if (estado.ordem === 'parado') estado.ordem = estado.ordemAntesParados || 'az';
+    estado.filtroSemEstoque = true;
+    estado.soComEstoque = false;
+    clearTimeout(esperaBusca);
+    el.busca.value = '';
+    el.limpar.hidden = true;
+    estado.consulta = '';
+    atualizarOrdens();
+    montarAtalhos();
+    atualizarLista();
+    voltarAoTopoDaLista();
+  }
+
+  function desativarSemEstoque() {
+    estado.filtroSemEstoque = false;
     montarAtalhos();
     atualizarLista();
     voltarAoTopoDaLista();
@@ -2177,23 +2233,35 @@
     avisoConexao();
 
     const faltando = escolhidas.filter((loja) => loja.arquivo && !estado.dadosLojas.has(loja.id));
+    const semEstoqueFaltando = escolhidas.filter((loja) => loja.sem_estoque && !estado.semEstoqueLojas.has(loja.id));
     const falharam = [];
-    if (faltando.length) {
-      el.contagem.textContent = 'Carregando produtos…';
-      await Promise.all(faltando.map(async (loja) => {
-        try {
-          estado.dadosLojas.set(loja.id, await buscarJSON(loja.arquivo));
-        } catch (erro) {
-          falharam.push(loja);
-        }
-      }));
+    if (faltando.length || semEstoqueFaltando.length) {
+      if (faltando.length) el.contagem.textContent = 'Carregando produtos…';
+      await Promise.all([
+        ...faltando.map(async (loja) => {
+          try {
+            estado.dadosLojas.set(loja.id, await buscarJSON(loja.arquivo));
+          } catch (erro) {
+            falharam.push(loja);
+          }
+        }),
+        ...semEstoqueFaltando.map(async (loja) => {
+          try {
+            estado.semEstoqueLojas.set(loja.id, await buscarJSON(loja.sem_estoque));
+          } catch (erro) { /* sem internet: fica só o que tem estoque */ }
+        }),
+      ]);
       if (estado.lojaId !== pedido) return; // a pessoa trocou de loja enquanto carregava
     }
 
     // Loja sem arquivo é loja com o estoque ainda não cadastrado.
     const partes = escolhidas
       .filter((loja) => estado.dadosLojas.has(loja.id) || !loja.arquivo)
-      .map((loja) => ({ loja, dados: estado.dadosLojas.get(loja.id) || { semDados: true, produtos: [] } }));
+      .map((loja) => ({
+        loja,
+        dados: estado.dadosLojas.get(loja.id) || { semDados: true, produtos: [] },
+        semEstoque: (estado.semEstoqueLojas.get(loja.id) || {}).produtos || [],
+      }));
     if (falharam.length) {
       mostrarAviso(`Não foi possível carregar os produtos de ${falharam.map(rotuloLoja).join(' e ')}. Confira a internet e recarregue a página.`);
       if (!partes.length) {
@@ -2291,16 +2359,20 @@
     if (chaveAdmin) montarArquivosAdmin();
   }
 
-  // Um campo de arquivo para cada loja (a que tem arquivo de dados).
+  // Um campo de arquivo para cada loja (a que tem arquivo de dados) e, na loja com lista de produtos
+  // sem estoque (Matina), outro para o relatório desses produtos.
   function montarArquivosAdmin() {
-    const lojas = estado.lojas.filter((l) => l.arquivo);
-    const atuais = [...el.adminArquivos.querySelectorAll('input[type="file"]')].map((c) => c.dataset.loja).join();
-    if (atuais === lojas.map((l) => l.id).join()) return; // já montados (mantém os arquivos escolhidos)
-    el.adminArquivos.innerHTML = lojas.map((loja) => (
+    const campos = estado.lojas.filter((l) => l.arquivo).flatMap((loja) => [
+      { loja, tipo: 'estoque', rotulo: rotuloLoja(loja) },
+      ...(loja.sem_estoque ? [{ loja, tipo: 'sem-estoque', rotulo: `${rotuloLoja(loja)} · sem estoque` }] : []),
+    ]);
+    const atuais = [...el.adminArquivos.querySelectorAll('input[type="file"]')].map((c) => `${c.dataset.loja}:${c.dataset.tipo}`).join();
+    if (atuais === campos.map((c) => `${c.loja.id}:${c.tipo}`).join()) return; // já montados (mantém os arquivos escolhidos)
+    el.adminArquivos.innerHTML = campos.map(({ loja, tipo, rotulo }) => (
       `<label class="arquivo" data-loja="${escapar(loja.id)}">${icone('arquivo')}`
-      + `<span class="arquivo-textos"><span class="arquivo-loja">${escapar(rotuloLoja(loja))}</span>`
+      + `<span class="arquivo-textos"><span class="arquivo-loja">${escapar(rotulo)}</span>`
       + '<span class="arquivo-nome">Escolher relatório</span></span>'
-      + `<input class="sr-only" type="file" accept=".html,.htm,text/html" data-loja="${escapar(loja.id)}"></label>`
+      + `<input class="sr-only" type="file" accept=".html,.htm,text/html" data-loja="${escapar(loja.id)}" data-tipo="${tipo}"></label>`
     )).join('');
   }
 
@@ -2373,6 +2445,13 @@
   }
 
   function relatorioLojaHTML(l) {
+    if (l.tipo === 'sem-estoque') { // relatório dos produtos sem estoque: só o total que vai para o site
+      return `<section class="relatorio-loja">
+  <div class="relatorio-topo"><strong>${escapar(l.loja)}</strong><span>${l.gerado_em ? dataHoraBR(l.gerado_em) : ''}</span></div>
+  <p class="relatorio-totais">${numero.format(l.produtos[0])} → ${numero.format(l.produtos[1])} produtos comprados nos últimos ${l.meses} meses</p>
+  ${l.avisos.map((aviso) => `<p class="relatorio-alerta">${escapar(aviso)}</p>`).join('')}
+</section>`;
+    }
     const item = (classe, simbolo, nome, valor) => `<li class="mudanca ${classe}">`
       + `<span class="mudanca-ic" aria-hidden="true">${simbolo}</span>`
       + `<span class="mudanca-nome" title="${escapar(nome)}">${escapar(nome)}</span>`
@@ -2425,7 +2504,7 @@
       corpo.append('publicar', '1');
       if (ultimoRelatorio && ultimoRelatorio.bloqueado) corpo.append('confirmar_queda', '1');
     }
-    for (const campo of campos) corpo.append(`arquivo_${campo.dataset.loja}`, campo.files[0]);
+    for (const campo of campos) corpo.append(`${campo.dataset.tipo === 'sem-estoque' ? 'semestoque' : 'arquivo'}_${campo.dataset.loja}`, campo.files[0]);
     const botao = publicar ? el.adminPublicar : el.adminConferir;
     ocupado(botao, publicar ? 'Publicando…' : 'Conferindo…');
     try {
@@ -2456,22 +2535,23 @@
 
   // Depois de publicar, confere até o site mostrar os dados novos e já troca na tela.
   async function acompanharPublicacao(publicadas) {
-    const pendentes = new Map(publicadas.map((l) => [l.id, l.hash]));
+    const pendentes = new Map(publicadas.map((l) => [l.arquivo || lojaPorId(l.id).arquivo, l]));
     for (let tentativa = 0; tentativa < 24 && pendentes.size; tentativa += 1) {
       await new Promise((pronto) => { setTimeout(pronto, 10000); });
-      for (const [id, hash] of [...pendentes]) {
-        const loja = lojaPorId(id);
+      for (const [arquivo, l] of [...pendentes]) {
         try {
-          const resposta = await fetch(loja.arquivo, { cache: 'no-cache' });
+          const resposta = await fetch(arquivo, { cache: 'no-cache' });
           const texto = await resposta.text();
-          if (resposta.ok && await hashTexto(texto) === hash) {
-            estado.dadosLojas.set(id, JSON.parse(texto));
-            pendentes.delete(id);
-          }
+          if (resposta.ok && await hashTexto(texto) === l.hash) pendentes.delete(arquivo);
         } catch (erro) { /* tenta de novo na próxima volta */ }
       }
     }
     if (pendentes.size) return;
+    // publicado: recarrega as lojas (pode ter ganhado a lista sem estoque) e os produtos
+    try { estado.lojas = (await buscarJSON(ARQUIVO_LOJAS)).lojas || estado.lojas; } catch (erro) { /* fica a lista que já tinha */ }
+    estado.dadosLojas.clear();
+    estado.semEstoqueLojas.clear();
+    montarAdmin();
     await carregarLoja(estado.lojaId);
     el.adminRelatorio.insertAdjacentHTML('afterbegin', '<p class="relatorio-resultado">Site atualizado.</p>');
   }
@@ -2489,6 +2569,13 @@
           estado.dadosLojas.set(loja.id, dados);
           mudou = true;
         }
+        if (loja.sem_estoque && estado.semEstoqueLojas.has(loja.id)) {
+          const semEstoque = await buscarJSON(loja.sem_estoque);
+          if (JSON.stringify(semEstoque) !== JSON.stringify(estado.semEstoqueLojas.get(loja.id))) {
+            estado.semEstoqueLojas.set(loja.id, semEstoque);
+            mudou = true;
+          }
+        }
       } catch (erro) { /* sem internet: fica o estoque que já está na tela */ }
     }
     if (mudou) await carregarLoja(estado.lojaId);
@@ -2502,6 +2589,7 @@
     clearTimeout(esperaBusca);
     esperaBusca = setTimeout(() => {
       estado.consulta = el.busca.value;
+      estado.soComEstoque = false; // busca digitada: os sem estoque vêm depois dos com estoque
       atualizarLista();
       voltarAoTopoDaLista();
     }, 120);
@@ -2511,6 +2599,7 @@
     evento.preventDefault();
     clearTimeout(esperaBusca);
     estado.consulta = el.busca.value;
+    estado.soComEstoque = false;
     atualizarLista();
     el.busca.blur(); // fecha o teclado para mostrar os resultados
     voltarAoTopoDaLista();
@@ -2521,6 +2610,7 @@
     el.busca.value = '';
     el.limpar.hidden = true;
     estado.consulta = '';
+    estado.soComEstoque = false;
     atualizarLista();
     voltarAoTopoDaLista();
     el.busca.focus();
@@ -2619,10 +2709,13 @@
       limparFornecedor();
     } else if (botao.dataset.acao === 'tirar-parados') {
       desativarParados();
+    } else if (botao.dataset.acao === 'tirar-sem-estoque') {
+      desativarSemEstoque();
     }
   });
 
   el.filtroParadosLimpar.addEventListener('click', desativarParados);
+  el.filtroSemEstoqueLimpar.addEventListener('click', desativarSemEstoque);
   el.selecionar.addEventListener('click', entrarSelecao);
   el.selecionarAnuncios.addEventListener('click', entrarSelecaoAnuncios);
   el.selecaoCancelar.addEventListener('click', () => {
@@ -2644,9 +2737,14 @@
       ativarParados();
       return;
     }
+    if (botao.dataset.acao === 'sem-estoque') {
+      ativarSemEstoque();
+      return;
+    }
     el.busca.value = botao.dataset.busca;
     el.limpar.hidden = false;
     estado.consulta = botao.dataset.busca;
+    estado.soComEstoque = true; // categoria: só o que tem estoque
     atualizarLista();
     voltarAoTopoDaLista();
   });

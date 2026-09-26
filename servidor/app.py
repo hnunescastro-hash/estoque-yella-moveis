@@ -4,6 +4,7 @@ A página chama este servidor quando um administrador envia os relatórios do Co
 
   POST /api/entrar      chave                      -> confere a chave de administrador
   POST /api/atualizar   chave, arquivo_<loja>...   -> lê os relatórios e mostra o que mudou
+                        semestoque_<loja>          -> relatório dos produtos sem estoque (preço para encomenda)
                         publicar=1                 -> e publica no GitHub (o site atualiza para todos)
                         confirmar_queda=1          -> publica mesmo com muitos produtos saindo de uma vez
   POST /api/custos      chave                      -> preço de compra de cada produto (só administrador)
@@ -42,6 +43,7 @@ import tempfile
 import threading
 import time
 import uuid
+from datetime import date
 from pathlib import Path
 
 from flask import Flask, jsonify, request
@@ -138,7 +140,8 @@ def publicar(arquivos, mensagem):
 # ---------------------------------------------------------------- armazenamento privado
 # custos/<loja>.json     preço de compra como veio no relatório {código: custo}
 # vinculos/<loja>.json   mesmo produto em outra loja, para o custo de uma filial {"loja", "codigos"}
-# referencia/<loja>.json todos os produtos do último relatório, com e sem estoque (para achar o mesmo produto)
+# referencia/<loja>.json todos os produtos do último relatório do estoque (para achar o mesmo produto)
+# custos-sem-estoque/<loja>.json e referencia-sem-estoque/<loja>.json: o mesmo, dos produtos sem estoque
 # clientes/clientes.json clientes das vendas, compartilhados entre os vendedores
 
 _trava_local = threading.Lock()
@@ -208,7 +211,9 @@ def ler_todos(prefixo):
 def custos_para_a_pagina():
     """Preço de compra por loja. A loja que tira o custo de outra (Igaporã, de Matina) usa o do mesmo
     produto lá; o do próprio relatório não vale. Também diz de onde veio cada um."""
-    brutos = ler_todos("custos/")
+    # custo do relatório do estoque; o dos produtos sem estoque completa (o do estoque vale mais)
+    com_estoque, sem_estoque = ler_todos("custos/"), ler_todos("custos-sem-estoque/")
+    brutos = {l: {**sem_estoque.get(l, {}), **com_estoque.get(l, {})} for l in set(com_estoque) | set(sem_estoque)}
     vinculos = ler_todos("vinculos/")
     custos, origem = {}, {}
     for loja_id, valores in brutos.items():
@@ -265,13 +270,23 @@ def ler_json(pasta, caminho, padrao=None):
 def processar(pasta, envios, vincular=False):
     """Monta os dados novos de cada loja enviada e compara com os publicados.
 
+    envios: (loja, tipo, conteúdo); tipo "estoque" (relatório do estoque) ou "sem-estoque" (relatório
+    dos produtos com estoque zero: preço para encomenda e ajuda a achar o mesmo produto em outra loja).
+    Publicando o estoque, o que acabou passa para a lista "sem estoque" da loja (se comprado nos
+    últimos ae.MESES_SEM_ESTOQUE meses), com o preço de compra que tinha.
+
     vincular: também acha, para a loja que tira o custo de outra (Igaporã), o mesmo produto na
-    outra loja (Matina) — com os dados novos de quem foi enviado e os publicados das demais."""
+    outra loja (Matina), com os produtos com e sem estoque de lá.
+
+    Devolve: resultado (para a tela), arquivos (para o GitHub) e, para o armazenamento privado,
+    custos, custos_sem_estoque, referencias, referencias_sem_estoque e vinculos."""
     correcoes = ler_json(pasta, "ferramentas/correcoes.json")
     lojas = ler_json(pasta, "dados/lojas.json", {"lojas": []})
     por_id = {l["id"]: l for l in lojas["lojas"]}
-    resultado, arquivos, custos, saidas, referencias = [], {}, {}, {}, {}
-    for loja_id, conteudo in envios:
+    r = {"resultado": [], "arquivos": {}, "custos": {}, "custos_sem_estoque": {}, "referencias": {},
+         "referencias_sem_estoque": {}, "vinculos": {}}
+    saidas, enviados_sem_estoque = {}, {}
+    for loja_id, tipo, conteudo in envios:
         loja = por_id.get(loja_id)
         if not loja:
             raise Recusado(f"Loja desconhecida: {loja_id}.")
@@ -282,21 +297,29 @@ def processar(pasta, envios, vincular=False):
             raise Recusado(f"{rotulo(loja)}: {erro}") from None
         if montado["cidade"] and not mesma_cidade(montado["cidade"], loja["nome"]):
             raise Recusado(f"O arquivo enviado em {rotulo(loja)} é o relatório de {montado['cidade']}. Confira os arquivos.")
+        if tipo == "sem-estoque":
+            if montado["saida"]["produtos"]:
+                raise Recusado(f"{rotulo(loja)}: o relatório de sem estoque tem produtos com estoque. Confira os arquivos.")
+            enviados_sem_estoque[loja_id] = montado
+            r["custos_sem_estoque"][loja_id] = montado["custos"]
+            r["referencias_sem_estoque"][loja_id] = montado["referencia"]
+            continue
         if montado["custos"]:
-            custos[loja_id] = montado["custos"]
+            r["custos"][loja_id] = montado["custos"]
         novo = montado["saida"]
         saidas[loja_id] = novo
-        referencias[loja_id] = montado["referencia"]
+        r["referencias"][loja_id] = montado["referencia"]
         mudancas = ae.comparar(antes, novo)
         total_antes = len(antes.get("produtos", []))
         queda_grande = total_antes > 0 and len(mudancas["removidos"]) > QUEDA_MAXIMA * total_antes
         texto = ae.texto_json(novo)
         atual = (Path(pasta) / loja["arquivo"]).read_text(encoding="utf-8") if (Path(pasta) / loja["arquivo"]).exists() else ""
         if texto != atual:
-            arquivos[loja["arquivo"]] = texto
-        resultado.append({
+            r["arquivos"][loja["arquivo"]] = texto
+        r["resultado"].append({
             "id": loja_id,
             "loja": rotulo(loja),
+            "arquivo": loja["arquivo"],
             "gerado_em": novo["gerado_em"],
             "gerado_em_anterior": antes.get("gerado_em"),
             "produtos": [total_antes, novo["total_produtos"]],
@@ -310,17 +333,83 @@ def processar(pasta, envios, vincular=False):
             "tem_custo": bool(montado["custos"]),
         })
 
-    vinculos = {}
+    # Produtos sem estoque (preço para encomenda): o relatório novo ou a lista publicada, sem quem voltou
+    # ao estoque e com quem acabou agora.
+    for loja_id, loja in por_id.items():
+        enviado = enviados_sem_estoque.get(loja_id)
+        if not enviado and not (loja_id in saidas and loja.get("sem_estoque")):
+            continue
+        caminho = loja.get("sem_estoque") or f"dados/{loja_id}-sem-estoque.json"
+        publicado = ler_json(pasta, caminho, {"produtos": []})
+        com_estoque = (saidas.get(loja_id) or ler_json(pasta, loja["arquivo"], {"produtos": []}))["produtos"]
+        tem = {p["codigo"] for p in com_estoque}
+        lista = {p["codigo"]: p for p in (enviado["sem_estoque"] if enviado else publicado.get("produtos", [])) if p["codigo"] not in tem}
+        acabaram = []
+        if loja_id in saidas and saidas[loja_id].get("gerado_em"):
+            limite = ae.meses_antes(date.fromisoformat(saidas[loja_id]["gerado_em"][:10]), ae.MESES_SEM_ESTOQUE)
+            for p in ler_json(pasta, loja["arquivo"], {"produtos": []})["produtos"]:
+                if p["codigo"] not in tem and p["codigo"] not in lista and p.get("ultima_compra") \
+                        and date.fromisoformat(p["ultima_compra"]) >= limite:
+                    lista[p["codigo"]] = {**{k: v for k, v in p.items() if k != "novo_desde"}, "quantidade": 0}
+                    acabaram.append(p)
+        if acabaram:  # quem acabou leva o preço de compra e continua servindo para achar o mesmo produto
+            custos_antigos = ler_privado(f"custos/{loja_id}.json", {})[0] or {}
+            custos_sem = r["custos_sem_estoque"].get(loja_id)
+            if custos_sem is None:
+                custos_sem = dict(ler_privado(f"custos-sem-estoque/{loja_id}.json", {})[0] or {})
+            for p in acabaram:
+                if p["codigo"] in custos_antigos:
+                    custos_sem.setdefault(p["codigo"], custos_antigos[p["codigo"]])
+            r["custos_sem_estoque"][loja_id] = custos_sem
+            refs = r["referencias_sem_estoque"].get(loja_id)
+            if refs is None:
+                refs = list(ler_privado(f"referencia-sem-estoque/{loja_id}.json", [])[0] or [])
+            conhecidos = {x["codigo"] for x in refs}
+            refs = refs + [{c: p[c] for c in ("codigo", "nome", "preco", "fornecedor")} for p in acabaram if p["codigo"] not in conhecidos]
+            r["referencias_sem_estoque"][loja_id] = refs
+        produtos = sorted(lista.values(), key=lambda p: (ae.sem_acento(p["nome"]).lower(), p["codigo"]))
+        dados = {"loja": loja_id, "gerado_em": enviado["saida"]["gerado_em"] if enviado else publicado.get("gerado_em"),
+                 "meses": ae.MESES_SEM_ESTOQUE, "total_produtos": len(produtos), "produtos": produtos}
+        texto = ae.texto_json(dados)
+        atual = (Path(pasta) / caminho).read_text(encoding="utf-8") if (Path(pasta) / caminho).exists() else ""
+        if texto != atual:
+            r["arquivos"][caminho] = texto
+        if not loja.get("sem_estoque"):  # a página passa a carregar a lista desta loja
+            loja["sem_estoque"] = caminho
+            r["arquivos"]["dados/lojas.json"] = ae.texto_json(lojas)
+        if enviado:
+            r["resultado"].append({
+                "id": loja_id,
+                "tipo": "sem-estoque",
+                "loja": f"{rotulo(loja)} · sem estoque",
+                "arquivo": caminho,
+                "gerado_em": dados["gerado_em"],
+                "gerado_em_anterior": publicado.get("gerado_em"),
+                "produtos": [len(publicado.get("produtos", [])), len(produtos)],
+                "unidades": [0, 0],
+                "novos": [], "removidos": [], "quantidade": [], "preco": [],
+                "nomes_automaticos": [],
+                "avisos": enviado["avisos"],
+                "queda_grande": False,
+                "arquivo_muda": texto != atual,
+                "hash": hashlib.sha256(texto.encode("utf-8")).hexdigest(),
+                "tem_custo": bool(enviado["custos"]),
+                "meses": ae.MESES_SEM_ESTOQUE,
+            })
+
+    enviadas = set(saidas) | set(enviados_sem_estoque)
     for loja_id, outra in ae.CUSTO_PELA_LOJA.items() if vincular else ():
-        if (loja_id not in saidas and outra not in saidas) or loja_id not in por_id or outra not in por_id:
+        if not ({loja_id, outra} & enviadas) or loja_id not in por_id or outra not in por_id:
             continue
         produtos = (saidas.get(loja_id) or ler_json(pasta, por_id[loja_id]["arquivo"], {"produtos": []}))["produtos"]
-        # a outra loja com os produtos sem estoque também (o que acabou lá pode estar aqui)
-        da_outra = (referencias.get(outra) or ler_privado(f"referencia/{outra}.json")[0]
-                    or ler_json(pasta, por_id[outra]["arquivo"], {"produtos": []})["produtos"])
-        lancado = custos[loja_id] if loja_id in custos else ler_privado(f"custos/{loja_id}.json", {})[0]
-        vinculos[loja_id] = {"loja": outra, "codigos": ae.vincular_produtos(produtos, da_outra, lancado)}
-    return resultado, arquivos, custos, vinculos, referencias
+        # a outra loja com os produtos com e sem estoque (o que acabou lá pode estar aqui); um por código
+        com = (r["referencias"].get(outra) or ler_privado(f"referencia/{outra}.json")[0]
+               or ler_json(pasta, por_id[outra]["arquivo"], {"produtos": []})["produtos"])
+        sem = r["referencias_sem_estoque"].get(outra) or ler_privado(f"referencia-sem-estoque/{outra}.json")[0] or []
+        da_outra = list({**{x["codigo"]: x for x in sem}, **{x["codigo"]: x for x in com}}.values())
+        lancado = r["custos"][loja_id] if loja_id in r["custos"] else ler_privado(f"custos/{loja_id}.json", {})[0]
+        r["vinculos"][loja_id] = {"loja": outra, "codigos": ae.vincular_produtos(produtos, da_outra, lancado)}
+    return r
 
 
 # ---------------------------------------------------------------- rotas
@@ -376,36 +465,41 @@ def atualizar():
     exigir_chave()
     envios = []
     for campo, arquivo in request.files.items():
-        m = re.fullmatch(r"arquivo_([a-z0-9-]+)", campo)
+        m = re.fullmatch(r"(arquivo|semestoque)_([a-z0-9-]+)", campo)
         if not m or not arquivo:
             continue
         conteudo = arquivo.read(TAMANHO_MAXIMO + 1)
         if len(conteudo) > TAMANHO_MAXIMO:
             raise Recusado("Arquivo grande demais para um relatório de estoque.")
         if conteudo:
-            envios.append((m.group(1), conteudo))
+            envios.append((m.group(2), "estoque" if m.group(1) == "arquivo" else "sem-estoque", conteudo))
     if not envios:
         raise Recusado("Escolha o relatório de pelo menos uma loja.")
 
     vai_publicar = request.form.get("publicar") == "1"
     pasta = clonar()
     try:
-        lojas, arquivos, custos, vinculos, referencias = processar(pasta, envios, vincular=vai_publicar)
+        r = processar(pasta, envios, vincular=vai_publicar)
     finally:
         shutil.rmtree(pasta, ignore_errors=True)
 
+    lojas, arquivos = r["resultado"], r["arquivos"]
     bloqueado = any(l["queda_grande"] for l in lojas) and request.form.get("confirmar_queda") != "1"
     resposta = {"ok": True, "lojas": lojas, "bloqueado": bloqueado, "publicado": False, "commit": None}
     if vai_publicar and not bloqueado:
-        for loja_id, custos_loja in custos.items():  # preço de compra: só no armazenamento privado
+        for loja_id, custos_loja in r["custos"].items():  # preço de compra: só no armazenamento privado
             salvar_custos(loja_id, custos_loja)
-        for loja_id, lista in referencias.items():
+        for loja_id, custos_loja in r["custos_sem_estoque"].items():
+            gravar_privado(f"custos-sem-estoque/{loja_id}.json", custos_loja)
+        for loja_id, lista in r["referencias"].items():
             gravar_privado(f"referencia/{loja_id}.json", lista)
-        for loja_id, vinculo in vinculos.items():
+        for loja_id, lista in r["referencias_sem_estoque"].items():
+            gravar_privado(f"referencia-sem-estoque/{loja_id}.json", lista)
+        for loja_id, vinculo in r["vinculos"].items():
             gravar_privado(f"vinculos/{loja_id}.json", vinculo)
         if arquivos:
             autor = " ".join((request.form.get("autor") or "").split())[:60]
-            nomes = " e ".join(l["loja"] for l in lojas if l["arquivo_muda"])
+            nomes = " e ".join(l["loja"] for l in lojas if l["arquivo_muda"]) or "produtos sem estoque"
             mensagem = f"Atualiza estoque: {nomes}" + (f" (enviado por {autor})" if autor else "")
             resposta["commit"] = publicar(arquivos, mensagem)
             resposta["publicado"] = resposta["commit"] is not None

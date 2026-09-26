@@ -1,5 +1,9 @@
-# Relatórios brutos exportados do CompuFour (a página usa só dados/*.json)
+# Relatórios brutos exportados do CompuFour (a página usa só dados/*.json): têm custo de compra.
+# Qualquer .html daqui é relatório, menos a página do site.
 *CONTROLE DE ESTOQUE*
+*.html
+*.htm
+!index.html
 exportacoes/
 
 # Ferramentas locais

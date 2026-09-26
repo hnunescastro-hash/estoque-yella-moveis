@@ -425,6 +425,61 @@ def comparar(antes, depois):
     return mudancas
 
 
+# Custo de compra de uma loja que vem de outra. Igaporã (filial) recebe quase tudo de Matina (matriz)
+# e o "Custo de Compra" do relatório de lá não é o custo real (na maior parte é igual ao preço de
+# venda): o custo vale o do mesmo produto em Matina. Os códigos das lojas são independentes.
+CUSTO_PELA_LOJA = {"igapora": "matina"}
+PALAVRAS_VAZIAS = {"de", "da", "do", "das", "dos", "e", "com", "para", "c", "p"}
+
+
+def _termos(nome):
+    texto = re.sub(r"[^a-z0-9]+", " ", sem_acento(nome or "").lower())
+    return frozenset(t for t in texto.split() if t not in PALAVRAS_VAZIAS)
+
+
+def _parecido(a, b):
+    return len(a & b) / len(a | b) if a | b else 0.0
+
+
+def vincular_produtos(produtos, outra, transferencia=None):
+    """Acha, para cada produto de uma loja, o mesmo produto em outra loja (pelo nome revisado).
+
+    Só aceita quando não há dúvida; sem certeza, o produto fica sem vínculo (melhor sem custo que
+    com o custo de outro produto):
+      - nome muito parecido (75% das palavras), mesmas medidas/modelo (palavras com número) e
+        bem à frente do segundo mais parecido; ou
+      - valor da transferência igual ao preço do produto na outra loja (transferência sai pelo
+        preço de venda da matriz), com nome parecido (metade das palavras) e sem empate.
+    transferencia: {código: valor da transferência} (a coluna "Custo de Compra" da filial).
+    Devolve {código: código do mesmo produto na outra loja}."""
+    transferencia = transferencia or {}
+    candidatos = [(q, _termos(q["nome"])) for q in outra]
+    vinculos = {}
+    for p in produtos:
+        termos = _termos(p["nome"])
+        modelo = frozenset(t for t in termos if any(c.isdigit() for c in t))
+        notas = sorted(((_parecido(termos, t), q, t) for q, t in candidatos), key=lambda x: -x[0])
+        if not notas:
+            continue
+        nota, q, t = notas[0]
+        segunda = notas[1][0] if len(notas) > 1 else 0.0
+        if nota >= 0.75 and nota - segunda >= 0.15 and modelo == frozenset(x for x in t if any(c.isdigit() for c in x)):
+            vinculos[p["codigo"]] = q["codigo"]
+            continue
+        valor = transferencia.get(p["codigo"])
+        if valor is None:
+            continue
+        mesmos = [(n, q2, t2) for n, q2, t2 in notas if abs(q2["preco"] - valor) < 0.005]
+        if not mesmos:
+            continue
+        nota, q, t = mesmos[0]
+        segunda = mesmos[1][0] if len(mesmos) > 1 else 0.0
+        modelo_q = frozenset(x for x in t if any(c.isdigit() for c in x))
+        if nota >= 0.5 and nota - segunda >= 0.15 and (not modelo or not modelo_q or modelo & modelo_q):
+            vinculos[p["codigo"]] = q["codigo"]
+    return vinculos
+
+
 def main():
     ap = argparse.ArgumentParser(description="Atualiza dados/<loja>.json a partir do relatório do CompuFour.")
     ap.add_argument("loja", help="identificador da loja, sem acento e sem espaço (ex.: matina, igapora)")

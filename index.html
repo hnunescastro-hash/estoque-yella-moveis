@@ -121,6 +121,10 @@
     <div class="painel painel-anunciados">
       <div class="anunciados-topo">
         <h2>Anunciados</h2>
+        <button type="button" class="selecionar" id="selecionar-anuncios" hidden>
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><path d="m8 12.3 2.8 2.8L16.5 9"/></svg>
+          Selecionar
+        </button>
       </div>
       <nav class="atalhos filtros-status" id="filtros-status" aria-label="Filtrar por status do pedido"></nav>
     </div>
@@ -195,7 +199,7 @@
 
       <div class="campo campo-linha grupo-contas">
         <span class="campo-rotulo">Comissão e desconto</span>
-        <button type="button" class="olho" id="mostrar-contas" aria-pressed="true" aria-label="Mostrar comissão e desconto nos produtos" title="Mostrar comissão e desconto nos produtos">
+        <button type="button" class="olho" id="mostrar-contas" aria-pressed="true" aria-label="Mostrar comissão e desconto em ver mais" title="Mostrar comissão e desconto em ver mais">
           <svg class="ic olho-aberto" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg>
           <svg class="ic olho-fechado" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.6A10 10 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3.1 3.9M6.6 6.6C3.9 8.4 2.5 12 2.5 12S6 18.5 12 18.5a9.6 9.6 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
         </button>
@@ -273,7 +277,12 @@
     <form class="modal-caixa venda" id="form-venda" novalidate>
       <h2 id="venda-titulo">Comprovante de venda</h2>
       <p class="venda-produto" id="venda-produto"></p>
-      <label class="venda-campo venda-largo">Nome do cliente<input class="campo-texto" id="venda-nome" autocomplete="off" autocapitalize="words" maxlength="60"></label>
+      <label class="venda-campo venda-largo" id="venda-equipe-campo" hidden>Código da equipe<input class="campo-texto" id="venda-equipe" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="20"></label>
+      <div class="venda-campo venda-largo venda-cliente">
+        <label for="venda-nome">Nome do cliente</label>
+        <input class="campo-texto" id="venda-nome" autocomplete="off" autocapitalize="words" maxlength="60" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="venda-sugestoes">
+        <ul class="sugestoes" id="venda-sugestoes" role="listbox" aria-label="Clientes cadastrados" hidden></ul>
+      </div>
       <label class="venda-campo">CPF<input class="campo-texto" id="venda-cpf" inputmode="numeric" autocomplete="off" maxlength="14"></label>
       <label class="venda-campo">Telefone<input class="campo-texto" id="venda-telefone" type="tel" inputmode="tel" autocomplete="off" maxlength="20"></label>
       <label class="venda-campo venda-largo">Endereço<input class="campo-texto" id="venda-endereco" autocomplete="off" maxlength="80"></label>

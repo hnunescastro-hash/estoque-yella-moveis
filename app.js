@@ -127,10 +127,12 @@
     vendaPagamento: $('venda-pagamento'), vendaParcelasCampo: $('venda-parcelas-campo'), vendaParcelas: $('venda-parcelas'),
     vendaValor: $('venda-valor'), vendaAssinatura: $('venda-assinatura'), vendaLimparAssinatura: $('venda-limpar-assinatura'),
     vendaErro: $('venda-erro'), vendaCancelar: $('venda-cancelar'),
+    vendaEquipeCampo: $('venda-equipe-campo'), vendaEquipe: $('venda-equipe'), vendaSugestoes: $('venda-sugestoes'),
     modalComprovante: $('modal-comprovante'), comprovanteImagem: $('comprovante-imagem'), comprovanteEnviar: $('comprovante-enviar'),
     comprovanteImagemBaixar: $('comprovante-imagem-baixar'), comprovantePdf: $('comprovante-pdf'),
     comprovanteEditar: $('comprovante-editar'), comprovanteFechar: $('comprovante-fechar'),
     barraResultados: $('barra-resultados'), selecionar: $('selecionar'), barraSelecao: $('barra-selecao'),
+    selecionarAnuncios: $('selecionar-anuncios'),
     selecaoCancelar: $('selecao-cancelar'), selecaoTexto: $('selecao-texto'), selecaoEnviar: $('selecao-enviar'),
     adminEntrar: $('admin-entrar'), chaveAdmin: $('chave-admin'), adminBotaoEntrar: $('admin-botao-entrar'),
     adminPainel: $('admin-painel'), adminArquivos: $('admin-arquivos'), adminConferir: $('admin-conferir'),
@@ -165,7 +167,8 @@
     consulta: '', ordem: 'az', comissao: 0, desconto: 0,
     nome: '', fornecedor: null, verTodosFornecedores: false, consultaMostrada: '',
     filtroParados: false, ordemAntesParados: 'az', selecionando: false, selecionados: new Map(),
-    custos: null, imposto: 0, mesVendas: null,
+    selecionandoAnuncios: false, anunciosSelecionados: new Set(),
+    custos: null, origemCustos: null, imposto: 0, mesVendas: null,
     anunciados: [], filtroStatus: 'todos', anunciosAbertos: new Set(), tema: 'auto', mostrarContas: true, telefone: '',
     tela: 'estoque', rolagem: { estoque: 0, anunciados: 0 },
   };
@@ -409,23 +412,6 @@
     return `<span class="estoque${q === 1 ? ' ultima' : ''}" title="${texto}" role="img" aria-label="${texto}">${icone('caixa')}${numero.format(q)}</span>`;
   }
 
-  // Linha curta embaixo do preço: até onde pode chegar e quanto o vendedor ganha.
-  function linhaExtraHTML(p) {
-    if (semPreco(p) || !(estado.desconto > 0 || estado.comissao > 0)) return '';
-    const conta = calcular(p.preco, estado.comissao, estado.desconto);
-    let html = '';
-    if (estado.desconto > 0) {
-      html += `<span class="minimo" title="Preço com ${percentual(estado.desconto)} de desconto">${icone('desconto')}até <b>${reais(conta.minimo)}</b></span>`;
-    }
-    if (estado.comissao > 0) {
-      const ganho = conta.ganhoMinimo !== conta.ganhoCheio
-        ? `<b>${reais(conta.ganhoMinimo)}</b> a <b>${reais(conta.ganhoCheio)}</b>`
-        : `<b>${reais(conta.ganhoCheio)}</b>`;
-      html += `<span class="ganho" title="Comissão de ${percentual(estado.comissao)} sobre o valor pago">${icone('moeda')}você ganha ${ganho}</span>`;
-    }
-    return `<p class="linha-extra">${html}</p>`;
-  }
-
   // Em "Todas as lojas", cada produto mostra de qual loja é, no canto direito da linha do nome.
   // Cada loja tem uma cor de texto (pela ordem em lojas.json), para diferenciar de relance.
   function seloLojaHTML(idLoja) {
@@ -580,13 +566,42 @@
   }
 
   const listaDetalhesHTML = (linhas, id, aberto) => (
-    `<dl class="detalhes" id="${id}"${aberto ? '' : ' hidden'}>${linhas.map(([t, v]) => `<dt>${t}</dt><dd>${v}</dd>`).join('')}</dl>`);
+    `<dl class="detalhes" id="${id}"${aberto ? '' : ' hidden'}>${linhas.map(([t, v, classe]) => (classe
+      ? `<dt class="${classe}">${t}</dt><dd class="${classe}">${v}</dd>`
+      : `<dt>${t}</dt><dd>${v}</dd>`)).join('')}</dl>`);
+
+  // Contas do vendedor e, no modo administrador, as do dono: só em "ver mais", em linhas como os
+  // outros detalhes. O olhinho da gaveta esconde todas (classe "conta").
+  function linhasContas(p) {
+    const linhas = [];
+    const conta = semPreco(p) ? null : calcular(p.preco, estado.comissao, estado.desconto);
+    if (conta && estado.desconto > 0) linhas.push(['Preço mínimo', reais(conta.minimo), 'conta minimo']);
+    if (conta && estado.comissao > 0) linhas.push(['Você ganha', faixa(conta.ganhoMinimo, conta.ganhoCheio), 'conta ganho']);
+    if (!chaveAdmin || !estado.custos) return linhas;
+    const custo = custoDe(p);
+    const origem = origemDoCusto(p);
+    linhas.push(['Preço de compra', custo == null ? '—'
+      : reais(Math.round(custo * 100)) + (origem ? ` <span class="origem">(${escapar(origem)})</span>` : ''), 'conta']);
+    if (!conta) return linhas;
+    const imposto = (valor) => Math.round(valor * estado.imposto / 100);
+    if (estado.imposto > 0) linhas.push([`Imposto (${percentual(estado.imposto)})`, faixa(imposto(conta.minimo), imposto(conta.cheio)), 'conta']);
+    if (custo != null) {
+      // O que sobra para a loja: valor pago − preço de compra − imposto de saída − comissão
+      // (do preço com o desconto máximo até o preço cheio).
+      const custoCentavos = Math.round(custo * 100);
+      const sobraMinimo = conta.minimo - custoCentavos - imposto(conta.minimo) - conta.ganhoMinimo;
+      const sobraCheio = conta.cheio - custoCentavos - imposto(conta.cheio) - conta.ganhoCheio;
+      linhas.push(['Sobra', faixa(sobraMinimo, sobraCheio), `conta ${Math.min(sobraMinimo, sobraCheio) < 0 ? 'negativo' : 'positivo'}`]);
+    }
+    return linhas;
+  }
 
   function detalhesHTML(p, id, aberto = false) {
     const linhas = [
       ['Nome completo', escapar(p.nome)], // no cartão o nome pode aparecer cortado com "…"
       ['Código', escapar(p.codigo)],
       ['Em estoque', p.quantidade === 1 ? '1 unidade' : `${numero.format(p.quantidade)} unidades`],
+      ...linhasContas(p),
       ['Fornecedor', escapar(p.fornecedor || 'Não identificado')],
     ];
     if (p.transferido_de) linhas.push(['Origem', `Transferido da loja de ${escapar(p.transferido_de)}`]);
@@ -594,8 +609,6 @@
     linhas.push(['Última compra', p.ultima_compra ? dataBR(p.ultima_compra) : 'Não informada']);
     if ('ultima_venda' in p) linhas.push(['Última venda', p.ultima_venda ? dataBR(p.ultima_venda) : 'Nenhuma venda registrada']);
     linhas.push(['Nome no sistema', `<span class="sistema">${escapar(p.nome_sistema)}</span>`]);
-    const custo = custoDe(p);
-    if (custo != null) linhas.push(...linhasSobra(p, custo));
     return listaDetalhesHTML(linhas, id, aberto).replace('</dl>', galeriaHTML(p) + '</dl>');
   }
 
@@ -713,7 +726,6 @@
     ${precoHTML(p)}
     <div class="botoes">${estoqueHTML(p)}${botaoAnunciarHTML(p)}${botaoWhatsAppHTML(p, p._loja)}${botaoFotoHTML(p)}${botaoDetalhesHTML(p.nome, id, false)}</div>
   </div>
-  <div class="extra">${linhaExtraHTML(p)}</div>
   ${detalhesHTML(p, id)}
 </li>`;
   }
@@ -871,15 +883,6 @@
     if (window.scrollY > alvo) window.scrollTo(0, Math.max(0, alvo));
   }
 
-  // Só redesenha as contas: não fecha os detalhes que a pessoa abriu.
-  function atualizarPrecos() {
-    for (const card of el.lista.children) {
-      const p = estado.porChave.get(card.dataset.chave);
-      const extra = card.querySelector('.extra');
-      if (p && extra) extra.innerHTML = linhaExtraHTML(p);
-    }
-  }
-
   function atualizarBotaoAnunciar(card) {
     const p = estado.porChave.get(card.dataset.chave);
     const botao = card.querySelector('.anunciar');
@@ -982,16 +985,21 @@
     mostrarToast('Adicionado aos anunciados.', 'Ver', () => irParaAnuncio(item));
   }
 
-  function mudarStatus(item, status) {
-    if (item.status === status) return;
+  // Muda o status de um anunciado ou de todos os marcados na seleção (a opção tocada num deles vale
+  // para todos). "Vendido" abre um cadastro só do cliente para os que ainda não têm venda.
+  function mudarStatusDe(itens, status) {
     const agora = new Date().toISOString();
-    item.status = status;
-    item.atualizadoEm = agora;
-    item.historico.push({ status, em: agora });
-    if (item.historico.length > 30) item.historico.splice(0, item.historico.length - 30);
-    salvarAnunciados();
+    const mudaram = itens.filter((item) => item.status !== status);
+    for (const item of mudaram) {
+      item.status = status;
+      item.atualizadoEm = agora;
+      item.historico.push({ status, em: agora });
+      if (item.historico.length > 30) item.historico.splice(0, item.historico.length - 30);
+    }
+    if (mudaram.length) salvarAnunciados();
     renderizarAnunciados();
-    if (status === 'vendido' && !item.venda) abrirVenda(item);
+    const semVenda = itens.filter((item) => item.status === 'vendido' && !item.venda);
+    if (status === 'vendido' && semVenda.length && (mudaram.length || itens.length === 1)) abrirVenda(semVenda);
   }
 
   function removerAnuncio(item) {
@@ -1025,13 +1033,13 @@
     const precoMudou = atual && !semPreco(atual) && Math.round(atual.preco * 100) !== Math.round(item.preco * 100);
     const id = `anuncio-detalhes-${item.loja}-${item.codigo}`;
     const aberto = estado.anunciosAbertos.has(chave); // continua aberto quando a lista é redesenhada
-    return `<li class="card anuncio status-${s.id}${aberto ? ' aberto' : ''}" data-id="${escapar(chave)}">
-  <div class="linha-nome"><h2 class="nome" title="${escapar(p.nome)}">${escapar(p.nome)}</h2>${atual ? seloNovoHTML(atual) : ''}${seloLojaHTML(item.loja)}</div>
+    const selecionado = estado.anunciosSelecionados.has(chave);
+    return `<li class="card anuncio status-${s.id}${aberto ? ' aberto' : ''}${selecionado ? ' selecionado' : ''}" data-id="${escapar(chave)}">
+  <div class="linha-nome"><button type="button" class="marcador" data-acao="selecionar" aria-pressed="${selecionado}" aria-label="Selecionar ${escapar(p.nome)}">${icone('check')}</button><h2 class="nome" title="${escapar(p.nome)}">${escapar(p.nome)}</h2>${atual ? seloNovoHTML(atual) : ''}${seloLojaHTML(item.loja)}</div>
   <div class="linha-principal">
     ${precoHTML(p)}
     <div class="botoes">${estoqueHTML(atual)}${botaoWhatsAppHTML(p, item.loja)}${botaoFotoHTML(p)}<button type="button" class="icone-botao remover" data-acao="remover" title="Remover dos anunciados" aria-label="Remover ${escapar(p.nome)} dos anunciados">${icone('lixeira')}</button>${botaoDetalhesHTML(p.nome, id, aberto)}</div>
   </div>
-  <div class="extra">${linhaExtraHTML(p)}</div>
   ${precoMudou ? `<p class="nota">Preço quando anunciou: ${reais(Math.round(item.preco * 100))}</p>` : ''}
   ${atual ? detalhesHTML(atual, id, aberto) : detalhesForaDoEstoqueHTML(item, id, aberto)}
   <div class="status-grade" role="group" aria-label="Como está o pedido">
@@ -1063,9 +1071,14 @@
     const visiveis = daLoja
       .filter((a) => estado.filtroStatus === 'todos' || a.status === estado.filtroStatus)
       .sort((a, b) => String(b.criadoEm).localeCompare(String(a.criadoEm)));
+    const chavesVisiveis = new Set(visiveis.map(chaveAnuncio));
+    for (const chave of estado.anunciosSelecionados) { // só vale para o que está na tela
+      if (!chavesVisiveis.has(chave)) estado.anunciosSelecionados.delete(chave);
+    }
     el.listaAnunciados.innerHTML = visiveis.map(anuncioHTML).join('');
     renderizarPainelVendas(daLoja);
     el.vazioAnunciados.hidden = daLoja.length > 0;
+    atualizarSelecaoAnuncios();
   }
 
   function atualizarContadorAnunciados() {
@@ -1083,23 +1096,14 @@
     return custos ? custos[p.codigo] : undefined;
   }
 
-  const faixa = (menor, maior) => (menor === maior ? reais(menor) : `${reais(menor)} a ${reais(maior)}`);
-
-  // O que sobra para a loja em cada venda: valor pago − preço de compra − imposto de saída − comissão
-  // (do preço com o desconto máximo até o preço cheio).
-  function linhasSobra(p, custo) {
-    const linhas = [['Preço de compra', reais(Math.round(custo * 100))]];
-    if (semPreco(p)) return linhas;
-    const conta = calcular(p.preco, estado.comissao, estado.desconto);
-    const custoCentavos = Math.round(custo * 100);
-    const imposto = (valor) => Math.round(valor * estado.imposto / 100);
-    const sobraCheio = conta.cheio - custoCentavos - imposto(conta.cheio) - conta.ganhoCheio;
-    const sobraMinimo = conta.minimo - custoCentavos - imposto(conta.minimo) - conta.ganhoMinimo;
-    if (estado.imposto > 0) linhas.push([`Imposto (${percentual(estado.imposto)})`, faixa(imposto(conta.minimo), imposto(conta.cheio))]);
-    const classe = Math.min(sobraMinimo, sobraCheio) < 0 ? ' class="negativo"' : '';
-    linhas.push(['Sobra', `<strong${classe}>${faixa(sobraMinimo, sobraCheio)}</strong>`]);
-    return linhas;
+  // Custo tirado do mesmo produto em outra loja (Igaporã usa o de Matina): "Matina, cód. 05200".
+  function origemDoCusto(p) {
+    const origem = estado.origemCustos && estado.origemCustos[p._loja];
+    const codigo = origem && origem.codigos && origem.codigos[p.codigo];
+    return codigo ? `${nomeDaLoja(origem.loja)}, cód. ${codigo}` : '';
   }
+
+  const faixa = (menor, maior) => (menor === maior ? reais(menor) : `${reais(menor)} a ${reais(maior)}`);
 
   // Redesenha os detalhes já na tela (abertos continuam abertos).
   function atualizarDetalhes() {
@@ -1116,6 +1120,7 @@
     try {
       const resposta = await chamarServidor('/api/custos', { chave: chaveAdmin });
       estado.custos = resposta.custos || {};
+      estado.origemCustos = resposta.origem || {};
       atualizarDetalhes();
     } catch (erro) {
       if (erro.status === 401) sairAdmin();
@@ -1124,12 +1129,18 @@
 
   // ---------------------------------------------------------------- venda: dados do cliente e comprovante
 
-  const EMISSOR = ['AV. GUANAMBI, 41 - CENTRO', 'MATINA - BA · CEP 46480-000', 'CNPJ 31.598.445/0001-49'];
+  // Cabeçalho do comprovante: a loja do estoque vendido (Matina é a matriz, Igaporã a filial).
+  // Venda com produtos das duas lojas sai pela matriz.
+  const EMISSORES = {
+    matina: ['AV. GUANAMBI, 41 - CENTRO', 'MATINA - BA · CEP 46480-000', 'CNPJ 31.598.445/0001-49'],
+    igapora: ['RUA PROFESSOR WALDIR CARDOSO, 19 - CENTRO', 'IGAPORÃ - BA · CEP 46490-000', 'CNPJ 31.598.445/0002-20'],
+  };
+  const MATRIZ = 'matina';
   const PAGAMENTOS = { pix: 'PIX', dinheiro: 'DINHEIRO', credito: 'CARTÃO DE CRÉDITO', debito: 'CARTÃO DE DÉBITO' };
   const CHAVE_NUMERO = 'estoque-yella:comprovante';
   const FONTE_CUPOM = 'Share Tech Mono';
   const decimal = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  let vendaAtual = null;
+  let vendaAtual = null; // anunciados da venda aberta no formulário (um ou vários, do mesmo cliente)
   let valorEditado = false;
   let comprovanteAtual = null;
   const assinatura = { desenhando: false, vazia: true, ultimo: null };
@@ -1166,6 +1177,30 @@
     if (semPreco(p)) return 0;
     const conta = calcular(p.preco, 0, estado.desconto);
     return pagamento === 'pix' ? conta.minimo : conta.cheio;
+  }
+
+  const valorPadraoDe = (itens, pagamento) => itens.reduce((soma, item) => soma + valorPadrao(produtoDoAnuncio(item), pagamento), 0);
+
+  // Anunciados de uma mesma venda: vários produtos para o mesmo cliente, um comprovante só.
+  function itensDaVenda(item) {
+    const chaves = item.venda && Array.isArray(item.venda.itens) ? item.venda.itens : null;
+    const itens = chaves ? chaves.map((chave) => estado.anunciados.find((a) => chaveAnuncio(a) === chave)).filter(Boolean) : [];
+    return itens.length ? itens : [item];
+  }
+
+  // Valor pago na venda inteira (venda antiga, de um produto só, guarda só "valor").
+  const totalDaVenda = (v) => Math.round((v.total != null ? v.total : v.valor) * 100);
+
+  // Divide o valor pago entre os produtos, na proporção do preço de cada um (centavos exatos).
+  function dividir(total, pesos) {
+    const soma = pesos.reduce((a, b) => a + b, 0);
+    let resto = total;
+    return pesos.map((peso, i) => {
+      if (i === pesos.length - 1) return resto;
+      const parte = soma ? Math.round(total * peso / soma) : Math.round(total / pesos.length);
+      resto -= parte;
+      return parte;
+    });
   }
 
   function montarParcelas(escolhida) {
@@ -1224,27 +1259,32 @@
     tela.addEventListener('pointercancel', fim);
   }
 
-  function abrirVenda(item) {
-    vendaAtual = item;
-    const p = produtoDoAnuncio(item);
-    const v = item.venda || {};
+  // itens: um anunciado ou vários (seleção), vendidos juntos para o mesmo cliente.
+  function abrirVenda(itens) {
+    vendaAtual = itens;
+    const v = itens.map((item) => item.venda).find(Boolean) || {};
     const c = v.cliente || {};
-    el.vendaProduto.textContent = p.nome;
+    el.vendaProduto.textContent = itens.map((item) => produtoDoAnuncio(item).nome).join('\n');
     el.vendaNome.value = c.nome || '';
     el.vendaCpf.value = c.cpf || '';
     el.vendaTelefone.value = c.telefone || '';
     el.vendaEndereco.value = c.endereco || '';
     el.vendaBairro.value = c.bairro || '';
+    clienteEscolhido = c.id ? { id: c.id, nome: c.nome } : null;
+    esconderSugestoes();
+    el.vendaEquipeCampo.hidden = Boolean(codigoEquipe());
+    el.vendaEquipe.value = '';
     el.vendaPagamento.value = v.pagamento || 'pix';
     // valor igual ao padrão da forma de pagamento salva: trocar a forma ainda atualiza o valor
-    valorEditado = v.valor != null && Math.round(v.valor * 100) !== valorPadrao(p, v.pagamento);
-    el.vendaValor.value = decimal.format((v.valor != null ? Math.round(v.valor * 100) : valorPadrao(p, el.vendaPagamento.value)) / 100);
+    valorEditado = v.valor != null && totalDaVenda(v) !== valorPadraoDe(itens, v.pagamento);
+    el.vendaValor.value = decimal.format((v.valor != null ? totalDaVenda(v) : valorPadraoDe(itens, el.vendaPagamento.value)) / 100);
     montarParcelas(v.parcelas);
     limparAssinatura();
-    if (v.assinatura) {
+    const assinada = itens.map((item) => item.venda && item.venda.assinatura).find(Boolean);
+    if (assinada) {
       const imagem = new Image();
       imagem.onload = () => el.vendaAssinatura.getContext('2d').drawImage(imagem, 0, 0);
-      imagem.src = v.assinatura;
+      imagem.src = assinada;
       assinatura.vazia = false;
     }
     el.vendaErro.hidden = true;
@@ -1258,6 +1298,7 @@
   function fecharVenda() {
     el.modalVenda.hidden = true;
     vendaAtual = null;
+    esconderSugestoes();
     travarFundo(false);
   }
 
@@ -1277,14 +1318,20 @@
     if (!nome) return erroVenda('Digite o nome do cliente.', el.vendaNome);
     if (cpf && !cpfValido(cpf)) return erroVenda('CPF inválido. Confira os números.', el.vendaCpf);
     if (!(valor > 0)) return erroVenda('Informe o valor da venda.', el.vendaValor);
-    const item = vendaAtual;
-    const anterior = item.venda || {};
-    item.venda = {
+    const itens = vendaAtual;
+    const anterior = itens.map((item) => item.venda).find(Boolean) || {};
+    const clienteAnterior = anterior.cliente || {};
+    // Cliente escolhido na lista (ou o mesmo nome da venda que está sendo editada): atualiza o
+    // mesmo cadastro. Nome trocado sem escolher: o servidor ainda reconhece pelo CPF.
+    const idCliente = clienteEscolhido ? clienteEscolhido.id
+      : (clienteAnterior.id && normalizar(clienteAnterior.nome) === normalizar(nome) ? clienteAnterior.id : '');
+    const comum = {
       numero: anterior.numero || proximoNumero(),
       data: anterior.data || new Date().toISOString(),
       vendedor: anterior.vendedor || estado.nome,
       telefoneVendedor: anterior.telefoneVendedor != null ? anterior.telefoneVendedor : estado.telefone,
       cliente: {
+        id: idCliente,
         nome,
         cpf: formatarCpf(cpf),
         telefone: el.vendaTelefone.value.trim() ? formatarTelefone(el.vendaTelefone.value) : '',
@@ -1293,16 +1340,173 @@
       },
       pagamento: el.vendaPagamento.value,
       parcelas: el.vendaPagamento.value === 'credito' ? Number(el.vendaParcelas.value) || 1 : 1,
-      valor: valor / 100,
+      total: valor / 100,
+      itens: itens.map(chaveAnuncio),
       comissao: anterior.comissao != null ? anterior.comissao : estado.comissao,
-      assinatura: assinatura.vazia ? '' : el.vendaAssinatura.toDataURL('image/png'),
     };
-    item.atualizadoEm = new Date().toISOString();
+    const imagem = assinatura.vazia ? '' : el.vendaAssinatura.toDataURL('image/png');
+    const partes = dividir(valor, itens.map((item) => {
+      const p = produtoDoAnuncio(item);
+      return semPreco(p) ? 0 : Math.round(p.preco * 100);
+    }));
+    const agora = new Date().toISOString();
+    itens.forEach((item, i) => {
+      // a assinatura fica só no primeiro produto (não repete a imagem em todos)
+      item.venda = { ...comum, cliente: { ...comum.cliente }, valor: partes[i] / 100, assinatura: i === 0 ? imagem : '' };
+      item.atualizadoEm = agora;
+    });
     salvarAnunciados();
     fecharVenda();
     renderizarAnunciados();
-    mostrarComprovante(item);
+    salvarClienteCompartilhado(comum.cliente, comum.numero);
+    mostrarComprovante(itens[0]);
     return undefined;
+  }
+
+  // ---- clientes compartilhados entre os vendedores (no servidor, protegidos pelo código da equipe)
+
+  const CHAVE_EQUIPE_LOCAL = 'estoque-yella:equipe';
+  const CHAVE_PENDENTES = 'estoque-yella:clientes-pendentes';
+  let codigoEquipeSalvo = '';
+  let clienteEscolhido = null; // escolhido na lista: salvar atualiza o mesmo cadastro
+  let sugestoes = [];
+  let sugestaoAtiva = -1;
+  let esperaClientes = 0;
+  let pedidoClientes = 0;
+
+  // O administrador usa a própria chave; os vendedores, o código da equipe (digitado uma vez).
+  const codigoEquipe = () => codigoEquipeSalvo || chaveAdmin;
+
+  function lerCodigoEquipe() {
+    try { codigoEquipeSalvo = localStorage.getItem(CHAVE_EQUIPE_LOCAL) || ''; } catch (e) { codigoEquipeSalvo = ''; }
+  }
+
+  function guardarCodigoEquipe(codigo) {
+    codigoEquipeSalvo = codigo;
+    try {
+      if (codigo) localStorage.setItem(CHAVE_EQUIPE_LOCAL, codigo);
+      else localStorage.removeItem(CHAVE_EQUIPE_LOCAL);
+    } catch (e) { /* sem armazenamento: vale enquanto a página estiver aberta */ }
+  }
+
+  async function conferirCodigoEquipe() {
+    const codigo = el.vendaEquipe.value.trim();
+    if (codigo.replace(/[^0-9a-z]/gi, '').length < 8) return;
+    try {
+      await chamarServidor('/api/equipe', { codigo });
+      guardarCodigoEquipe(codigo);
+      el.vendaEquipeCampo.hidden = true;
+      el.vendaErro.hidden = true;
+      enviarClientesPendentes();
+      el.vendaNome.focus();
+    } catch (erro) {
+      erroVenda(erro.status === 401 ? 'Código da equipe inválido.' : erro.message, el.vendaEquipe);
+    }
+  }
+
+  function esconderSugestoes() {
+    sugestoes = [];
+    sugestaoAtiva = -1;
+    el.vendaSugestoes.hidden = true;
+    el.vendaSugestoes.innerHTML = '';
+    el.vendaNome.setAttribute('aria-expanded', 'false');
+    el.vendaNome.removeAttribute('aria-activedescendant');
+  }
+
+  function mostrarSugestoes(lista) {
+    if (!lista.length) {
+      esconderSugestoes();
+      return;
+    }
+    sugestoes = lista;
+    sugestaoAtiva = -1;
+    el.vendaSugestoes.innerHTML = lista.map((c, i) => {
+      const extra = [c.bairro, c.telefone].filter(Boolean).join(' · ');
+      return `<li role="option" id="sugestao-${i}" data-indice="${i}" aria-selected="false"><strong>${escapar(c.nome)}</strong>${extra ? `<span>${escapar(extra)}</span>` : ''}</li>`;
+    }).join('');
+    el.vendaSugestoes.hidden = false;
+    el.vendaNome.setAttribute('aria-expanded', 'true');
+  }
+
+  function destacarSugestao(indice) {
+    sugestaoAtiva = indice;
+    [...el.vendaSugestoes.children].forEach((opcao, i) => opcao.setAttribute('aria-selected', String(i === indice)));
+    el.vendaNome.setAttribute('aria-activedescendant', `sugestao-${indice}`);
+  }
+
+  function escolherCliente(c) {
+    clienteEscolhido = c;
+    el.vendaNome.value = c.nome || '';
+    el.vendaCpf.value = c.cpf || '';
+    el.vendaTelefone.value = c.telefone || '';
+    el.vendaEndereco.value = c.endereco || '';
+    el.vendaBairro.value = c.bairro || '';
+    esconderSugestoes();
+  }
+
+  async function procurarClientes() {
+    const termo = el.vendaNome.value.trim();
+    const codigo = codigoEquipe();
+    if (!codigo || termo.replace(/\s/g, '').length < 2) {
+      esconderSugestoes();
+      return;
+    }
+    const pedido = ++pedidoClientes;
+    try {
+      const resposta = await chamarServidor('/api/clientes/buscar', { codigo, termo });
+      if (pedido !== pedidoClientes || document.activeElement !== el.vendaNome) return; // resposta atrasada
+      mostrarSugestoes(resposta.clientes || []);
+    } catch (erro) {
+      if (erro.status === 401 && codigoEquipeSalvo) {
+        guardarCodigoEquipe('');
+        el.vendaEquipeCampo.hidden = Boolean(codigoEquipe());
+      }
+      esconderSugestoes();
+    }
+  }
+
+  function lerPendentes() {
+    try {
+      const lista = JSON.parse(localStorage.getItem(CHAVE_PENDENTES));
+      return Array.isArray(lista) ? lista : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function gravarPendentes(lista) {
+    try {
+      if (lista.length) localStorage.setItem(CHAVE_PENDENTES, JSON.stringify(lista.slice(-50)));
+      else localStorage.removeItem(CHAVE_PENDENTES);
+    } catch (e) { /* sem armazenamento */ }
+  }
+
+  // Grava o cliente para todos os vendedores (vale a última atualização). Sem internet, tenta de novo depois.
+  async function salvarClienteCompartilhado(cliente, numero) {
+    const codigo = codigoEquipe();
+    if (!codigo) return;
+    try {
+      const resposta = await chamarServidor('/api/clientes/salvar', { codigo, autor: estado.nome, cliente });
+      if (resposta.id && resposta.id !== cliente.id) { // a próxima edição desta venda atualiza o mesmo cadastro
+        for (const item of estado.anunciados) {
+          if (item.venda && item.venda.numero === numero && item.venda.cliente) item.venda.cliente.id = resposta.id;
+        }
+        salvarAnunciados();
+      }
+    } catch (erro) {
+      if (erro.status === 401) {
+        if (codigoEquipeSalvo) guardarCodigoEquipe('');
+      } else if (erro.status === 0 || erro.status >= 500) {
+        gravarPendentes([...lerPendentes().filter((pendente) => pendente.numero !== numero), { numero, cliente }]);
+      }
+    }
+  }
+
+  async function enviarClientesPendentes() {
+    const pendentes = lerPendentes();
+    if (!pendentes.length || !codigoEquipe() || !navigator.onLine) return;
+    gravarPendentes([]);
+    for (const { numero, cliente } of pendentes) await salvarClienteCompartilhado(cliente, numero);
   }
 
   // ---- imagem no estilo de cupom (impressora térmica)
@@ -1338,8 +1542,9 @@
   async function desenharComprovante(item) {
     await carregarFonteCupom();
     const v = item.venda;
-    const p = produtoDoAnuncio(item);
-    const loja = lojaPorId(item.loja);
+    const itens = itensDaVenda(item);
+    const idsLojas = [...new Set(itens.map((i) => i.loja))];
+    const emissor = EMISSORES[idsLojas.length === 1 ? idsLojas[0] : MATRIZ] || EMISSORES[MATRIZ];
     const ESCALA = 2;
     const PAPEL = 560;
     const MARGEM = 26;
@@ -1372,7 +1577,7 @@
     const espaco = (altura) => blocos.push({ tipo: 'espaco', altura });
 
     texto('Yêlla Móveis', { tam: 36, negrito: true, centro: true, altura: 46 });
-    for (const linha of EMISSOR) texto(linha, { centro: true });
+    for (const linha of emissor) texto(linha, { centro: true });
     traco();
     texto('Comprovante de venda', { negrito: true, centro: true, tam: 24, altura: 32 });
     traco();
@@ -1387,10 +1592,16 @@
     }
     traco();
     duas('Cód.   Descrição', '');
-    quebrar(p.nome, colunas - 7).forEach((linha, i) => texto(`${i ? '       ' : String(p.codigo).padEnd(7)}${linha}`));
-    const cheio = semPreco(p) ? Math.round(v.valor * 100) : Math.round(p.preco * 100);
-    const total = Math.round(v.valor * 100);
-    duas(`       1 x ${reais(cheio)}`, reais(cheio));
+    let cheio = 0; // soma dos preços cheios
+    for (const it of itens) {
+      const p = produtoDoAnuncio(it);
+      const preco = semPreco(p) ? Math.round((it.venda ? it.venda.valor : v.valor) * 100) : Math.round(p.preco * 100);
+      cheio += preco;
+      quebrar(p.nome, colunas - 7).forEach((linha, i) => texto(`${i ? '       ' : String(p.codigo).padEnd(7)}${linha}`));
+      duas(`       1 x ${reais(preco)}`, reais(preco));
+      if (idsLojas.length > 1) texto(`       Estoque: ${rotuloLoja(lojaPorId(it.loja)) || it.loja}`);
+    }
+    const total = totalDaVenda(v);
     traco();
     duas('Subtotal', reais(cheio));
     if (total < cheio) duas('Desconto', `-${reais(cheio - total)}`);
@@ -1402,10 +1613,11 @@
       : PAGAMENTOS[v.pagamento];
     quebrar(`Pagamento: ${pagamento}`, colunas).forEach((linha) => texto(linha));
     texto('Entrega: grátis');
-    if (loja) texto(`Estoque: loja de ${rotuloLoja(loja)}`);
+    if (idsLojas.length === 1 && lojaPorId(idsLojas[0])) texto(`Estoque: loja de ${rotuloLoja(lojaPorId(idsLojas[0]))}`);
     traco();
     quebrar('Confirmo que os dados acima estão corretos.', colunas).forEach((linha) => texto(linha));
-    const imagemAssinatura = v.assinatura ? await carregarImagem(v.assinatura) : null;
+    const assinada = itens.map((i) => i.venda && i.venda.assinatura).find(Boolean);
+    const imagemAssinatura = assinada ? await carregarImagem(assinada) : null;
     if (imagemAssinatura) blocos.push({ tipo: 'assinatura', imagem: imagemAssinatura, altura: 120 });
     else espaco(70);
     texto('_'.repeat(colunas - 4), { centro: true });
@@ -1571,15 +1783,17 @@
     });
     let total = 0;
     let comissao = 0;
+    const vendas = new Set(); // vários produtos no mesmo comprovante contam como uma venda
     for (const a of doMes) {
       const valor = Math.round((a.venda ? a.venda.valor : a.preco) * 100);
       const percentualVenda = a.venda && a.venda.comissao != null ? a.venda.comissao : estado.comissao;
       total += valor;
       comissao += Math.round(valor * percentualVenda / 100);
+      vendas.add(a.venda ? a.venda.numero : chaveAnuncio(a));
     }
     const nomeMes = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(new Date(ano, mes, 1));
     el.vendasMes.textContent = nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1);
-    el.vendasNumeros.innerHTML = `${doMes.length} ${doMes.length === 1 ? 'venda' : 'vendas'} · ${reais(total)}`
+    el.vendasNumeros.innerHTML = `${vendas.size} ${vendas.size === 1 ? 'venda' : 'vendas'} · ${reais(total)}`
       + `<span class="vendas-comissao"> · comissão ${reais(comissao)}</span>`;
     el.mesProximo.disabled = ano === hoje.getFullYear() && mes === hoje.getMonth();
   }
@@ -1621,12 +1835,16 @@
     el.barraResultados.hidden = el.contagem.hidden && el.selecionar.hidden;
   }
 
+  // Barra de baixo da seleção: no Estoque envia os marcados pelo WhatsApp; nos Anunciados só conta,
+  // porque a mudança é feita tocando no status de um dos marcados.
   function atualizarBarraSelecao() {
-    const total = estado.selecionados.size;
-    el.barraSelecao.hidden = !estado.selecionando;
+    const anuncios = estado.selecionandoAnuncios;
+    const total = anuncios ? estado.anunciosSelecionados.size : estado.selecionados.size;
+    el.barraSelecao.hidden = !(estado.selecionando || anuncios);
     el.selecaoTexto.textContent = `${total} ${total === 1 ? 'selecionado' : 'selecionados'}`;
+    el.selecaoEnviar.hidden = anuncios;
     el.selecaoEnviar.classList.toggle('desativado', !total);
-    if (total) el.selecaoEnviar.href = 'https://wa.me/?text=' + encodeURIComponent(mensagemVarios([...estado.selecionados.values()]));
+    if (total && !anuncios) el.selecaoEnviar.href = 'https://wa.me/?text=' + encodeURIComponent(mensagemVarios([...estado.selecionados.values()]));
     else el.selecaoEnviar.removeAttribute('href');
   }
 
@@ -1653,6 +1871,41 @@
     atualizarBarraSelecao();
   }
 
+  // Seleção de vários anunciados: tocar no status de um dos marcados muda todos.
+  function atualizarSelecaoAnuncios() {
+    el.selecionarAnuncios.hidden = estado.selecionandoAnuncios || el.listaAnunciados.children.length < 2;
+    atualizarBarraSelecao();
+  }
+
+  function marcarAnuncio(cartao) {
+    const selecionado = estado.anunciosSelecionados.has(cartao.dataset.id);
+    cartao.classList.toggle('selecionado', selecionado);
+    const marcador = cartao.querySelector('.marcador');
+    if (marcador) marcador.setAttribute('aria-pressed', String(selecionado));
+  }
+
+  function entrarSelecaoAnuncios() {
+    estado.selecionandoAnuncios = true;
+    document.body.classList.add('selecionando');
+    atualizarSelecaoAnuncios();
+  }
+
+  function sairSelecaoAnuncios() {
+    if (!estado.selecionandoAnuncios) return;
+    estado.selecionandoAnuncios = false;
+    estado.anunciosSelecionados.clear();
+    document.body.classList.remove('selecionando');
+    for (const cartao of el.listaAnunciados.children) marcarAnuncio(cartao);
+    atualizarSelecaoAnuncios();
+  }
+
+  function alternarSelecaoAnuncio(cartao) {
+    if (estado.anunciosSelecionados.has(cartao.dataset.id)) estado.anunciosSelecionados.delete(cartao.dataset.id);
+    else estado.anunciosSelecionados.add(cartao.dataset.id);
+    marcarAnuncio(cartao);
+    atualizarBarraSelecao();
+  }
+
   function alternarSelecao(cartao) {
     const p = estado.porChave.get(cartao.dataset.chave);
     if (!p) return;
@@ -1675,6 +1928,7 @@
   function mostrarTela(tela) {
     if (tela === estado.tela) return;
     if (tela !== 'estoque' && estado.selecionando) sairSelecao();
+    if (tela !== 'anunciados') sairSelecaoAnuncios();
     estado.rolagem[estado.tela] = window.scrollY;
     estado.tela = tela;
     el.telaEstoque.hidden = tela !== 'estoque';
@@ -1828,7 +2082,8 @@
     }
   }
 
-  // Olhinho: com as contas escondidas, "até" e "você ganha" só aparecem em ver mais (detalhes).
+  // Olhinho: mostra ou esconde as contas em "ver mais" (preço mínimo, "você ganha" e, no modo
+  // administrador, preço de compra, imposto e sobra) e a comissão do painel de vendas.
   function aplicarVisibilidadeContas(visivel) {
     estado.mostrarContas = visivel;
     document.documentElement.classList.toggle('ocultar-contas', !visivel);
@@ -1895,9 +2150,8 @@
     estado.comissao = comissao;
     estado.desconto = desconto;
     if (mudou) {
-      atualizarPrecos();
       atualizarLinksWhatsApp(); // a mensagem leva o preço com desconto; também redesenha os anunciados
-      atualizarDetalhes(); // a sobra (modo administrador) depende da comissão e do desconto
+      atualizarDetalhes(); // preço mínimo, "você ganha" e a sobra (modo administrador) ficam em "ver mais"
     }
     salvarAjustes();
   }
@@ -2000,6 +2254,7 @@
     mostrarTela(telaDoEndereco());
     montarAdmin(); // os campos de arquivo dependem das lojas
     carregarCustos();
+    enviarClientesPendentes();
   }
 
   // ---------------------------------------------------------------- administrador: atualização do estoque
@@ -2108,6 +2363,7 @@
   function sairAdmin() {
     salvarChaveAdmin('');
     estado.custos = null;
+    estado.origemCustos = null;
     atualizarDetalhes();
     limparRelatorio();
     erroAdmin('');
@@ -2367,7 +2623,11 @@
 
   el.filtroParadosLimpar.addEventListener('click', desativarParados);
   el.selecionar.addEventListener('click', entrarSelecao);
-  el.selecaoCancelar.addEventListener('click', sairSelecao);
+  el.selecionarAnuncios.addEventListener('click', entrarSelecaoAnuncios);
+  el.selecaoCancelar.addEventListener('click', () => {
+    if (estado.selecionandoAnuncios) sairSelecaoAnuncios();
+    else sairSelecao();
+  });
   el.selecaoEnviar.addEventListener('click', (evento) => {
     if (!estado.selecionados.size) {
       evento.preventDefault();
@@ -2424,16 +2684,30 @@
   });
 
   el.listaAnunciados.addEventListener('click', (evento) => {
-    const botao = evento.target.closest('button');
-    const card = botao && botao.closest('.anuncio');
+    const card = evento.target.closest('.anuncio');
     if (!card) return;
     const item = estado.anunciados.find((a) => chaveAnuncio(a) === card.dataset.id);
     if (!item) return;
-    if (botao.classList.contains('status-opcao')) mudarStatus(item, botao.dataset.status);
-    else if (botao.dataset.acao === 'remover') removerAnuncio(item);
+    const botao = evento.target.closest('button');
+    // Selecionando: tocar no cartão (ou no marcador) marca e desmarca; os outros botões seguem normais.
+    if (estado.selecionandoAnuncios && (!evento.target.closest('button, a') || botao.classList.contains('marcador'))) {
+      alternarSelecaoAnuncio(card);
+      return;
+    }
+    if (!botao) return;
+    if (botao.classList.contains('status-opcao')) {
+      // Num dos marcados, o status tocado vale para todos os marcados (e a seleção termina).
+      if (estado.selecionandoAnuncios && estado.anunciosSelecionados.has(card.dataset.id)) {
+        const marcados = estado.anunciados.filter((a) => estado.anunciosSelecionados.has(chaveAnuncio(a)));
+        sairSelecaoAnuncios();
+        mudarStatusDe(marcados, botao.dataset.status);
+      } else {
+        mudarStatusDe([item], botao.dataset.status);
+      }
+    } else if (botao.dataset.acao === 'remover') removerAnuncio(item);
     else if (botao.dataset.acao === 'comprovante') {
       if (item.venda) mostrarComprovante(item);
-      else abrirVenda(item);
+      else abrirVenda([item]);
     } else if (botao.classList.contains('ver-detalhes')) {
       if (alternarDetalhes(botao)) estado.anunciosAbertos.add(card.dataset.id);
       else estado.anunciosAbertos.delete(card.dataset.id);
@@ -2534,7 +2808,7 @@
   });
   el.vendaPagamento.addEventListener('change', () => {
     if (!valorEditado && vendaAtual) {
-      el.vendaValor.value = decimal.format(valorPadrao(produtoDoAnuncio(vendaAtual), el.vendaPagamento.value) / 100);
+      el.vendaValor.value = decimal.format(valorPadraoDe(vendaAtual, el.vendaPagamento.value) / 100);
     }
     montarParcelas();
   });
@@ -2543,6 +2817,38 @@
     const valor = lerValor(el.vendaValor.value);
     if (valor > 0) el.vendaValor.value = decimal.format(valor / 100);
   });
+  el.vendaEquipe.addEventListener('change', conferirCodigoEquipe);
+  el.vendaEquipe.addEventListener('keydown', (evento) => {
+    if (evento.key !== 'Enter') return;
+    evento.preventDefault();
+    conferirCodigoEquipe();
+  });
+  el.vendaNome.addEventListener('input', () => {
+    clienteEscolhido = null; // mudou o nome: pode ser outro cliente (o servidor ainda reconhece pelo CPF)
+    clearTimeout(esperaClientes);
+    esperaClientes = setTimeout(procurarClientes, 250);
+  });
+  el.vendaNome.addEventListener('keydown', (evento) => {
+    if (el.vendaSugestoes.hidden) return;
+    if (evento.key === 'ArrowDown' || evento.key === 'ArrowUp') {
+      evento.preventDefault();
+      const passo = evento.key === 'ArrowDown' ? 1 : -1;
+      destacarSugestao((sugestaoAtiva + passo + sugestoes.length) % sugestoes.length);
+    } else if (evento.key === 'Enter' && sugestaoAtiva >= 0) {
+      evento.preventDefault();
+      escolherCliente(sugestoes[sugestaoAtiva]);
+    } else if (evento.key === 'Escape') {
+      evento.stopPropagation(); // fecha só a lista, não o formulário
+      esconderSugestoes();
+    }
+  });
+  el.vendaNome.addEventListener('blur', () => setTimeout(esconderSugestoes, 150));
+  el.vendaSugestoes.addEventListener('pointerdown', (evento) => evento.preventDefault()); // não tira o foco do campo
+  el.vendaSugestoes.addEventListener('click', (evento) => {
+    const opcao = evento.target.closest('[data-indice]');
+    if (opcao) escolherCliente(sugestoes[Number(opcao.dataset.indice)]);
+  });
+  window.addEventListener('online', enviarClientesPendentes);
   el.comprovanteEnviar.addEventListener('click', enviarComprovante);
   el.comprovanteImagemBaixar.addEventListener('click', async () => {
     if (comprovanteAtual) baixarArquivo(await imagemDoComprovante(), `${comprovanteAtual.nome}.png`);
@@ -2553,7 +2859,7 @@
   el.comprovanteEditar.addEventListener('click', () => {
     const item = comprovanteAtual && comprovanteAtual.item;
     fecharComprovante();
-    if (item) abrirVenda(item);
+    if (item) abrirVenda(itensDaVenda(item));
   });
   el.comprovanteFechar.addEventListener('click', fecharComprovante);
   el.mesAnterior.addEventListener('click', () => mudarMesVendas(-1));
@@ -2577,9 +2883,10 @@
   document.addEventListener('visibilitychange', verificarAtualizacao);
 
   chaveAdmin = lerChaveAdmin();
+  lerCodigoEquipe();
   montarAdmin();
   iniciar();
 
   // Exposto só para conferência no console do navegador.
-  window.__estoque = { calcular, buscar, cpfValido, formatarCpf, lerValor, desenharComprovante, pdfDoComprovante, mostrarComprovante, abrirVenda, lerPercentual, normalizar, estado, ORDENACOES, linkWhatsApp, mensagemWhatsApp, formatarTelefone, iniciaisDe, fornecedoresDaBusca, fornecedoresComContagem };
+  window.__estoque = { calcular, buscar, cpfValido, formatarCpf, lerValor, desenharComprovante, pdfDoComprovante, mostrarComprovante, abrirVenda, itensDaVenda, dividir, lerPercentual, normalizar, estado, ORDENACOES, linkWhatsApp, mensagemWhatsApp, formatarTelefone, iniciaisDe, fornecedoresDaBusca, fornecedoresComContagem };
 })();

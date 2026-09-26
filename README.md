@@ -21,15 +21,18 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
 - **Buscar por fornecedor:** quando a busca não acha produto, a página oferece os fornecedores com aquele nome
   (ou a lista de todos). Se a busca achou produtos mas também é nome de fornecedor (ex.: `gazin`), aparece um atalho
   para ver tudo daquele fornecedor. Com o filtro ligado, dá para buscar dentro dos produtos dele.
-- **Classificadores** logo abaixo da busca: **A → Z** (tocando de novo vira Z → A, é o padrão),
-  **Maior estoque** (vira Menor estoque) e **Menor preço** (vira Maior preço). Buscando por código, o produto com
-  aquele código vem primeiro. Produto com preço provisório de R$ 1,00 no sistema aparece como
+- **Ordenar** (botão com as setas, logo abaixo da busca): abre uma gavetinha com **Nome A → Z** (o padrão), Z → A,
+  **Maior/Menor estoque** e **Menor/Maior preço**; o botão mostra a ordem escolhida. Buscando por código, o produto
+  com aquele código vem primeiro. Produto com preço provisório de R$ 1,00 no sistema aparece como
   "Preço a confirmar" e vai para o fim da lista.
-- **Categorias** (colchão, guarda-roupa, cozinha…) com ícone e quantidade, abaixo dos classificadores.
-- **Mais vendidos:** primeira pílula das categorias, com os produtos em estoque que mais saíram nos últimos 12 meses
-  (quantidade vendida), do que mais saiu para o que menos. A ordem vem de `dados/mais-vendidos.json`, que o servidor
-  monta a cada relatório de vendas enviado pelo administrador: só os códigos, sem quantidades nem valores.
-- **Parados:** pílula das categorias com a quantidade de produtos sem venda nem compra há mais de 90 dias
+- **Filtrar** (botão do funil, ao lado): abre a lista dos filtros, cada um com ícone e quantidade — **Todos os
+  produtos**, **Mais vendidos**, **Parados**, **Sem estoque** e as **categorias** (colchão, guarda-roupa, cozinha…).
+  Um filtro de cada vez: com ele escolhido, a busca e a ordem valem só dentro dele; o botão fica destacado com o nome
+  do filtro e a faixa logo acima da lista tem o **✕** que tira o filtro (a busca volta a abranger tudo).
+- **Mais vendidos:** os 100 produtos em estoque que mais saíram nos últimos 12 meses, do que mais vendeu para o que
+  menos, cada um com a etiqueta de **quantos foram vendidos** no período. Vem de `dados/mais-vendidos.json`, que o
+  servidor monta a cada relatório de vendas enviado pelo administrador: os códigos e a quantidade vendida, sem valores.
+- **Parados:** filtro com os produtos sem venda nem compra há mais de 90 dias
   (conta a mais recente das duas: produto que acabou de chegar não é parado). Mostra o mais parado primeiro, com o
   tempo parado ao lado do nome. Só nas lojas cujo relatório traz a última venda (hoje, Matina).
 - **Novo:** etiqueta ao lado do nome do produto que entrou no estoque nos últimos 15 dias (a data de entrada é
@@ -37,7 +40,7 @@ Página de consulta rápida do estoque para os vendedores, feita para usar no ce
 - **Sem estoque (encomenda):** os produtos de Matina que acabaram e foram comprados nos últimos 48 meses aparecem
   na **busca**, depois dos que têm estoque, embaixo do separador "Sem estoque", com a caixinha "0" em vermelho discreto — para
   consultar o preço quando o cliente aceita esperar a mercadoria chegar. Não aparecem na lista inicial nem nas
-  categorias; a pílula **Sem estoque** mostra todos. A mensagem do WhatsApp deles sai com "📦 Sob encomenda".
+  categorias; o filtro **Sem estoque** mostra todos. A mensagem do WhatsApp deles sai com "📦 Sob encomenda".
 - **Enviar vários:** o botão **Selecionar** (ao lado da contagem) marca até 10 produtos e manda todos numa mensagem só
   do WhatsApp ("Separei estas opções para você:"), cada um com o preço no Pix e no cartão.
 - Cartão compacto: o **nome** numa linha só (cortado com "…" quando não cabe) e, abaixo, o **preço** e,
@@ -251,7 +254,7 @@ das vendas (nome, CPF, telefone, endereço) ficam no mesmo armazenamento privado
 equipe ou a chave de administrador. A lista **Produtos iguais** e as respostas do administrador também ficam lá
 (`cruzamento/`), assim como as respostas guardadas do juiz (`jev/cache.json`). O **relatório de vendas**
 (faturamento e custo de cada venda) fica lá também (`vendas/`) e só sai para quem tem a chave de administrador; para o
-site vai só a ordem dos mais vendidos (`dados/mais-vendidos.json`).
+site vão só os mais vendidos e quantos de cada um, sem valores (`dados/mais-vendidos.json`).
 
 ## Arquivos
 
@@ -263,7 +266,7 @@ site vai só a ordem dos mais vendidos (`dados/mais-vendidos.json`).
 | `dados/matina.json`, `dados/igapora.json` | estoque de cada loja (gerados pelo script) |
 | `ferramentas/atualizar_estoque.py` | lê o relatório do CompuFour e gera os dados |
 | `ferramentas/vendas.py` | lê o relatório de vendas (à vista e a prazo), junta com o guardado e monta a ordem dos mais vendidos |
-| `dados/mais-vendidos.json` | ordem dos produtos que mais saíram em 12 meses, por loja (gerado pelo servidor) |
+| `dados/mais-vendidos.json` | produtos vendidos em 12 meses, do que mais saiu para o que menos, com a quantidade (gerado pelo servidor) |
 | `ferramentas/correcoes.json` | nomes revisados de produtos e fornecedores, fornecedor cruzado de Igaporã, fornecedores usados na busca de foto |
 | `servidor/` | servidor de atualização pelo site (Cloud Run): `app.py`, `Dockerfile`, `implantar.sh` |
 

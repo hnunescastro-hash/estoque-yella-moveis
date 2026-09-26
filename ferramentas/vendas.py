@@ -11,8 +11,9 @@ mesmo tipo nesse período são trocadas pelas do relatório. Dá para mandar o h
 uma vez ou só o último mês, reenviar não duplica e venda cancelada no sistema some.
 
 Faturamento e custo nunca vão para o site: ficam no armazenamento privado do servidor
-(servidor/app.py), só para o administrador. Para o site vai só a ordem dos produtos que mais
-saíram nos últimos 12 meses (dados/mais-vendidos.json), sem quantidades nem valores.
+(servidor/app.py), só para o administrador. Para o site vão só os produtos que saíram nos últimos
+12 meses, do que mais vendeu para o que menos, com a quantidade vendida de cada um
+(dados/mais-vendidos.json), sem valores.
 
 Conferir relatórios no terminal (não envia nada):
   python3 ferramentas/vendas.py "Relatório de vendas a vista - Matina.html" "Relatório de vendas a Prazo - Matina.html"
@@ -30,7 +31,7 @@ COLUNAS = ["Nota", "Data", "Código", "Descrição do item", "Quantidade", "Vend
 NATUREZAS = {"venda a prazo": "p", "venda a vista": "v", "venda a vista (cheque)": "v"}  # rodapé "Nat.Operação"
 TIPOS = {"v": "à vista", "p": "a prazo"}
 DIAS_MAIS_VENDIDOS = 365   # "Mais vendidos": quantidade vendida nesse prazo, até a última venda do relatório
-LIMITE_MAIS_VENDIDOS = 100  # quantos produtos entram na ordem publicada
+LIMITE_MAIS_VENDIDOS = 1000  # todos os vendidos: a página mostra os 100 primeiros que estão em estoque
 
 # Cada linha guardada: [data "AAAA-MM-DD", nota, código, quantidade, valor, custo, tipo "v"/"p"],
 # com valor e custo em centavos (total da linha).
@@ -116,9 +117,9 @@ def nomes_dos_produtos(descricoes, nomes_no_site, correcoes):
 
 def mais_vendidos(linhas, dias=DIAS_MAIS_VENDIDOS, limite=LIMITE_MAIS_VENDIDOS):
     """Códigos dos produtos que mais saíram (quantidade; no empate, o faturamento) nos últimos
-    `dias` até a última venda. Só a ordem: é o que vai para o site."""
+    `dias` até a última venda, com a quantidade vendida de cada um. É o que vai para o site (sem valores)."""
     if not linhas:
-        return {"de": None, "ate": None, "codigos": []}
+        return {"de": None, "ate": None, "codigos": [], "quantidades": []}
     ate = max(l[DATA] for l in linhas)
     de = (date.fromisoformat(ate) - timedelta(days=dias - 1)).isoformat()
     quantidade, valor = Counter(), Counter()
@@ -127,7 +128,7 @@ def mais_vendidos(linhas, dias=DIAS_MAIS_VENDIDOS, limite=LIMITE_MAIS_VENDIDOS):
             quantidade[l[CODIGO]] += l[QUANTIDADE]
             valor[l[CODIGO]] += l[VALOR]
     codigos = sorted(quantidade, key=lambda c: (-quantidade[c], -valor[c], c))[:limite]
-    return {"de": de, "ate": ate, "codigos": codigos}
+    return {"de": de, "ate": ate, "codigos": codigos, "quantidades": [quantidade[c] for c in codigos]}
 
 
 def resumo(relatorio):
@@ -152,8 +153,8 @@ def main():
     descricoes = guardado["descricoes"]
     print(f"\nMais vendidos de {br(ranking['de'])} a {br(ranking['ate'])} "
           f"(os 10 primeiros de {len(ranking['codigos'])}):")
-    for i, codigo in enumerate(ranking["codigos"][:10], 1):
-        print(f"  {i:2d}. {codigo}  {descricoes.get(codigo, ['', ''])[1]}")
+    for i, (codigo, vendidos) in enumerate(zip(ranking["codigos"][:10], ranking["quantidades"]), 1):
+        print(f"  {i:2d}. {codigo}  {vendidos:>3} vendidos  {descricoes.get(codigo, ['', ''])[1]}")
 
 
 if __name__ == "__main__":

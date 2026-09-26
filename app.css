@@ -231,6 +231,18 @@ button, input, select { font: inherit; color: inherit; }
   font-size: 14.5px; font-weight: 700; white-space: nowrap;
 }
 .ordem .ic { width: 17px; height: 17px; stroke-width: 2; color: var(--suave); }
+#abrir-ordem, #abrir-filtro { flex: 1 1 0; justify-content: flex-start; padding: 0 8px 0 10px; }
+.ordem-texto { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.ordem .ordem-abrir { flex: none; width: 16px; height: 16px; margin-left: auto; }
+/* filtro escolhido: o botão fica destacado como um classificador ligado */
+.ordem.ativo { background: var(--tinta); border-color: var(--tinta); color: #fff; }
+.ordem.ativo .ic { color: var(--amarelo); }
+:root[data-theme="dark"] .ordem.ativo { background: var(--amarelo); border-color: var(--amarelo); color: var(--tinta); }
+:root[data-theme="dark"] .ordem.ativo .ic { color: var(--tinta); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .ordem.ativo { background: var(--amarelo); border-color: var(--amarelo); color: var(--tinta); }
+  :root:not([data-theme="light"]) .ordem.ativo .ic { color: var(--tinta); }
+}
 /* botão selecionado (classificadores e tema): escuro no tema claro, amarelo no tema escuro */
 .ordem[aria-pressed="true"], .tema[aria-pressed="true"] { background: var(--tinta); border-color: var(--tinta); color: #fff; }
 .ordem[aria-pressed="true"] .ic, .tema[aria-pressed="true"] .ic { color: var(--amarelo); }
@@ -267,8 +279,8 @@ button, input, select { font: inherit; color: inherit; }
 }
 .atalho .ic { width: 22px; height: 22px; color: var(--suave); }
 .atalho-qtd { color: var(--suave); font-weight: 500; font-variant-numeric: tabular-nums; }
-.atalho-parados .ic { color: var(--ambar); }
-.atalho-vendidos .ic, #filtro-vendidos > .ic { color: var(--fogo); }
+#filtro-vendidos > .ic, .folha-vendidos > .ic:first-child, .selo-vendido .ic { color: var(--fogo); }
+.folha-parados > .ic:first-child { color: var(--ambar); }
 .atalho:active { background: var(--superficie-2); }
 
 .barra-resultados { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; min-height: 30px; }
@@ -287,7 +299,6 @@ button, input, select { font: inherit; color: inherit; }
   font-size: 12.5px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--suave);
 }
 .separador-lista::after { content: ""; flex: 1; height: 1px; background: var(--linha); }
-.atalho-sem-estoque .ic { color: var(--suave); }
 
 /* filtro ativo (fornecedor, parados ou sem estoque) */
 .filtro-ativo {
@@ -364,6 +375,11 @@ button, input, select { font: inherit; color: inherit; }
   background: var(--ambar-fundo); color: var(--ambar); font-size: 12px; font-weight: 800; white-space: nowrap;
 }
 .selo-parado .ic { width: 13px; height: 13px; stroke-width: 2.2; }
+.selo-vendido {
+  flex: none; display: inline-flex; align-items: center; gap: 2px; padding: 0 7px 0 5px; border-radius: 999px; line-height: 18px;
+  background: var(--ambar-fundo); color: var(--texto); font-size: 12px; font-weight: 800; white-space: nowrap;
+}
+.selo-vendido .ic { width: 13px; height: 13px; stroke-width: 2.2; }
 
 /* seleção de vários produtos para o WhatsApp */
 .marcador {
@@ -1103,3 +1119,45 @@ button.rv-deitada:focus-visible { outline: 2px solid var(--foco); outline-offset
 .admin-reposicao li strong { display: block; line-height: 1.3; }
 .admin-reposicao li span { display: block; font-size: 12.5px; color: var(--suave); }
 .admin-reposicao .link { display: block; margin: 8px auto 0; }
+
+/* ---------- gavetinhas "Ordenar" e "Filtrar" (sobem de baixo; no computador, ficam no meio) ---------- */
+
+.filtro-categoria-icone { display: contents; }
+.filtro-categoria-icone .ic { flex: none; width: 20px; height: 20px; color: var(--suave); }
+
+.camada-folha { position: fixed; inset: 0; z-index: 45; background: rgba(18, 16, 12, .45); animation: aparece .2s ease; }
+.folha {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 46; margin: 0 auto; width: min(520px, 100%);
+  max-height: min(82vh, 680px); overflow-y: auto; overscroll-behavior: contain;
+  padding: 0 var(--lateral-dir) max(14px, env(safe-area-inset-bottom)) var(--lateral);
+  border-radius: 18px 18px 0 0; background: var(--superficie); box-shadow: 0 -8px 30px rgba(0, 0, 0, .22);
+  animation: folha-sobe .22s ease;
+}
+.folha[hidden], .camada-folha[hidden] { display: none; }
+@keyframes folha-sobe { from { transform: translateY(28px); opacity: 0; } to { transform: none; opacity: 1; } }
+.folha-topo {
+  position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 12px 0 8px; background: var(--superficie);
+}
+.folha-topo h2 { margin: 0; font-size: 18px; font-weight: 800; }
+.folha-lista { display: grid; gap: 2px; padding-bottom: 4px; }
+.folha-opcao {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 50px; padding: 0 12px; cursor: pointer;
+  border: 0; border-radius: 12px; background: transparent; color: var(--texto);
+  font: inherit; font-size: 16px; font-weight: 600; text-align: left;
+}
+.folha-opcao > .ic { flex: none; width: 22px; height: 22px; color: var(--suave); }
+.folha-opcao-texto { flex: 1; min-width: 0; }
+.folha-opcao-qtd { flex: none; color: var(--suave); font-weight: 500; font-variant-numeric: tabular-nums; }
+.folha-opcao > .ic:last-child { width: 20px; height: 20px; stroke-width: 2.6; color: var(--verde); visibility: hidden; }
+.folha-opcao[aria-checked="true"] { background: var(--superficie-2); font-weight: 800; }
+.folha-opcao[aria-checked="true"] > .ic:last-child { visibility: visible; }
+.folha-opcao:active { background: var(--superficie-2); }
+.folha-opcao:focus-visible { outline: 2px solid var(--foco); outline-offset: -2px; }
+.folha-separador {
+  margin: 10px 12px 4px; font-size: 12.5px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--suave);
+}
+
+@media (min-width: 720px) {
+  .folha { top: 50%; bottom: auto; transform: translateY(-50%); border-radius: 18px; animation: aparece .2s ease; }
+}

@@ -9,6 +9,7 @@
   const TODAS = 'todas'; // opção "Todas as lojas": junta o estoque de todas
   const DIAS_NOVO = 15;   // etiqueta "Novo" nos produtos que entraram numa atualização
   const DIAS_PARADO = 90; // "Parados": sem venda nem compra há mais que isso (lojas cujo relatório traz a última venda)
+  const MAIS_VENDIDOS_NA_LISTA = 100; // "Mais vendidos": os que mais saíram em 12 meses e estão em estoque, por loja
   const MAX_SELECAO = 10; // produtos numa mesma mensagem de WhatsApp
 
   // ---------------------------------------------------------------- ícones
@@ -50,6 +51,8 @@
     arquivo: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/>',
     ampulheta: '<path d="M7 3h10M7 21h10M8 3v3.5a4 4 0 0 0 1.6 3.2L12 11.5l2.4-1.8A4 4 0 0 0 16 6.5V3M8 21v-3.5a4 4 0 0 1 1.6-3.2L12 12.5l2.4 1.8a4 4 0 0 1 1.6 3.2V21"/>',
     fogo: '<path d="M12 21c-3.9 0-6.5-2.6-6.5-6.2 0-3.3 2.3-5.4 3.7-7.8.6 1.6 1.5 2.6 2.6 3.1C12 7.2 13.4 4.6 15.8 3c-.3 2.8.6 4.7 1.7 6.4 1 1.5 1.9 3 1.9 5.2 0 3.7-2.9 6.4-7.4 6.4z"/>',
+    ordenar: '<path d="M7 4v16M4 7l3-3 3 3M17 20V4M14 17l3 3 3-3"/>',
+    funil: '<path d="M3.5 5h17l-6.5 7.6v5.9l-4 2v-7.9z"/>',
     check: '<path d="m5.5 12.5 4.2 4.2L18.5 8"/>',
     recibo: '<path d="M6 3h12v18l-2-1.5-2 1.5-2-1.5-2 1.5-2-1.5L6 21z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
     desconto: '<circle cx="12" cy="12" r="8.5"/><path d="m8.8 15.2 6.4-6.4"/><circle class="ponto" cx="9.2" cy="9.2" r="1.25"/><circle class="ponto" cx="14.8" cy="14.8" r="1.25"/>',
@@ -122,6 +125,10 @@
     mostrarContas: $('mostrar-contas'),
     filtroParados: $('filtro-parados'), filtroParadosLimpar: $('filtro-parados-limpar'), imposto: $('imposto'),
     filtroVendidos: $('filtro-vendidos'), filtroVendidosLimpar: $('filtro-vendidos-limpar'),
+    filtroCategoria: $('filtro-categoria'), filtroCategoriaIcone: $('filtro-categoria-icone'),
+    filtroCategoriaNome: $('filtro-categoria-nome'), filtroCategoriaLimpar: $('filtro-categoria-limpar'),
+    abrirOrdem: $('abrir-ordem'), ordemAtual: $('ordem-atual'), abrirFiltro: $('abrir-filtro'), filtroAtual: $('filtro-atual'),
+    camadaFolha: $('camada-folha'), folhaOrdem: $('folha-ordem'), folhaFiltro: $('folha-filtro'), opcoesOrdem: $('opcoes-ordem'),
     filtroSemEstoque: $('filtro-sem-estoque'), filtroSemEstoqueLimpar: $('filtro-sem-estoque-limpar'),
     painelVendas: $('painel-vendas'), vendasMes: $('vendas-mes'), vendasNumeros: $('vendas-numeros'),
     mesAnterior: $('mes-anterior'), mesProximo: $('mes-proximo'),
@@ -175,7 +182,7 @@
     consulta: '', ordem: 'az', comissao: 0, desconto: 0,
     nome: '', fornecedor: null, verTodosFornecedores: false, consultaMostrada: '',
     filtroParados: false, ordemAntesParados: 'az', selecionando: false, selecionados: new Map(),
-    filtroVendidos: false, ordemAntesVendidos: 'az', maisVendidos: null,
+    filtroVendidos: false, ordemAntesVendidos: 'az', maisVendidos: null, categoria: null,
     semEstoqueLojas: new Map(), filtroSemEstoque: false, soComEstoque: false,
     selecionandoAnuncios: false, anunciosSelecionados: new Set(),
     custos: null, origemCustos: null, imposto: 0, mesVendas: null,
@@ -260,11 +267,12 @@
   // Mesmo produto nas duas lojas (o servidor acha pelas descrições, nunca pelo código, que é interno
   // de cada sistema): Igaporã mostra o nome e o fornecedor de Matina, e as fotos valem para os dois.
   // "Mais vendidos" (dados/mais-vendidos.json, montado pelo servidor com o relatório de vendas):
-  // posição de cada produto na ordem da sua loja, do que mais saiu nos últimos 12 meses.
+  // posição de cada produto na ordem da sua loja, do que mais saiu nos últimos 12 meses, e quantos saíram.
   function mapaDeVendas() {
     const mapa = new Map();
     for (const [lojaId, ordem] of Object.entries((estado.maisVendidos && estado.maisVendidos.lojas) || {})) {
-      (ordem.codigos || []).forEach((codigo, posicao) => mapa.set(`${lojaId}:${codigo}`, posicao));
+      const quantidades = ordem.quantidades || [];
+      (ordem.codigos || []).forEach((codigo, posicao) => mapa.set(`${lojaId}:${codigo}`, { posicao, quantidade: quantidades[posicao] }));
     }
     return mapa;
   }
@@ -334,11 +342,22 @@
       return Object.assign({}, p, {
         _loja: loja, _chave: `${loja}:${p.codigo}`,
         _ordem: ordem, _nome: nome, _nomeEspaco: ' ' + nome, _busca: busca, _codigo: codigo, _diasParado: diasParado,
-        _vendas: vendas.get(`${loja}:${p.codigo}`) ?? null,
+        _vendas: (vendas.get(`${loja}:${p.codigo}`) || {}).posicao ?? null,
+        _vendidos: (vendas.get(`${loja}:${p.codigo}`) || {}).quantidade ?? null,
         _semEstoque: Boolean(semEstoque),
       });
     });
     estado.porChave = new Map(estado.produtos.map((p) => [p._chave, p]));
+    // "Mais vendidos": em cada loja, os primeiros da ordem de vendas que estão em estoque
+    const vendidosPorLoja = new Map();
+    for (const p of estado.produtos) {
+      if (p._semEstoque || p._vendas == null) continue;
+      if (!vendidosPorLoja.has(p._loja)) vendidosPorLoja.set(p._loja, []);
+      vendidosPorLoja.get(p._loja).push(p);
+    }
+    for (const lista of vendidosPorLoja.values()) {
+      lista.sort((a, b) => a._vendas - b._vendas).slice(0, MAIS_VENDIDOS_NA_LISTA).forEach((p) => { p._maisVendido = true; });
+    }
   }
 
   function variantes(termo) {
@@ -381,15 +400,24 @@
 
   // Com um fornecedor escolhido, a busca fica só nos produtos dele.
   const parado = (p) => !p._semEstoque && p._diasParado != null && p._diasParado >= DIAS_PARADO;
-  const maisVendido = (p) => !p._semEstoque && p._vendas != null;
+  const maisVendido = (p) => p._maisVendido === true;
   // Sem estoque (preço para encomenda) só aparece na busca digitada e no filtro de fornecedor (depois
   // dos com estoque) e na pílula "Sem estoque"; nunca na lista inicial, nas categorias nem nos parados.
   const mostraSemEstoque = () => estado.filtroSemEstoque
-    || (!estado.filtroParados && !estado.filtroVendidos && !estado.soComEstoque && (estado.consulta.trim() !== '' || Boolean(estado.fornecedor)));
+    || (!estado.filtroParados && !estado.filtroVendidos && !estado.categoria && !estado.soComEstoque
+      && (estado.consulta.trim() !== '' || Boolean(estado.fornecedor)));
   const baseDaBusca = () => estado.produtos.filter((p) => (estado.filtroSemEstoque ? p._semEstoque : !p._semEstoque || mostraSemEstoque())
     && (!estado.fornecedor || p.fornecedor === estado.fornecedor) && (!estado.filtroParados || parado(p))
-    && (!estado.filtroVendidos || maisVendido(p)));
+    && (!estado.filtroVendidos || maisVendido(p)) && (!estado.categoria || daCategoria(estado.categoria).has(p)));
 
+  // Categoria (Colchão, Guarda-roupa...): os produtos com estoque que a busca pelo nome dela acha.
+  const produtosPorCategoria = new WeakMap(); // produtos da seleção -> nome da categoria -> produtos
+  function daCategoria(termo) {
+    if (!produtosPorCategoria.has(estado.produtos)) produtosPorCategoria.set(estado.produtos, new Map());
+    const porTermo = produtosPorCategoria.get(estado.produtos);
+    if (!porTermo.has(termo)) porTermo.set(termo, new Set(buscar(termo, estado.produtos.filter((p) => !p._semEstoque))));
+    return porTermo.get(termo);
+  }
   function buscar(consulta, base = baseDaBusca()) {
     const termos = normalizar(consulta).split(' ').filter((t) => t && !IGNORAR.has(t));
     if (!termos.length) return base.slice();
@@ -778,6 +806,13 @@
     return `<span class="selo-parado" title="Parado há ${tempo}">${icone('ampulheta')}${tempo}</span>`;
   }
 
+  // Quantos saíram em 12 meses: aparece só com o filtro "Mais vendidos".
+  function seloVendidoHTML(p) {
+    if (!estado.filtroVendidos || !maisVendido(p) || p._vendidos == null) return '';
+    const texto = `${numero.format(p._vendidos)} ${p._vendidos === 1 ? 'vendido' : 'vendidos'}`;
+    return `<span class="selo-vendido" title="${texto} nos últimos 12 meses">${icone('fogo')}${texto}</span>`;
+  }
+
   function marcadorHTML(p, selecionado) {
     return `<button type="button" class="marcador" data-acao="selecionar" aria-pressed="${selecionado}" aria-label="Selecionar ${escapar(p.nome)}">${icone('check')}</button>`;
   }
@@ -786,7 +821,7 @@
     const id = `detalhes-${p._loja}-${p.codigo}`;
     const selecionado = estado.selecionados.has(p._chave);
     return `<li class="card${selecionado ? ' selecionado' : ''}" data-chave="${escapar(p._chave)}">
-  <div class="linha-nome">${marcadorHTML(p, selecionado)}<h2 class="nome" title="${escapar(p.nome)}">${escapar(p.nome)}</h2>${seloParadoHTML(p)}${seloNovoHTML(p)}${seloLojaHTML(p._loja)}</div>
+  <div class="linha-nome">${marcadorHTML(p, selecionado)}<h2 class="nome" title="${escapar(p.nome)}">${escapar(p.nome)}</h2>${seloVendidoHTML(p)}${seloParadoHTML(p)}${seloNovoHTML(p)}${seloLojaHTML(p._loja)}</div>
   <div class="linha-principal">
     ${precoHTML(p)}
     <div class="botoes">${estoqueHTML(p)}${botaoAnunciarHTML(p)}${botaoWhatsAppHTML(p, p._loja)}${botaoFotoHTML(p)}${botaoDetalhesHTML(p.nome, id, false)}</div>
@@ -851,6 +886,9 @@
     el.filtroFornecedor.hidden = !estado.fornecedor;
     el.filtroParados.hidden = !estado.filtroParados;
     el.filtroVendidos.hidden = !estado.filtroVendidos;
+    el.filtroCategoria.hidden = !estado.categoria;
+    el.filtroCategoriaNome.textContent = estado.categoria || '';
+    el.filtroCategoriaIcone.innerHTML = estado.categoria ? icone(iconeDaCategoria(estado.categoria)) : '';
     el.filtroSemEstoque.hidden = !estado.filtroSemEstoque;
     el.filtroFornecedorNome.textContent = estado.fornecedor || '';
     let fornecedoresHTML = '';
@@ -860,6 +898,9 @@
     } else if (estado.fornecedor) {
       if (!consulta) titulo = 'Nenhum produto deste fornecedor aqui';
       fornecedoresHTML = `<button type="button" class="botao-secundario" data-acao="tirar-fornecedor">${icone('cancelar')}Tirar o filtro de fornecedor</button>`;
+    } else if (estado.categoria) {
+      if (!consulta) titulo = 'Nenhum produto dessa categoria aqui';
+      fornecedoresHTML = `<button type="button" class="botao-secundario" data-acao="tirar-categoria">${icone('cancelar')}Tirar o filtro de ${escapar(estado.categoria.toLowerCase())}</button>`;
     } else if (estado.filtroVendidos) {
       if (!consulta) titulo = 'Nenhum dos mais vendidos aqui';
       fornecedoresHTML = `<button type="button" class="botao-secundario" data-acao="tirar-vendidos">${icone('cancelar')}Tirar o filtro de mais vendidos</button>`;
@@ -889,7 +930,6 @@
     el.sugestaoFornecedor.innerHTML = sugestao;
     el.sugestaoFornecedor.hidden = !sugestao;
     el.vazio.hidden = resultado.length > 0;
-    el.atalhos.hidden = semDados || consulta !== '' || !el.atalhos.children.length;
     atualizarBotaoSelecionar();
     carregarSePerto();
   }
@@ -928,40 +968,39 @@
     voltarAoTopoDaLista();
   }
 
-  // Classificadores: tocar de novo no que está ativo inverte a ordem
-  // (maior ↔ menor estoque, A → Z ↔ Z → A, menor ↔ maior preço).
-  function atualizarOrdens() {
-    const o = estado.ordem;
-    for (const botao of el.ordens.querySelectorAll('[data-ordem]')) {
-      const tipo = botao.dataset.ordem;
-      let ativo = o === 'mais-estoque' || o === 'menos-estoque';
-      let rotulo = o === 'menos-estoque' ? 'Menor estoque' : 'Maior estoque';
-      let descricao = o === 'menos-estoque' ? 'Do menor para o maior estoque' : 'Do maior para o menor estoque';
-      if (tipo === 'nome') {
-        ativo = o === 'az' || o === 'za';
-        rotulo = o === 'za' ? 'Z → A' : 'A → Z';
-        descricao = o === 'za' ? 'Nome de Z a A' : 'Nome de A a Z';
-      } else if (tipo === 'preco') {
-        ativo = o === 'menor' || o === 'maior';
-        rotulo = o === 'maior' ? 'Maior preço' : 'Menor preço';
-        descricao = o === 'maior' ? 'Do maior para o menor preço' : 'Do menor para o maior preço';
-      }
-      botao.setAttribute('aria-pressed', String(ativo));
-      botao.setAttribute('aria-label', descricao);
-      botao.title = descricao;
-      botao.querySelector('span').textContent = rotulo;
-    }
+  // Gavetinha "Ordenar". "Mais vendidos" e "Mais parados" só aparecem com o filtro deles.
+  const OPCOES_ORDEM = [
+    { id: 'vendidos', rotulo: 'Mais vendidos primeiro', curto: 'Mais vendidos', icone: 'fogo', so: () => estado.filtroVendidos },
+    { id: 'parado', rotulo: 'Mais parados primeiro', curto: 'Mais parados', icone: 'ampulheta', so: () => estado.filtroParados },
+    { id: 'az', rotulo: 'Nome: A → Z', curto: 'A → Z', icone: 'ordenar' },
+    { id: 'za', rotulo: 'Nome: Z → A', curto: 'Z → A', icone: 'ordenar' },
+    { id: 'mais-estoque', rotulo: 'Maior estoque', curto: 'Maior estoque', icone: 'caixa' },
+    { id: 'menos-estoque', rotulo: 'Menor estoque', curto: 'Menor estoque', icone: 'caixa' },
+    { id: 'menor', rotulo: 'Menor preço', curto: 'Menor preço', icone: 'moeda' },
+    { id: 'maior', rotulo: 'Maior preço', curto: 'Maior preço', icone: 'moeda' },
+  ];
+
+  function opcaoFolhaHTML({ atributos, marcada, nomeIcone, texto, quantidade, classe = '' }) {
+    return `<button type="button" class="folha-opcao ${classe}" role="radio" aria-checked="${Boolean(marcada)}" ${atributos}>`
+      + `${icone(nomeIcone)}<span class="folha-opcao-texto">${escapar(texto)}</span>`
+      + (quantidade != null ? `<span class="folha-opcao-qtd">${numero.format(quantidade)}</span>` : '')
+      + `${icone('check')}</button>`;
   }
 
-  function proximaOrdem(tipo) {
-    if (tipo === 'estoque') return estado.ordem === 'mais-estoque' ? 'menos-estoque' : 'mais-estoque';
-    if (tipo === 'preco') return estado.ordem === 'menor' ? 'maior' : 'menor';
-    return estado.ordem === 'az' ? 'za' : 'az';
+  function atualizarOrdens() {
+    const atual = OPCOES_ORDEM.find((o) => o.id === estado.ordem) || OPCOES_ORDEM.find((o) => o.id === 'az');
+    el.ordemAtual.textContent = atual.curto;
+    el.abrirOrdem.setAttribute('aria-label', `Ordem: ${atual.rotulo}`);
+    el.abrirOrdem.title = `Ordem: ${atual.rotulo}`;
+    el.opcoesOrdem.innerHTML = OPCOES_ORDEM.filter((o) => !o.so || o.so() || o.id === estado.ordem).map((o) => opcaoFolhaHTML({
+      atributos: `data-ordem="${o.id}"`, marcada: o.id === estado.ordem, nomeIcone: o.icone, texto: o.rotulo,
+    })).join('');
   }
 
   // Leva o começo da lista para logo abaixo do painel fixo, se a pessoa tiver rolado para baixo.
   function voltarAoTopoDaLista() {
-    const ancora = [el.filtroVendidos, el.filtroParados, el.filtroFornecedor, el.barraResultados].find((e) => !e.hidden) || el.lista;
+    const ancora = [el.filtroCategoria, el.filtroVendidos, el.filtroParados, el.filtroFornecedor, el.barraResultados]
+      .find((e) => !e.hidden) || el.lista;
     const alvo = ancora.getBoundingClientRect().top + window.scrollY - el.painel.offsetHeight - 8;
     if (window.scrollY > alvo) window.scrollTo(0, Math.max(0, alvo));
   }
@@ -987,27 +1026,38 @@
     return abrir;
   }
 
+  const iconeDaCategoria = (termo) => (ATALHOS.find(([nome]) => nome === termo) || [null, 'lista'])[1];
+
+  // Nome do filtro de lista escolhido (um de cada vez), para o botão "Filtrar".
+  const filtroDeLista = () => (estado.filtroVendidos && 'Mais vendidos') || (estado.filtroParados && 'Parados')
+    || (estado.filtroSemEstoque && 'Sem estoque') || estado.categoria || '';
+
+  // Gavetinha "Filtrar": todos os produtos, os filtros da lista e as categorias, com a quantidade de cada um.
   function montarAtalhos() {
     const doFornecedor = estado.produtos.filter((p) => !estado.fornecedor || p.fornecedor === estado.fornecedor);
     const comEstoque = doFornecedor.filter((p) => !p._semEstoque);
-    const parados = estado.filtroParados ? 0 : comEstoque.filter(parado).length;
-    const chipParados = parados
-      ? `<button type="button" class="atalho atalho-parados" data-acao="parados">${icone('ampulheta')}<span>Parados</span><span class="atalho-qtd">${parados}</span></button>`
-      : '';
-    const vendidos = estado.filtroVendidos ? 0 : comEstoque.filter(maisVendido).length;
-    const chipVendidos = vendidos
-      ? `<button type="button" class="atalho atalho-vendidos" data-acao="vendidos">${icone('fogo')}<span>Mais vendidos</span><span class="atalho-qtd">${vendidos}</span></button>`
-      : '';
-    const semEstoque = estado.filtroSemEstoque ? 0 : doFornecedor.length - comEstoque.length;
-    const chipSemEstoque = semEstoque
-      ? `<button type="button" class="atalho atalho-sem-estoque" data-acao="sem-estoque">${icone('caixa')}<span>Sem estoque</span><span class="atalho-qtd">${semEstoque}</span></button>`
-      : '';
-    el.atalhos.innerHTML = chipVendidos + chipParados + chipSemEstoque + ATALHOS.map(([termo, nomeIcone]) => {
-      const total = buscar(termo, comEstoque).length;
-      return total
-        ? `<button type="button" class="atalho" data-busca="${escapar(termo)}">${icone(nomeIcone)}<span>${escapar(termo)}</span><span class="atalho-qtd">${total}</span></button>`
-        : '';
-    }).join('');
+    const filtros = [
+      { acao: 'todos', texto: 'Todos os produtos', nomeIcone: 'lista', quantidade: comEstoque.length, marcada: !filtroDeLista() },
+      { acao: 'vendidos', texto: 'Mais vendidos', nomeIcone: 'fogo', quantidade: comEstoque.filter(maisVendido).length,
+        marcada: estado.filtroVendidos, classe: 'folha-vendidos' },
+      { acao: 'parados', texto: 'Parados', nomeIcone: 'ampulheta', quantidade: comEstoque.filter(parado).length,
+        marcada: estado.filtroParados, classe: 'folha-parados' },
+      { acao: 'sem-estoque', texto: 'Sem estoque', nomeIcone: 'caixa', quantidade: doFornecedor.length - comEstoque.length,
+        marcada: estado.filtroSemEstoque },
+    ].filter((f) => f.acao === 'todos' || f.quantidade || f.marcada);
+    const categorias = ATALHOS.map(([termo, nomeIcone]) => ({ termo, nomeIcone, quantidade: buscar(termo, comEstoque).length }))
+      .filter((c) => c.quantidade || c.termo === estado.categoria);
+    el.atalhos.innerHTML = filtros.map((f) => opcaoFolhaHTML({ ...f, atributos: `data-acao="${f.acao}"` })).join('')
+      + (categorias.length ? '<p class="folha-separador" role="presentation">Categorias</p>' : '')
+      + categorias.map((c) => opcaoFolhaHTML({
+        atributos: `data-categoria="${escapar(c.termo)}"`, marcada: c.termo === estado.categoria,
+        nomeIcone: c.nomeIcone, texto: c.termo, quantidade: c.quantidade,
+      })).join('');
+    const ativo = filtroDeLista();
+    el.filtroAtual.textContent = ativo || 'Filtrar';
+    el.abrirFiltro.classList.toggle('ativo', Boolean(ativo));
+    el.abrirFiltro.setAttribute('aria-label', ativo ? `Filtro: ${ativo}` : 'Filtrar os produtos');
+    el.abrirFiltro.title = ativo ? `Filtro: ${ativo}` : 'Filtrar os produtos';
   }
 
   // Mesmo estilo das abas de baixo: "Todas as lojas" e uma aba para cada loja.
@@ -1900,6 +1950,7 @@
 
   // "Mais vendidos": os que mais saíram nos últimos 12 meses, do que mais saiu para o que menos.
   function ativarVendidos() {
+    estado.categoria = null;
     estado.filtroParados = false;
     if (estado.ordem === 'parado') estado.ordem = estado.ordemAntesParados || 'az';
     estado.filtroSemEstoque = false;
@@ -1932,6 +1983,7 @@
 
   function ativarParados() {
     sairDeVendidos();
+    estado.categoria = null;
     estado.filtroSemEstoque = false;
     estado.soComEstoque = false;
     estado.filtroParados = true;
@@ -1950,6 +2002,7 @@
   // "Sem estoque": produtos que acabaram (comprados nos últimos meses), com o preço para encomenda.
   function ativarSemEstoque() {
     sairDeVendidos();
+    estado.categoria = null;
     estado.filtroParados = false;
     if (estado.ordem === 'parado') estado.ordem = estado.ordemAntesParados || 'az';
     estado.filtroSemEstoque = true;
@@ -1969,6 +2022,77 @@
     montarAtalhos();
     atualizarLista();
     voltarAoTopoDaLista();
+  }
+
+  // Categoria escolhida na gavetinha: a busca e a ordem valem dentro dela.
+  function ativarCategoria(termo) {
+    sairDeVendidos();
+    estado.filtroParados = false;
+    if (estado.ordem === 'parado') estado.ordem = estado.ordemAntesParados || 'az';
+    estado.filtroSemEstoque = false;
+    estado.soComEstoque = false;
+    estado.categoria = termo;
+    clearTimeout(esperaBusca);
+    el.busca.value = '';
+    el.limpar.hidden = true;
+    estado.consulta = '';
+    atualizarOrdens();
+    montarAtalhos();
+    atualizarLista();
+    voltarAoTopoDaLista();
+  }
+
+  function desativarCategoria() {
+    estado.categoria = null;
+    montarAtalhos();
+    atualizarLista();
+    voltarAoTopoDaLista();
+  }
+
+  // "Todos os produtos": tira o filtro de lista (o de fornecedor continua).
+  function tirarFiltrosDeLista() {
+    sairDeVendidos();
+    estado.filtroParados = false;
+    if (estado.ordem === 'parado') estado.ordem = estado.ordemAntesParados || 'az';
+    estado.filtroSemEstoque = false;
+    estado.categoria = null;
+    atualizarOrdens();
+    montarAtalhos();
+    atualizarLista();
+    voltarAoTopoDaLista();
+  }
+
+  // Gavetinhas "Ordenar" e "Filtrar": sobem de baixo; tocar fora, no X ou Esc fecha.
+  let folhaAberta = null;
+  let botaoDaFolha = null;
+
+  function abrirFolha(folha, botao) {
+    fecharFolha(false);
+    if (folha === el.folhaFiltro) montarAtalhos();
+    else atualizarOrdens();
+    folhaAberta = folha;
+    botaoDaFolha = botao;
+    el.camadaFolha.hidden = false;
+    folha.hidden = false;
+    botao.setAttribute('aria-expanded', 'true');
+    travarFundo(true);
+    const marcada = folha.querySelector('[aria-checked="true"]') || folha.querySelector('.folha-opcao');
+    if (marcada) {
+      marcada.focus({ preventScroll: true });
+      marcada.scrollIntoView({ block: 'nearest' });
+    }
+  }
+
+  function fecharFolha(devolverFoco = true) {
+    if (!folhaAberta) return;
+    folhaAberta.hidden = true;
+    el.camadaFolha.hidden = true;
+    botaoDaFolha.setAttribute('aria-expanded', 'false');
+    travarFundo(false);
+    const botao = botaoDaFolha;
+    folhaAberta = null;
+    botaoDaFolha = null;
+    if (devolverFoco) botao.focus({ preventScroll: true });
   }
 
   function desativarParados() {
@@ -3581,7 +3705,8 @@
   el.camadaGaveta.addEventListener('click', fecharGaveta);
   document.addEventListener('keydown', (evento) => {
     if (evento.key !== 'Escape') return;
-    if (!el.rv.hidden) fecharRelatorioVendas();
+    if (folhaAberta) fecharFolha();
+    else if (!el.rv.hidden) fecharRelatorioVendas();
     else if (!el.modalIguais.hidden) fecharIguais();
     else if (!el.modalComprovante.hidden) fecharComprovante();
     else if (!el.modalVenda.hidden) fecharVenda();
@@ -3595,10 +3720,19 @@
     el.nomeInicial.removeAttribute('aria-invalid');
   });
 
-  el.ordens.addEventListener('click', (evento) => {
+  el.abrirOrdem.addEventListener('click', () => abrirFolha(el.folhaOrdem, el.abrirOrdem));
+  el.abrirFiltro.addEventListener('click', () => abrirFolha(el.folhaFiltro, el.abrirFiltro));
+  el.camadaFolha.addEventListener('click', () => fecharFolha());
+  for (const folha of [el.folhaOrdem, el.folhaFiltro]) {
+    folha.addEventListener('click', (evento) => {
+      if (evento.target.closest('[data-fechar-folha]')) fecharFolha();
+    });
+  }
+  el.opcoesOrdem.addEventListener('click', (evento) => {
     const botao = evento.target.closest('[data-ordem]');
     if (!botao) return;
-    estado.ordem = proximaOrdem(botao.dataset.ordem);
+    estado.ordem = botao.dataset.ordem;
+    fecharFolha();
     atualizarOrdens();
     atualizarLista();
     voltarAoTopoDaLista();
@@ -3623,6 +3757,8 @@
       if (primeiro) primeiro.focus();
     } else if (botao.dataset.acao === 'tirar-fornecedor') {
       limparFornecedor();
+    } else if (botao.dataset.acao === 'tirar-categoria') {
+      desativarCategoria();
     } else if (botao.dataset.acao === 'tirar-vendidos') {
       desativarVendidos();
     } else if (botao.dataset.acao === 'tirar-parados') {
@@ -3634,6 +3770,7 @@
 
   el.filtroParadosLimpar.addEventListener('click', desativarParados);
   el.filtroVendidosLimpar.addEventListener('click', desativarVendidos);
+  el.filtroCategoriaLimpar.addEventListener('click', desativarCategoria);
   el.filtroSemEstoqueLimpar.addEventListener('click', desativarSemEstoque);
   el.selecionar.addEventListener('click', entrarSelecao);
   el.selecionarAnuncios.addEventListener('click', entrarSelecaoAnuncios);
@@ -3650,26 +3787,14 @@
   });
 
   el.atalhos.addEventListener('click', (evento) => {
-    const botao = evento.target.closest('.atalho');
+    const botao = evento.target.closest('.folha-opcao');
     if (!botao) return;
-    if (botao.dataset.acao === 'vendidos') {
-      ativarVendidos();
-      return;
-    }
-    if (botao.dataset.acao === 'parados') {
-      ativarParados();
-      return;
-    }
-    if (botao.dataset.acao === 'sem-estoque') {
-      ativarSemEstoque();
-      return;
-    }
-    el.busca.value = botao.dataset.busca;
-    el.limpar.hidden = false;
-    estado.consulta = botao.dataset.busca;
-    estado.soComEstoque = true; // categoria: só o que tem estoque
-    atualizarLista();
-    voltarAoTopoDaLista();
+    fecharFolha();
+    if (botao.dataset.categoria) ativarCategoria(botao.dataset.categoria);
+    else if (botao.dataset.acao === 'vendidos') ativarVendidos();
+    else if (botao.dataset.acao === 'parados') ativarParados();
+    else if (botao.dataset.acao === 'sem-estoque') ativarSemEstoque();
+    else tirarFiltrosDeLista();
   });
 
   el.lojas.addEventListener('click', (evento) => {

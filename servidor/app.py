@@ -20,8 +20,8 @@ A página chama este servidor quando um administrador envia os relatórios do Co
 
 O preço de compra (coluna "Custo de Compra" do relatório) NUNCA vai para o GitHub nem para o site:
 fica num armazenamento privado do Google Cloud Storage e só sai daqui para quem tem a chave.
-O relatório de vendas (faturamento e custo) também: para o site vai só a ordem dos produtos que
-mais saíram, sem quantidades nem valores.
+O relatório de vendas (faturamento e custo) também: para o site vão só os produtos que mais saíram
+e quantos de cada um, sem valores.
 
 Os dados são montados pelo mesmo código do comando de terminal (ferramentas/atualizar_estoque.py),
 com as correções de nome e fornecedor mais recentes do repositório. O custo de compra nunca é gravado.
@@ -715,9 +715,9 @@ def preco_de_compra():
 
 # ---------------------------------------------------------------- relatório de vendas (só administrador)
 
-LEIA_ME_MAIS_VENDIDOS = ("Produtos que mais saíram nos últimos 12 meses em cada loja (quantidade vendida), do que "
-                         "mais saiu para o que menos: só a ordem dos códigos, sem quantidades nem valores. Montado "
-                         "pelo servidor a cada relatório de vendas enviado pelo administrador.")
+LEIA_ME_MAIS_VENDIDOS = ("Produtos vendidos nos últimos 12 meses em cada loja, do que mais saiu para o que menos: "
+                         "os códigos e a quantidade vendida de cada um, sem valores. Montado pelo servidor a cada "
+                         "relatório de vendas enviado pelo administrador.")
 
 
 def _json_comprimido(dados):

@@ -17,10 +17,18 @@ aceita ao compartilhar.
 Saída: fotos/<id>/N.jpg, dados/fotos.json (nome do sistema -> caminhos) e
 ferramentas/fotos_relatorio.json (nota e origem de cada produto, para conferência).
 
-Uso (Pillow e requests):
+Com juiz (modos vtex-jev e navegador): a regra de nome só barra o que é certamente outro produto
+(cor, "com/sem" ou acessório diferente) e o Jev (TypeSafe, pela OpenRouter) escolhe, entre os
+anúncios que sobram, qual é o mesmo produto, ou nenhum. Esses modos só olham os produtos com
+estoque que ainda não têm foto (nem a do mesmo produto na outra loja).
+
+Uso (Pillow, requests e, no modo navegador, websocket-client):
   python buscar_fotos.py vtex      [--trabalhadores 6] [--limite N]
   python buscar_fotos.py google    [--trabalhadores 4] [--limite N]
-  python buscar_fotos.py revalidar   # reaplica a regra de cor nos já aceitos
+  python buscar_fotos.py vtex-jev  [--trabalhadores 4] [--limite N]
+  python buscar_fotos.py navegador [--limite N]   # Google Imagens; antes: sh ferramentas/fotos-chrome-dedicado.sh start
+  python buscar_fotos.py completo  [--limite N]   # lojas VTEX + Google Imagens juntos (o jeito que mais acha)
+  python buscar_fotos.py revalidar   # reaplica a regra de cor nos já aceitos (os aprovados pelo Jev ficam)
 
 Cuidado com a máquina: poucos trabalhadores, download com teto de tamanho e imagem
 grande decodificada já reduzida. Rodar com `nice -n 10`.
@@ -34,10 +42,11 @@ import random
 import re
 import sys
 import threading
+import time
 import unicodedata
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urlencode, urljoin, urlparse
 
 import requests
 from PIL import Image
@@ -381,14 +390,103 @@ def aceitaveis(candidatos, nome):
     return [c for c in candidatos if confiavel(nome, c[1], c[0])]
 
 
-def baixar_fotos(prod, aceitos, max_paginas):
+# ------------------------------------------------------------------ juiz: Jev (TypeSafe, pela OpenRouter)
+# Uns US$ 0,00002 por produto. Sem resposta dele (rede, chave), vale a regra de antes.
+
+JEV_URL = "https://openrouter.ai/api/alpha/decisions"
+JEV_MODELO = "typesafe/jev-1.13"
+JEV_OBSERVACAO = ("A descrição da nossa loja vem do sistema, com abreviações e palavras cortadas. "
+                  "O preço do anúncio pode ser um pouco diferente do nosso.")
+# Uma pergunta por anúncio: com vários anúncios do mesmo produto numa pergunta só, a certeza se dividia
+# entre eles (três lojas vendendo a mesma bicicleta = 43% para cada).
+JEV_PERGUNTA = ("Este anúncio de loja online é exatamente o mesmo produto da nossa loja (mesmo tipo, mesmo modelo/linha, "
+                "mesma medida/tamanho e mesma cor quando as duas descrições informam)? Abreviação, palavra cortada ou "
+                "marca escrita só numa delas não tornam o produto diferente.")
+JEV_SIM = "É o mesmo produto."
+JEV_NAO = ("É outro produto (tipo, modelo/linha, medida ou cor diferente) ou a descrição é genérica demais para ter "
+           "certeza.")
+JEV_ACEITA = 0.85    # o Jev sozinho basta
+JEV_COM_REGRA = 0.7  # entre isto e JEV_ACEITA: só com o nome parecido e o fornecedor ou o preço confirmando
+JEV_CANDIDATOS = 8
+_chave_jev = []
+
+
+def chave_openrouter():
+    if not _chave_jev:
+        sys.path.insert(0, str(Path.home() / ".claude/skills/bitwarden-credentials/scripts"))
+        from bws_secret import get_secret
+        _chave_jev.append(get_secret("OPENROUTER_API_KEY") or "")
+    return _chave_jev[0]
+
+
+def perguntar_jev(produto, anuncio):
+    """Probabilidade de o anúncio ser o mesmo produto; None se o Jev não respondeu."""
+    corpo = {"model": JEV_MODELO, "state": {"produto_da_loja": produto, "anuncio": anuncio, "observacao": JEV_OBSERVACAO},
+             "questions": {"mesmo": {"type": "choice", "instructions": JEV_PERGUNTA,
+                                     "criteria": {"sim": JEV_SIM, "nao": JEV_NAO}}}}
+    for tentativa in range(3):
+        try:
+            r = requests.post(JEV_URL, json=corpo, timeout=40, headers={"Authorization": f"Bearer {chave_openrouter()}"})
+            if r.status_code == 200:
+                return round(float(r.json()["answers"]["mesmo"]["probabilities"].get("sim", 0)), 3)
+            if r.status_code in (401, 402, 403):
+                return None  # chave ou créditos da OpenRouter: fica a regra
+        except (requests.RequestException, KeyError, ValueError):
+            pass
+        time.sleep(2 * (tentativa + 1))
+    return None
+
+
+def texto_do_produto(prod):
+    preco = f" · R$ {prod['preco']:.2f}".replace(".", ",") if prod.get("preco", 0) > 1.5 else ""
+    return (f"{prod['nome']} · no sistema: {prod.get('nome_sistema', '')} · "
+            f"fornecedor: {prod.get('fornecedor') or 'não informado'}{preco}")
+
+
+def texto_do_anuncio(pag):
+    partes = [pag["nome"][:160]]
+    if pag.get("marca"):
+        partes.append(f"marca: {pag['marca']}")
+    if pag.get("preco"):
+        partes.append(f"R$ {pag['preco']:.2f}".replace(".", ","))
+    partes.append(urlparse(pag["url"]).netloc.replace("www.", ""))
+    return " · ".join(partes)
+
+
+def julgar_com_jev(prod, candidatos):
+    """(aceitos, [índice do melhor, probabilidade] ou None). Cada anúncio que passa nas travas é julgado
+    sozinho; sem resposta do Jev, vale a regra de antes."""
+    vivos = [c for c in candidatos if c[1]["nome"] > 0]  # cor, "com/sem" ou acessório diferente: fora
+    unicos, vistos = [], set()
+    for c in sorted(vivos, key=lambda c: -c[0]):  # o mesmo texto de anúncio vai uma vez só
+        chave = " ".join(palavras(c[2]["nome"]))
+        if chave not in vistos:
+            vistos.add(chave)
+            unicos.append(c)
+    unicos = unicos[:JEV_CANDIDATOS]
+    if not unicos:
+        return [], None
+    produto = texto_do_produto(prod)
+    with ThreadPoolExecutor(4) as grupo:
+        probs = list(grupo.map(lambda c: perguntar_jev(produto, texto_do_anuncio(c[2])), unicos))
+    if all(p is None for p in probs):
+        return aceitaveis(candidatos, prod["nome"]), None
+    probs = [p or 0.0 for p in probs]
+    melhor = max(range(len(unicos)), key=lambda i: probs[i])
+    confirmados = [c for c, p in zip(unicos, probs) if p >= JEV_ACEITA or (
+        p >= JEV_COM_REGRA and c[1]["nome"] >= 0.6 and (c[1]["fornecedor"] or c[1]["preco_proximo"]))]
+    confirmados.sort(key=lambda c: -probs[unicos.index(c)])
+    return confirmados, [melhor, probs[melhor]]
+
+
+def baixar_fotos(prod, aceitos, max_paginas, confirmados_pelo_juiz=False):
     pasta = PASTA_FOTOS / prod["id"]
     fotos, hashes, origens = [], [], []
     cores_nossas = [w for w in palavras(prod["nome"]) if w in CORES]
-    # Só fotos do MESMO produto: outras lojas entram apenas se venderem o mesmo nome
-    # (evita misturar dois modelos parecidos na mesma galeria).
+    # Só fotos do MESMO produto: sem o juiz, outras lojas entram apenas se venderem o mesmo nome
+    # (evita misturar dois modelos parecidos); com ele, cada anúncio aceito foi confirmado um a um.
     alvo = " ".join(palavras(aceitos[0][2]["nome"]))
-    mesmos = [c for c in aceitos if " ".join(palavras(c[2]["nome"])) == alvo]
+    mesmos = aceitos if confirmados_pelo_juiz else [c for c in aceitos if " ".join(palavras(c[2]["nome"])) == alvo]
     for nota, motivos, pag in mesmos[:max_paginas]:
         for u in pag["imagens"][:12]:
             if len(fotos) >= MAX_FOTOS:
@@ -422,13 +520,18 @@ def registro_base(prod, consulta, candidatos, modo):
                        for c in candidatos[:3]]}
 
 
-def concluir(prod, consulta, candidatos, modo, max_paginas):
-    aceitos = aceitaveis(candidatos, prod["nome"])
+def concluir(prod, consulta, candidatos, modo, max_paginas, juiz=False):
+    candidatos.sort(key=lambda c: -c[0])
+    aceitos, jev = julgar_com_jev(prod, candidatos) if juiz else (aceitaveis(candidatos, prod["nome"]), None)
     registro = registro_base(prod, consulta, candidatos, modo)
+    if jev is not None:
+        registro["jev"] = jev
+    if aceitos:
+        registro["escolhido"] = {"url": aceitos[0][2]["url"], "nome_loja": aceitos[0][2]["nome"][:160]}
     if not aceitos:
         registro["status"] = "sem_confianca" if candidatos else "nada_encontrado"
         return prod, [], registro
-    fotos, origens = baixar_fotos(prod, aceitos, max_paginas)
+    fotos, origens = baixar_fotos(prod, aceitos, max_paginas, confirmados_pelo_juiz=juiz and jev is not None)
     registro.update(status="ok" if fotos else "sem_imagem_valida", fotos=len(fotos), origens=origens)
     return prod, fotos, registro
 
@@ -497,7 +600,7 @@ def buscar_vtex(loja, termo):
     return paginas
 
 
-def processar_vtex(prod):
+def candidatos_vtex(prod, parar_quando_bastar=False):
     termos = termos_vtex(prod)
     candidatos = []
     lojas = LOJAS_VTEX[:]
@@ -513,9 +616,14 @@ def processar_vtex(prod):
             if paginas:
                 break  # o termo mais específico já trouxe resultado nesta loja
         # já tem de onde tirar 6 fotos com confiança: não precisa perguntar às outras lojas
-        if sum(len(c[2]["imagens"]) for c in aceitaveis(list(candidatos), prod["nome"])) >= 10:
+        if parar_quando_bastar and sum(len(c[2]["imagens"]) for c in aceitaveis(list(candidatos), prod["nome"])) >= 10:
             break
-    return concluir(prod, " | ".join(termos), candidatos, "vtex", 4)
+    return termos, candidatos
+
+
+def processar_vtex(prod, juiz=False):
+    termos, candidatos = candidatos_vtex(prod, parar_quando_bastar=not juiz)
+    return concluir(prod, " | ".join(termos), candidatos, "vtex-jev" if juiz else "vtex", 4, juiz=juiz)
 
 
 # ------------------------------------------------------------------ caminho 2: Google (Serper)
@@ -541,6 +649,149 @@ def processar_google(prod, chave):
     return reg
 
 
+# ------------------------------------------------------------------ caminho 3: Chrome dedicado (Google, senão Bing)
+
+class Bloqueado(Exception):
+    """O buscador pediu verificação ("não sou robô"): a automação nunca resolve, só para."""
+
+
+# Modo imagem: cada foto traz o endereço da página da loja e o texto "título / loja · preço".
+JS_GOOGLE_IMAGENS = r"""(() => {
+  const texto = document.body ? document.body.innerText : '';
+  if (location.pathname.startsWith('/sorry') || location.hostname.startsWith('consent.')
+      || document.querySelector('#captcha-form, iframe[src*="recaptcha"]') || /tráfego incomum|unusual traffic/i.test(texto)) {
+    return { bloqueado: true };
+  }
+  return { itens: [...document.querySelectorAll('[data-lpage]')].map((d) => {
+    const linhas = d.innerText.split('\n').map((l) => l.trim()).filter(Boolean);
+    return { link: d.getAttribute('data-lpage'), title: linhas[0] || '', snippet: linhas.slice(1).join(' · ') };
+  }) };
+})()"""
+
+JS_BING_IMAGENS = r"""(() => {
+  const texto = document.body ? document.body.innerText : '';
+  if (document.querySelector('#b_captcha, .b_captcha') || /verifique que você é humano|confirm you are human/i.test(texto)) {
+    return { bloqueado: true };
+  }
+  return { itens: [...document.querySelectorAll('a.iusc')].map((a) => {
+    try {
+      const m = JSON.parse(a.getAttribute('m'));
+      return { link: m.purl, title: m.t || '', snippet: '' };
+    } catch (e) { return null; }
+  }).filter(Boolean) };
+})()"""
+
+
+class Navegador:
+    """Chrome dedicado (sh ferramentas/fotos-chrome-dedicado.sh start), uma busca por vez no modo imagem, com
+    pausa de gente entre elas. Começa pelo Google Imagens; se ele pedir verificação, passa para o Bing Imagens."""
+
+    PORTA = 9231
+    PERFIL = "estoque-fotos-chrome-profile"
+
+    def __init__(self):
+        import subprocess
+        import websocket  # websocket-client
+        # só fala com o Chrome do perfil de fotos: a porta de outra automação nunca recebe comando
+        donos = set(subprocess.run(["lsof", "-tiTCP:%d" % self.PORTA, "-sTCP:LISTEN"], capture_output=True, text=True).stdout.split())
+        nossos = set(subprocess.run(["pgrep", "-f", self.PERFIL], capture_output=True, text=True).stdout.split())
+        if not donos or not donos <= nossos:
+            raise SystemExit(f"A porta {self.PORTA} não é do Chrome das fotos: rode sh ferramentas/fotos-chrome-dedicado.sh start")
+        base = f"http://127.0.0.1:{self.PORTA}"
+        abas = requests.get(f"{base}/json", timeout=5).json()
+        aba = next((a for a in abas if a.get("type") == "page"), None) or requests.put(f"{base}/json/new?about:blank", timeout=5).json()
+        self.ws = websocket.create_connection(aba["webSocketDebuggerUrl"], timeout=40, origin=base)
+        self.id = 0
+        self.motor = "google"
+        self.ultima = 0.0
+
+    def comando(self, metodo, params=None):
+        self.id += 1
+        meu = self.id
+        self.ws.send(json.dumps({"id": meu, "method": metodo, "params": params or {}}))
+        while True:
+            msg = json.loads(self.ws.recv())
+            if msg.get("id") == meu:
+                if "error" in msg:
+                    raise RuntimeError(msg["error"].get("message"))
+                return msg.get("result", {})
+
+    def avaliar(self, js):
+        r = self.comando("Runtime.evaluate", {"expression": js, "returnByValue": True})
+        return (r.get("result") or {}).get("value")
+
+    def abrir(self, url):
+        self.comando("Page.navigate", {"url": url})
+        time.sleep(1.5)
+        fim = time.time() + 25
+        while time.time() < fim and self.avaliar("document.readyState") != "complete":
+            time.sleep(0.5)
+        time.sleep(0.8)  # resultados que chegam logo depois do carregamento
+
+    def buscar(self, consulta):
+        espera = self.ultima + random.uniform(8, 14) - time.time()
+        if espera > 0:
+            time.sleep(espera)
+        self.ultima = time.time()
+        if self.motor == "google":
+            self.abrir("https://www.google.com/search?" + urlencode({"q": consulta, "udm": "2", "hl": "pt-BR", "gl": "br"}))
+            dados = self.avaliar(JS_GOOGLE_IMAGENS) or {}
+            if not dados.get("bloqueado"):
+                return dados.get("itens", [])
+            print("Google pediu verificação: as próximas buscas vão pelo Bing Imagens", flush=True)
+            self.motor = "bing"
+        self.abrir("https://www.bing.com/images/search?" + urlencode({"q": consulta, "setlang": "pt-br", "cc": "BR"}))
+        dados = self.avaliar(JS_BING_IMAGENS) or {}
+        if dados.get("bloqueado"):
+            raise Bloqueado("o Bing também pediu verificação")
+        return dados.get("itens", [])
+
+
+def candidatos_navegador(prod, navegador):
+    consulta = prod["nome"] + (f" {prod['busca_foto']}" if prod.get("busca_foto") else "")
+    resultados = navegador.buscar(consulta)
+    # as fotos mais parecidas pelo título (que costuma vir cortado, sem a cor); uma vez cada página
+    notas, vistos = [], set()
+    for res in resultados:
+        url = res.get("link") or ""
+        if not url.startswith("http") or any(s in urlparse(url).netloc for s in IGNORAR):
+            continue
+        base = re.sub(r"[?#].*$", "", url)
+        nota = pontuar_nome(prod["nome"], res.get("title", "") + " " + res.get("snippet", ""), exigir_cor=False)
+        if nota >= 0.4 and base not in vistos:
+            vistos.add(base)
+            notas.append((nota, url))
+    urls = [url for _, url in sorted(notas, key=lambda n: -n[0])[:8]]
+    with ThreadPoolExecutor(3) as grupo:
+        paginas = list(grupo.map(ler_pagina, urls))
+    candidatos = []
+    for pag in paginas:
+        if pag and pag["imagens"]:
+            nota, motivos = avaliar(prod, pag)
+            candidatos.append((nota, motivos, pag))
+    return consulta, resultados, candidatos
+
+
+def processar_navegador(prod, navegador):
+    consulta, resultados, candidatos = candidatos_navegador(prod, navegador)
+    reg = concluir(prod, consulta, candidatos, "navegador", 2, juiz=True)
+    reg[2]["resultados_busca"] = [{k: r.get(k) for k in ("title", "link")} for r in resultados[:10]]
+    reg[2]["buscador"] = navegador.motor
+    return reg
+
+
+def processar_completo(prod, navegador):
+    """Lojas VTEX e modo imagem juntos (as lojas respondem enquanto o navegador busca); o Jev julga cada anúncio."""
+    with ThreadPoolExecutor(1) as fundo:
+        vtex = fundo.submit(candidatos_vtex, prod)
+        consulta, resultados, candidatos = candidatos_navegador(prod, navegador)
+        _, dos_vtex = vtex.result()
+    reg = concluir(prod, consulta, candidatos + dos_vtex, "completo", 4, juiz=True)
+    reg[2]["resultados_busca"] = [{k: r.get(k) for k in ("title", "link")} for r in resultados[:10]]
+    reg[2]["buscador"] = navegador.motor
+    return reg
+
+
 # ------------------------------------------------------------------ execução
 
 def carregar_produtos():
@@ -552,6 +803,35 @@ def carregar_produtos():
     for sistema, p in unicos.items():
         p["id"] = hashlib.sha1(sistema.encode()).hexdigest()[:10]
     return unicos
+
+
+def sem_foto_em_estoque(fotos):
+    """Produtos com estoque sem foto nenhuma (nem a própria, nem a do mesmo produto na outra loja).
+    O ligado a um produto de Matina é buscado pelo de Matina (nome mais limpo): a foto vale para os dois."""
+    estoque = {loja: {p["codigo"]: p for p in json.loads((RAIZ / "dados" / f"{loja}.json").read_text(encoding="utf-8"))["produtos"]}
+               for loja in LOJAS}
+    pares = ler_json(RAIZ / "dados" / "vinculos.json").get("pares", [])
+    ida = {(v["de"], v["codigo"]): v for v in pares}
+    volta = {}
+    for v in pares:
+        outro = estoque.get(v["de"], {}).get(v["codigo"])
+        if outro:
+            volta.setdefault((v["para"], v["codigo_para"]), []).append(outro["nome_sistema"])
+    alvos = {}
+    for loja, produtos in estoque.items():
+        for codigo, p in produtos.items():
+            v = ida.get((loja, codigo))
+            sistemas = [p["nome_sistema"]] + ([v["sistema_para"]] if v else []) + volta.get((loja, codigo), [])
+            if any(fotos.get(s) for s in sistemas):
+                continue
+            alvo = dict(p)
+            if v:
+                alvo.update(nome=v["nome"], nome_sistema=v["sistema_para"], fornecedor=v.get("fornecedor") or p.get("fornecedor"),
+                            busca_foto=v.get("busca_foto") or p.get("busca_foto"))
+            alvos.setdefault(alvo["nome_sistema"], alvo)
+    for sistema, p in alvos.items():
+        p["id"] = hashlib.sha1(sistema.encode()).hexdigest()[:10]
+    return alvos
 
 
 def ler_json(arq):
@@ -570,6 +850,8 @@ def revalidar():
     tirados = []
     for sistema in list(fotos):
         reg = relatorio.get(sistema) or {}
+        if reg.get("escolhido") and (reg.get("jev") or [-1])[0] >= 0:
+            continue  # aprovado pelo Jev: a regra de nome é só trava, não juiz
         prod = produtos.get(sistema, {})
         marcas = [m for m in (prod.get("marca"), prod.get("busca_foto")) if m]
         opcoes = reg.get("melhor") or [{}]
@@ -589,7 +871,7 @@ def revalidar():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("modo", choices=["vtex", "google", "revalidar"])
+    ap.add_argument("modo", choices=["vtex", "google", "vtex-jev", "navegador", "completo", "revalidar"])
     ap.add_argument("--limite", type=int, default=0)
     ap.add_argument("--trabalhadores", type=int, default=6)
     args = ap.parse_args()
@@ -606,7 +888,8 @@ def main():
 
     fotos, relatorio = ler_json(ARQ_FOTOS), ler_json(ARQ_RELATORIO)
     fila = []
-    for sistema, p in carregar_produtos().items():
+    produtos = sem_foto_em_estoque(fotos) if args.modo in ("vtex-jev", "navegador", "completo") else carregar_produtos()
+    for sistema, p in produtos.items():
         tentativas = (relatorio.get(sistema) or {}).get("tentativas", [])
         if sistema not in fotos and args.modo not in tentativas:
             p["_tentativas"] = tentativas
@@ -618,7 +901,31 @@ def main():
     print(f"{len(fila)} produtos na fila ({args.modo})", flush=True)
 
     trava, feitos, com_foto = threading.Lock(), 0, 0
-    tarefa = (lambda p: processar_google(p, chave)) if chave else processar_vtex
+    if args.modo in ("navegador", "completo"):  # uma busca por vez (o Chrome dedicado é um só)
+        navegador = Navegador()
+        processar = processar_completo if args.modo == "completo" else processar_navegador
+        for p in fila:
+            try:
+                prod, lista, reg = processar(p, navegador)
+            except Bloqueado as erro:
+                print(f"Parei: {erro}. O que já foi feito está salvo.", flush=True)
+                break
+            except Exception as erro:  # um produto com problema não para os outros
+                print("erro:", repr(erro)[:200], flush=True)
+                continue
+            feitos += 1
+            relatorio[prod["nome_sistema"]] = reg
+            if lista:
+                fotos[prod["nome_sistema"]] = lista
+                com_foto += 1
+            print(f"[{feitos}/{len(fila)}] {reg['status']:>18} {len(lista)} {prod['nome'][:60]}", flush=True)
+            if feitos % 10 == 0:
+                gravar(fotos, relatorio)
+        gravar(fotos, relatorio)
+        print(f"Pronto: {com_foto} produtos ganharam fotos nesta rodada. Total com fotos: {len(fotos)}", flush=True)
+        return
+    tarefa = ((lambda p: processar_google(p, chave)) if chave
+              else (lambda p: processar_vtex(p, juiz=True)) if args.modo == "vtex-jev" else processar_vtex)
     with ThreadPoolExecutor(args.trabalhadores) as ex:
         futuros = [ex.submit(tarefa, p) for p in fila]
         for f in as_completed(futuros):

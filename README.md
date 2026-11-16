@@ -175,14 +175,18 @@ Como funciona por dentro: a página envia os relatórios ao servidor `servidor/a
 dados com o mesmo código do comando de terminal (`ferramentas/atualizar_estoque.py`), compara com o que está no
 ar e, ao publicar, grava `dados/<loja>.json` no GitHub com uma chave de publicação que só escreve neste repositório.
 
-- Credenciais (nunca no código): Secret Manager `estoque-yella-chave-admin`, `estoque-yella-chave-equipe`,
-  `estoque-yella-deploy-key` e `estoque-yella-openrouter` (juiz do cruzamento), com cópia no Bitwarden
-  (`ESTOQUE_YELLA_CHAVE_ADMIN`, `ESTOQUE_YELLA_CHAVE_EQUIPE`, `ESTOQUE_YELLA_DEPLOY_KEY` e `OPENROUTER_API_KEY`). A chave de publicação aparece no GitHub em Settings → Deploy keys como
+- Credenciais (nunca no código): desde 16/11/2026, num segredo só do Secret Manager, `estoque-yella-segredos`
+  (um JSON com `CHAVE_ADMIN`, `CHAVE_EQUIPE`, `DEPLOY_KEY` e `OPENROUTER_API_KEY`, o juiz do cruzamento), com cópia
+  no Bitwarden (`ESTOQUE_YELLA_CHAVE_ADMIN`, `ESTOQUE_YELLA_CHAVE_EQUIPE`, `ESTOQUE_YELLA_DEPLOY_KEY` e
+  `OPENROUTER_API_KEY`). O servidor recebe o pacote e o comando de partida (`servidor/partida_cloudrun.sh`) o abre
+  antes de iniciar. A chave de publicação aparece no GitHub em Settings → Deploy keys como
   "Atualização de estoque (Cloud Run)".
-- Trocar o código da equipe (ex.: um vendedor saiu): grave o novo no Bitwarden e como nova versão de
-  `estoque-yella-chave-equipe`, rode `sh servidor/implantar.sh` e passe o novo aos vendedores.
-- Trocar a chave de administrador: grave o valor novo no Bitwarden e como nova versão de `estoque-yella-chave-admin`
-  no Secret Manager, e rode `sh servidor/implantar.sh` (o servidor passa a aceitar só a nova).
+- Trocar o código da equipe (ex.: um vendedor saiu): grave o novo no Bitwarden e leve ao pacote com
+  `python3 ~/.claude/scripts/pacote_de_chaves.py trocar estoque CHAVE_EQUIPE --do-bitwarden ESTOQUE_YELLA_CHAVE_EQUIPE --aplicar`,
+  e passe o novo aos vendedores.
+- Trocar a chave de administrador: grave o valor novo no Bitwarden e rode
+  `python3 ~/.claude/scripts/pacote_de_chaves.py trocar estoque CHAVE_ADMIN --do-bitwarden ESTOQUE_YELLA_CHAVE_ADMIN --aplicar`
+  (o servidor passa a aceitar só a nova). `ver estoque` lista os nomes e tamanhos do pacote, sem os valores.
 - Publicar uma mudança no servidor: `sh servidor/implantar.sh`.
 
 ### Relatório de vendas (administrador)
